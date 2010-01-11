@@ -3,6 +3,7 @@
 	<taskdef resource="flexTasks.tasks" classpath="${basedir}/flexTasks/lib/flexTasks.jar" />
 	<property name="FLEX_HOME" value="${FLEX_HOME}" />
 	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
+	<property name="UPLOAD_TO" value="${UPLOAD_TO}" />
 	<target name="main">
 		<mxmlc file="src/Example1.mxml"
 			output="bin/Example1.swf"
@@ -11,7 +12,10 @@
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
-		<exec executable="rsync">
-		</exec>
 	</target>
+	<target name="upload" depends="main">
+		<condition property="${UPLOAD_TO}">
+			<exec command="rsync -v -e ssh -a bin/ ${UPLOAD_TO}"/>
+		</condition>
+	</target>		
 </project>
