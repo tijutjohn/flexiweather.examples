@@ -5,13 +5,13 @@
 	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
 	<target name="main">
 		<mxmlc file="src/Example1.mxml"
+			output="bin/Example1.swf"
 			keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<exec executable="rsync">
-			<arg>-v</arg>
 		</exec>
 	</target>
 </project>
