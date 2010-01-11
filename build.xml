@@ -14,8 +14,6 @@
 		</mxmlc>
 	</target>
 	<target name="upload" depends="main">
-		<condition property="${UPLOAD_TO}">
-			<exec command="rsync -v -e ssh -a bin/ ${UPLOAD_TO}"/>
-		</condition>
+		<exec command="rsync -v -e ssh -a bin/ ${UPLOAD_TO}"/>
 	</target>		
 </project>
