@@ -3,6 +3,7 @@
 	<name>FlexiWeatherExamples</name>
 	<comment></comment>
 	<projects>
+		<project>FlexiWeather</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
