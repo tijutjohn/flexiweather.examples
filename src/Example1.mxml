@@ -34,19 +34,19 @@
 				l = new InteractiveLayerWMS(m_iw, lc);
 				l.setWMSStyleName(0, "white-colours");
 				m_iw.addLayer(l);
-				l.updateData();
+				l.refresh(true);
 
 				lc = new WMSLayerConfiguration(srv2, ["METAR"]);
 				lc.label = "METAR";
 				l = new InteractiveLayerWMS(m_iw, lc);
 				m_iw.addLayer(l);
-				l.updateData();
+				l.refresh(true);
 
 				lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
 				lc.label = "Overlays/Border lines";
 				l = new InteractiveLayerWMS(m_iw, lc);
 				m_iw.addLayer(l);
-				l.updateData();
+				l.refresh(true);
 				
 			}
 		]]>
