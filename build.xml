@@ -4,16 +4,28 @@
 	<property name="FLEX_HOME" value="${FLEX_HOME}" />
 	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
 	<property name="UPLOAD_TO" value="${UPLOAD_TO}" />
+	<property name="DISTDIR" value="bin" />
 	<target name="main">
 		<mxmlc file="src/Example1.mxml"
-			output="bin/Example1.swf"
+			output="${DISTDIR}/Example1.swf"
 			keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 	</target>
+	<target name="clean">
+		<delete dir="${DISTDIR}"/>
+	</target>
 	<target name="upload" depends="main">
-		<exec command="rsync -v -e ssh -a bin/ ${UPLOAD_TO}"/>
+		<exec executable="/usr/bin/rsync">
+			<arg value="-v"/>
+			<arg value="-e"/>
+			<arg value="ssh"/>
+			<arg value="-a"/>
+			<arg value="--delete"/>
+			<arg value="${DISTDIR}/"/>
+			<arg value="${UPLOAD_TO}"/>
+		</exec>
 	</target>		
 </project>
