@@ -4,6 +4,7 @@
 		creationComplete="onCreationComplete(event)">
 	<mx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.symbology.StyledLineCurveRenderer;
 			import com.iblsoft.flexiweather.symbology.FrontCurveRenderer;
 			import com.iblsoft.flexiweather.symbology.TurbulenceCurveRenderer;
 			import com.iblsoft.flexiweather.symbology.CloudCurveRenderer;
@@ -27,6 +28,8 @@
 					{ label: "SIGWX Jet Stream", renderer: new JetStreamCurveRenderer(canvas.graphics) },
 					{ label: "SIGWX Cloud", renderer: new CloudCurveRenderer(canvas.graphics) },
 					{ label: "SIGWX Turbulence", renderer: new TurbulenceCurveRenderer(canvas.graphics) },
+					{ label: "Solid black line", renderer: new StyledLineCurveRenderer(canvas.graphics, 1.0, 0x00000, 1, StyledLineCurveRenderer.STYLE_SOLID) },
+					{ label: "Dashed black line", renderer: new StyledLineCurveRenderer(canvas.graphics, 1.0, 0x00000, 1, StyledLineCurveRenderer.STYLE_DASHED) },
 				];
 				comboObjectType.selectedIndex = 0;
 				onShapeRandomN();
