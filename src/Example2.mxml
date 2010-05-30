@@ -130,6 +130,7 @@
 			}
 		]]>
 	</mx:Script>
+	<mx:Label text="This example demostrates rendering of smooth bezier curves with custom styling used for meteorological objects"/>
 	<mx:HBox>
 		<mx:Button label="Animate" toggle="true" click="onAnimateToggled()"/>
 		<mx:Label text="Met Objects:"/>

@@ -51,6 +51,7 @@
 			}
 		]]>
 	</mx:Script>
+	<mx:Label text="This example demonstrates basic OpenGIS WMS functionality, zooming, panning and change of projection reference system"/>
 	<mx:HBox>
 		<mx:Label text="Tools:"/>
 		<mx:Button label="Zoom (Ctrl)"
