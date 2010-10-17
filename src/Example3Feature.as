@@ -2,23 +2,28 @@ package
 {
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWFS;
 	import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableCurve;
+	import com.iblsoft.flexiweather.utils.AnnotationTextBox;
 	import com.iblsoft.flexiweather.utils.AnticollisionLayout;
 	
-	import flash.display.GradientType;
 	import flash.geom.Point;
-	import flash.geom.Rectangle;
 	
-	import mx.controls.ToolTip;
-
 	public class Example3Feature extends WFSFeatureEditableCurve
 	{
-		private var m_label: ToolTip;
+		private var m_label: AnnotationTextBox = new AnnotationTextBox();
 		private var ms_type: String;
 		
 		public function Example3Feature(s_type: String)
 		{
 			super('http://www.iblsoft.com/wfs/test', 'Example3FeatureWithLabel', null);
 			ms_type = s_type;
+		}
+
+		public override function setMaster(master: InteractiveLayerWFS): void
+		{
+			super.setMaster(master);
+			master.addChild(m_label);
+			master.container.labelLayout.addObstacle(this);
+			master.container.labelLayout.addObject(m_label, AnticollisionLayout.DISPLACE_AUTOMATIC);
 		}
 
 		public override function update(): void
@@ -52,28 +57,19 @@ package
 			if(/^filled-.*/.test(ms_type))
 				graphics.endFill();
 			
-			if(m_label == null) {
-				m_label = new ToolTip();
-				master.addChild(m_label);
-			}
-			m_label.text = "Hello World!\nThis is a label";
-			m_label.validateNow();
-			m_label.width = m_label.measuredWidth;
-			m_label.height = m_label.measuredHeight;
+			m_label.label.text = "Hello!\nI am a label which and I will not\ncover any feature if possible.";
+			m_label.update();
 			m_label.x = ptAvg.x - m_label.width / 2.0;
 			m_label.y = ptAvg.y - m_label.height / 2.0;
-
-			master.container.m_labelLayout.removeObject(this);
-			master.container.m_labelLayout.removeObject(m_label);
-			master.container.m_labelLayout.addObject(this, AnticollisionLayout.DISPLACE_NOT_ALLOWED);
-			master.container.m_labelLayout.addObject(m_label, AnticollisionLayout.DISPLACE_AUTOMATIC);
+			master.container.labelLayout.updateObjectReferenceLocation(m_label);
 		}
 
 		public override function cleanup(): void
 		{
 			super.cleanup();
-			if(m_label != null)
-				master.removeChild(m_label);
+			master.container.labelLayout.removeObject(this);
+			master.container.labelLayout.removeObject(m_label);
+			master.removeChild(m_label);
 		}
 	}
 }
