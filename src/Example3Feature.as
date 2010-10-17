@@ -21,9 +21,9 @@ package
 			ms_type = s_type;
 		}
 
-		public override function update(master: InteractiveLayerWFS): void
+		public override function update(): void
 		{
-			super.update(master);
+			super.update();
 			
 			graphics.clear();
 
@@ -69,9 +69,9 @@ package
 			master.container.m_labelLayout.addObject(m_label, AnticollisionLayout.DISPLACE_AUTOMATIC);
 		}
 
-		public override function cleanup(master: InteractiveLayerWFS): void
+		public override function cleanup(): void
 		{
-			super.cleanup(master);
+			super.cleanup();
 			if(m_label != null)
 				master.removeChild(m_label);
 		}
