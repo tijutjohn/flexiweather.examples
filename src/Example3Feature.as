@@ -4,10 +4,13 @@ package
 	import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableCurve;
 	import com.iblsoft.flexiweather.utils.AnnotationTextBox;
 	import com.iblsoft.flexiweather.utils.AnticollisionLayout;
+	import com.iblsoft.flexiweather.utils.geometry.ILineSegmentApproximableBounds;
+	import com.iblsoft.flexiweather.utils.geometry.LineSegment;
 	
+	import flash.display.DisplayObject;
 	import flash.geom.Point;
 	
-	public class Example3Feature extends WFSFeatureEditableCurve
+	public class Example3Feature extends WFSFeatureEditableCurve implements ILineSegmentApproximableBounds
 	{
 		private var m_label: AnnotationTextBox = new AnnotationTextBox();
 		private var ms_type: String;
@@ -21,9 +24,8 @@ package
 		public override function setMaster(master: InteractiveLayerWFS): void
 		{
 			super.setMaster(master);
-			master.addChild(m_label);
 			master.container.labelLayout.addObstacle(this);
-			master.container.labelLayout.addObject(m_label, AnticollisionLayout.DISPLACE_AUTOMATIC);
+			master.container.labelLayout.addObject(m_label, [this]);
 		}
 
 		public override function update(): void
@@ -66,10 +68,25 @@ package
 
 		public override function cleanup(): void
 		{
-			super.cleanup();
 			master.container.labelLayout.removeObject(this);
 			master.container.labelLayout.removeObject(m_label);
-			master.removeChild(m_label);
+			super.cleanup();
+		}
+
+		// ILineSegmentApproximableBounds implementation
+		public function getLineSegmentApproximationOfBounds(): Array
+		{
+			var a: Array = [];
+			var ptFirst: Point = null;
+			var ptPrev: Point = null;
+			for each(var pt: Point in getPoints()) {
+				if(ptPrev != null)
+					a.push(new LineSegment(ptPrev.x, ptPrev.y, pt.x, pt.y));
+				ptPrev = pt;
+			}
+			if(/.*polygon$/.test(ms_type) && ptFirst != null)
+				a.push(new LineSegment(ptPrev.x, ptPrev.y, ptFirst.x, ptFirst.y));
+			return a;
 		}
 	}
 }
