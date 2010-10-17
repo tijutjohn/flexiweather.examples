@@ -8,6 +8,7 @@
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
+			import com.iblsoft.flexiweather.ogc.WFSFeatureBase;
 			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
@@ -19,7 +20,7 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			
 			[Bindable]
-			private var m_featureLayer: InteractiveLayerWFS;
+			private var m_featureLayer: InteractiveLayerWFSEditable;
 			
 			private function onCreationComplete(event: Event): void
 			{
@@ -67,6 +68,13 @@
 				];
 				m_featureLayer.addFeature(fwl);
 			}
+			
+			protected function onDeleteFeature(): void
+			{
+				if(m_featureLayer.selectedItem == null)
+					return;
+				m_featureLayer.removeFeature(m_featureLayer.selectedItem as WFSFeatureBase);
+			}
 		]]>
 	</mx:Script>
 	<mx:Text text="This example demonstrates basic geospatial features functionality with inteligent label layouting."/>
@@ -100,7 +108,10 @@
 		<mx:Button label="New filled polygon" click="onAddNewFeature('filled-polygon')"/>
 		<mx:Button label="New polygon" click="onAddNewFeature('polygon')"/>
 		<mx:Button label="New polyline" click="onAddNewFeature('polyline')"/>
-		<mx:Button label="Show/hide" selected="{m_featureLayer.visible}" click="m_featureLayer.visible = !m_featureLayer.visible"/>
+		<mx:Spacer width="10"/>
+		<mx:Button label="Delete" click="onDeleteFeature()"/>
+		<mx:Spacer width="10"/>
+		<mx:Button label="Show/hide editor" selected="{m_featureLayer.visible}" click="m_featureLayer.visible = !m_featureLayer.visible"/>
 	</mx:HBox>
 	<mx:VBox width="100%" height="100%">
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
