@@ -94,6 +94,8 @@
 		<mx:Button label="South Polar Stereo"
 				   selected="{m_iw.crs == 'EPSG:102021'}" 
 				   click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+	</mx:HBox>
+	<mx:HBox id="hboxMenu2" width="100%" >
 		<mx:Label text="Editing:"/>
 		<mx:Button label="New filled polygon" click="onAddNewFeature('filled-polygon')"/>
 		<mx:Button label="New polygon" click="onAddNewFeature('polygon')"/>
