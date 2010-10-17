@@ -57,7 +57,7 @@ package
 			if(/^filled-.*/.test(ms_type))
 				graphics.endFill();
 			
-			m_label.label.text = "Hello!\nI am a label which and I will not\ncover any feature if possible.";
+			m_label.label.text = "Hello!\nI am a label and I try not to\ncover any feature if possible.";
 			m_label.update();
 			m_label.x = ptAvg.x - m_label.width / 2.0;
 			m_label.y = ptAvg.y - m_label.height / 2.0;
