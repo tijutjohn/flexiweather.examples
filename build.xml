@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Browsing Weather" basedir=".">
+	<taskdef resource="flexTasks.tasks" classpath="${basedir}/flexTasks/lib/flexTasks.jar" />
+	<property name="FLEX_HOME" value="${FLEX_HOME}" />
+	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
+	<property name="UPLOAD_TO" value="${UPLOAD_TO}" />
+	<property name="DISTDIR" value="bin" />
+	<target name="main">
+		<mxmlc file="src/Example1.mxml"
+			output="${DISTDIR}/Example1.swf"
+			keep-generated-actionscript="false">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<source-path path-element="${FLEX_HOME}/frameworks" />
+		</mxmlc>
+		<mxmlc file="src/Example2.mxml"
+			output="${DISTDIR}/Example2.swf"
+			keep-generated-actionscript="false">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<source-path path-element="${FLEX_HOME}/frameworks" />
+		</mxmlc>
+		<mxmlc file="src/Example3.mxml"
+			output="${DISTDIR}/Example3.swf"
+			keep-generated-actionscript="false">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<source-path path-element="${FLEX_HOME}/frameworks" />
+		</mxmlc>
+	</target>
+	<target name="clean">
+		<delete dir="${DISTDIR}"/>
+	</target>
+	<target name="upload" depends="main">
+		<exec executable="/usr/bin/rsync">
+			<arg value="-v"/>
+			<arg value="-e"/>
+			<arg value="ssh"/>
+			<arg value="-a"/>
+			<arg value="--delete"/>
+			<arg value="${DISTDIR}/"/>
+			<arg value="${UPLOAD_TO}"/>
+		</exec>
+	</target>		
+</project>
