@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Browsing Weather" basedir=".">
-	<taskdef resource="flexTasks.tasks" classpath="${basedir}/flexTasks/lib/flexTasks.jar" />
+	<taskdef resource="flexTasks.tasks">
+		<classpath>
+		    <pathelement path="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
+		</classpath>
+	</taskdef>
 	<property name="FLEX_HOME" value="${FLEX_HOME}" />
 	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
 	<property name="UPLOAD_TO" value="${UPLOAD_TO}" />
