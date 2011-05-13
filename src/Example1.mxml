@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
 		creationComplete="onCreationComplete(event)">
-	<mx:Script>
+	<fx:Script>
 		<![CDATA[
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
@@ -21,8 +22,8 @@
 			
 			private function onCreationComplete(event: Event): void
 			{
-				BackgroundJobManager.getInstance().createDefaultPreloader();
-				BackgroundJobManager.getInstance().setupIndicator(hboxMenu);
+				//BackgroundJobManager.getInstance().createDefaultPreloader();
+				//BackgroundJobManager.getInstance().setupIndicator(hboxMenu);
 
             	var scm: OGCServiceConfigurationManager =
             			OGCServiceConfigurationManager.getInstance();
@@ -70,50 +71,47 @@
 				var c: Coord = m_iw.pointToCoord(event.localX, event.localY).toLaLoCoord();
 				labelLocation.text += c != null ? c.toNiceString() : "?";
 			}
-
 		]]>
-	</mx:Script>
-	<mx:Text text="This example demonstrates basic OpenGIS WMS functionality with custom dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
-	<mx:HBox id="hboxMenu" width="100%" >
-		<mx:Label text="Tools:"/>
-		<mx:Button label="Zoom (Ctrl)"
+	</fx:Script>
+	<s:Label text="This example demonstrates basic OpenGIS WMS functionality with custom dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
+	<s:HGroup id="hboxMenu" width="100%" >
+		<s:Label text="Tools:"/>
+		<s:ToggleButton label="Zoom (Ctrl)"
 				selected="{!m_ilz.requireCtrlKey}"
 				click="m_ilp.requireShiftKey = true; m_ilz.requireCtrlKey = !m_ilz.requireCtrlKey;"/>
-		<mx:Button label="Zoom 100%"
+		<s:ToggleButton label="Zoom 100%"
 				click="m_iw.setViewFullExtent()"/>
-		<mx:Button label="Pan (Shift)"
+		<s:ToggleButton label="Pan (Shift)"
 				selected="{!m_ilp.requireShiftKey}"
 				click="m_ilz.requireCtrlKey = true; m_ilp.requireShiftKey = !m_ilp.requireShiftKey;" />
-		<mx:Spacer width="10"/>
-		<mx:Label text="Projections:"/>
-		<mx:Button label="LatLon"
+		<s:Spacer width="10"/>
+		<s:Label text="Projections:"/>
+		<s:ToggleButton label="LatLon"
 				selected="{m_iw.crs == 'EPSG:4326'}" 
 				click="m_iw.setCRS('EPSG:4326', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
-		<mx:Button label="Mercator"
+		<s:ToggleButton label="Mercator"
 				selected="{m_iw.crs == 'EPSG:54004'}" 
 				click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-13000000,36000000,13000000);"/>
-		<mx:Button label="North Polar Stereo"
+		<s:ToggleButton label="North Polar Stereo"
 				selected="{m_iw.crs == 'EPSG:102018'}" 
 				click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
-		<mx:Button label="South Polar Stereo"
+		<s:ToggleButton label="South Polar Stereo"
 				selected="{m_iw.crs == 'EPSG:102021'}" 
 				click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
-	</mx:HBox>
-	<mx:HBox width="100%">
-		<mx:Label text="Displayed surface observations:"/>
-		<mx:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<mx:CheckBox id="checkMETARs" label="METARs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<mx:CheckBox id="checkBUOYs" label="BUOYs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<mx:Label text="Plot distance:"/>
-		<mx:HSlider id="sliderPlotDistance" minimum="10" value="200" maximum="500" change="m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); m_surfaceObsLayer.updateData(true);"/>
-		<mx:Label text="[%]"/>
-		<mx:Spacer width="10"/>
-		<mx:Label id="labelLocation" text="[Mouse location]"/>
-	</mx:HBox>
-	<mx:VBox width="100%" height="100%">
-		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)">
-			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
-			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
-		</widgets:InteractiveWidget>
-	</mx:VBox>
-</mx:Application>
+	</s:HGroup>
+	<s:HGroup width="100%">
+		<s:Label text="Displayed surface observations:"/>
+		<s:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
+		<s:CheckBox id="checkMETARs" label="METARs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
+		<s:CheckBox id="checkBUOYs" label="BUOYs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
+		<s:Label text="Plot distance:"/>
+		<s:HSlider id="sliderPlotDistance" minimum="10" value="200" maximum="500" change="m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); m_surfaceObsLayer.updateData(true);"/>
+		<s:Label text="[%]"/>
+		<s:Spacer width="10"/>
+		<s:Label id="labelLocation" text="[Mouse location]"/>
+	</s:HGroup>
+	<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)">
+		<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+		<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+	</widgets:InteractiveWidget>
+</s:VGroup>
