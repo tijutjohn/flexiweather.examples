@@ -11,7 +11,7 @@
 	<property name="DISTDIR" value="bin" />
 	<property name="BUILDDIR" value="${DISTDIR}-build" />
 	<target name="main">
-		<exec executable="${FLEX_HOME}/bin/adt.bat" failonerror="true">
+		<java jar="${FLEX_HOME}/lib/adt.jar" fork="true" failonerror="true">
 			<arg value="-certificate" />
 			<arg value="-cn" />
 			<arg value="Self Signed" />
@@ -24,7 +24,7 @@
 			<arg value="2048-RSA" />
 			<arg value="air-self-sign.p12" />
 			<arg value="5ecret" />
-		</exec>
+		</java>
 
 		<mxmlc file="src/Example1.mxml"
 				output="${DISTDIR}/Example1.swf"
