@@ -20,8 +20,6 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerPan;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			
-			import flash.net.dns.AAAARecord;
-			
 			import mx.controls.Alert;
 
 			private var m_surfaceObsLayer: InteractiveLayerWMSWithQTT;
