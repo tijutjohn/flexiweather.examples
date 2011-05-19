@@ -22,12 +22,10 @@
 			
 			import mx.controls.Alert;
 
-			private var m_surfaceObsLayer: InteractiveLayerWMSWithQTT;
-			
-			private var openStreetLayer: InteractiveLayerQTTMS;
-			private var lBackground: InteractiveLayerWMSWithQTT;
-			private var lSurface: InteractiveLayerWMSWithQTT;
-			private var lForeground: InteractiveLayerWMSWithQTT;
+			private var m_openStreetLayer: InteractiveLayerQTTMS;
+			private var m_layerDEMBackground: InteractiveLayerWMSWithQTT;
+			private var m_layerSufraceObservations: InteractiveLayerWMS;
+			private var m_layerForegroundBorders: InteractiveLayerWMSWithQTT;
 			
 			private function onCreationComplete(event: Event): void
 			{
@@ -50,38 +48,39 @@
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 				srv2.updatePeriod = 5*60*1000;
 				
+				InteractiveLayerQTTMS.drawBorders = true;
+				InteractiveLayerQTTMS.drawDebugText = true;
+				
 				var lc: WMSLayerConfiguration;
 				lc = new WMSLayerConfiguration(srv, ["background-dem"]);
 				lc.label = "Backgrounds/DEM";
-				lBackground = new InteractiveLayerWMSWithQTT(m_iw, lc);
-				lBackground.setWMSStyleName(0, "white-colours");
-				m_iw.addLayer(lBackground);
-				lBackground.refresh(true);
+				m_layerDEMBackground = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				m_layerDEMBackground.setWMSStyleName(0, "white-colours");
+				m_iw.addLayer(m_layerDEMBackground);
+				m_layerDEMBackground.refresh(true);
+				m_layerDEMBackground.name = 'DEMBackground';
 
-				InteractiveLayerQTTMS.drawBorders = true;
-				InteractiveLayerQTTMS.drawDebugText = false;
-				
-//				InteractiveLayerQTTMS(container: InteractiveWidget, s_baseURL: String, s_tilePattern: String,  s_postURL: String,  s_crs: String, bbox: BBox, minimumZoom: int = 0, maximumZoom: int = 10)
-				
-				openStreetLayer = new InteractiveLayerQTTMS(m_iw,
-						'http://b.tile.openstreetmap.org/','%ZOOM%/%COL%/%ROW%','.png',
+				m_openStreetLayer = new InteractiveLayerQTTMS(m_iw,
+						'http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png',
 						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 1, 10);
-				openStreetLayer.alpha = 1;
-				m_iw.addLayer(openStreetLayer);
+				m_openStreetLayer.alpha = 1;
+				m_iw.addLayer(m_openStreetLayer);
+				m_openStreetLayer.name = 'OpenStreetMap';
 
 				lc = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
 				lc.mi_autoRefreshPeriod = 60;
-				lSurface = new InteractiveLayerWMSWithQTT(m_iw, lc);
-				m_iw.addLayer(lSurface);
-				lSurface.refresh(true);
-				m_surfaceObsLayer = lSurface;
+				m_layerSufraceObservations = new InteractiveLayerWMS(m_iw, lc);
+				m_iw.addLayer(m_layerSufraceObservations);
+				m_layerSufraceObservations.refresh(true);
+				m_layerSufraceObservations.name = 'SurfaceObservations';
 
 				lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
 				lc.label = "Overlays/Border lines";
-				lForeground = new InteractiveLayerWMSWithQTT(m_iw, lc);
-				m_iw.addLayer(lForeground);
-				lForeground.refresh(true);
+				m_layerForegroundBorders = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				m_iw.addLayer(m_layerForegroundBorders);
+				m_layerForegroundBorders.refresh(true);
+				m_layerForegroundBorders.name = 'Borders';
 				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
@@ -97,40 +96,41 @@
 			
 			private function avoidTilling(value: Boolean): void
 			{
-				if (useOpenStreeMap && value)
+				if (mb_useOpenStreeMap && value)
 				{
-					useOpenStreeMap = false;
-					m_iw.removeLayer(openStreetLayer);
+					mb_useOpenStreeMap = false;
+					m_iw.removeLayer(m_openStreetLayer);
 				}
-				lForeground.avoidTiling = value;
-				lBackground.avoidTiling = value;
-				lSurface.avoidTiling = value;
+				m_layerForegroundBorders.avoidTiling = value;
+				m_layerDEMBackground.avoidTiling = value;
 			}
 			
 			[Bindable]
-			public var useOpenStreeMap: Boolean = true;
+			public var mb_useOpenStreeMap: Boolean = true;
 			
-			protected function updateSurface():void
+			protected function onSurfaceObservationsPlotDensityChanged():void
 			{
-				m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); 
-				m_surfaceObsLayer.updateData(true);
+				m_layerSufraceObservations.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); 
+				m_layerSufraceObservations.updateData(true);
 			}
-			protected function chbUseOpenStreet_changeHandler(event:Event):void
+
+			protected function onUseOpenStreetMapToggled():void
 			{
 				// TODO Auto-generated method stub
-				useOpenStreeMap = chbUseOpenStreet.selected;
-				trace("chbUseOpenStreet_changeHandler: " + useOpenStreeMap);
+				mb_useOpenStreeMap = checkUseOpenStreetMap.selected;
 				
-				if (useOpenStreeMap)
-					m_iw.addLayer(openStreetLayer);
+				if (mb_useOpenStreeMap) {
+					m_iw.addLayer(m_openStreetLayer);
+					m_openStreetLayer.refresh(false);
+				}
 				else {
-					m_iw.removeLayer(openStreetLayer);
+					m_iw.removeLayer(m_openStreetLayer);
 				}
 			}
-			
 		]]>
 	</fx:Script>
-	<s:Label text="This example demonstrates basic OpenGIS WMS functionality with custom dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
+
+	<s:Label text="This example demonstrates basic OpenGIS WMS functionality including tiling with custom WMS dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
 	<s:HGroup id="hboxMenu" width="100%" >
 		<s:Label text="Tools:"/>
 		<s:ToggleButton label="Zoom (Ctrl)"
@@ -161,20 +161,24 @@
 	</s:HGroup>
 	<s:HGroup width="100%">
 		<s:Label text="Displayed surface observations:"/>
-		<s:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<s:CheckBox id="checkMETARs" label="METARs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<s:CheckBox id="checkBUOYs" label="BUOYs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
+		<s:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true"
+				change="m_layerSufraceObservations.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_layerSufraceObservations.updateData(true);"/>
+		<s:CheckBox id="checkMETARs" label="METARs" selected="true"
+				change="m_layerSufraceObservations.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_layerSufraceObservations.updateData(true);"/>
+		<s:CheckBox id="checkBUOYs" label="BUOYs" selected="true"
+				change="m_layerSufraceObservations.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_layerSufraceObservations.updateData(true);"/>
 		<s:Label text="Plot distance:"/>
-		<s:HSlider id="sliderPlotDistance" liveDragging="false" minimum="10" value="200" maximum="500" change="updateSurface()"/>
+		<s:HSlider id="sliderPlotDistance" liveDragging="false" minimum="10" value="200" maximum="500" change="onSurfaceObservationsPlotDensityChanged()"/>
 		<s:Label text="[%]"/>
 		<s:Spacer width="10"/>
 		<s:Label id="labelLocation" text="[Mouse location]"/>
 	</s:HGroup>
 	<s:HGroup width="100%">
-		<s:Label text="OpenStreeMap layer alpha:"/>
-		<s:HSlider id="sliderAlpha" liveDragging="true" minimum="0" value="1" maximum="1" snapInterval="0.1" change="openStreetLayer.alpha = sliderAlpha.value"/>
-		<s:Label text="Use OpenStreeMap :"/>
-		<s:CheckBox id="chbUseOpenStreet" selected="{useOpenStreeMap}" change="chbUseOpenStreet_changeHandler(event)"/>
+		<s:CheckBox id="checkUseOpenStreetMap" label="Use Open Street Map if possible" selected="{mb_useOpenStreeMap}"
+				change="onUseOpenStreetMapToggled()"/>
+		<s:Label text="Alpha:"/>
+		<s:HSlider id="sliderAlpha" liveDragging="true" minimum="0" value="1" maximum="1" snapInterval="0.1"
+				change="m_openStreetLayer.alpha = sliderAlpha.value"/>
 	</s:HGroup>
 	<s:NavigatorContent width="100%" height="100%">
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)">
