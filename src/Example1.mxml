@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
 		creationComplete="onCreationComplete(event)">
 	<fx:Script>
@@ -19,9 +20,16 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerPan;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			
+			import flash.net.dns.AAAARecord;
+			
 			import mx.controls.Alert;
 
-			private var m_surfaceObsLayer: InteractiveLayerWMS;
+			private var m_surfaceObsLayer: InteractiveLayerWMSWithQTT;
+			
+			private var openStreetLayer: InteractiveLayerQTTMS;
+			private var lBackground: InteractiveLayerWMSWithQTT;
+			private var lSurface: InteractiveLayerWMSWithQTT;
+			private var lForeground: InteractiveLayerWMSWithQTT;
 			
 			private function onCreationComplete(event: Event): void
 			{
@@ -31,47 +39,51 @@
 				m_iw.setCRS('EPSG:900913', false);
 				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
 
+				var serverType: String = 'wms'; //'ogcie';
 				var scm: OGCServiceConfigurationManager =
             			OGCServiceConfigurationManager.getInstance();
 
     			var srv: WMSServiceConfiguration = scm.getService(
-    					"https://ogcie.iblsoft.com/ria", new Version(1, 3, 0),
+    					"http://"+serverType+".iblsoft.com/ria", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 
     			var srv2: WMSServiceConfiguration = scm.getService(
-    					"https://ogcie.iblsoft.com/obs?STATION_MODEL_ZOOM=0.9", new Version(1, 3, 0),
+    					"http://"+serverType+".iblsoft.com/obs?STATION_MODEL_ZOOM=0.9", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 				srv2.updatePeriod = 5*60*1000;
 				
 				var lc: WMSLayerConfiguration;
-				var l: InteractiveLayerWMS;
 				lc = new WMSLayerConfiguration(srv, ["background-dem"]);
 				lc.label = "Backgrounds/DEM";
-				l = new InteractiveLayerWMS(m_iw, lc);
-				l.setWMSStyleName(0, "white-colours");
-				m_iw.addLayer(l);
-				l.refresh(true);
+				lBackground = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				lBackground.setWMSStyleName(0, "white-colours");
+				m_iw.addLayer(lBackground);
+				lBackground.refresh(true);
 
 				InteractiveLayerQTTMS.drawBorders = true;
-				InteractiveLayerQTTMS.drawDebugText = true;
-				var tl: InteractiveLayerQTTMS = new InteractiveLayerQTTMS(m_iw,
-						'http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png',
-						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 0, 10);
-				m_iw.addLayer(tl);
+				InteractiveLayerQTTMS.drawDebugText = false;
+				
+//				InteractiveLayerQTTMS(container: InteractiveWidget, s_baseURL: String, s_tilePattern: String,  s_postURL: String,  s_crs: String, bbox: BBox, minimumZoom: int = 0, maximumZoom: int = 10)
+				
+				openStreetLayer = new InteractiveLayerQTTMS(m_iw,
+						'http://b.tile.openstreetmap.org/','%ZOOM%/%COL%/%ROW%','.png',
+						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 1, 10);
+				openStreetLayer.alpha = 1;
+				m_iw.addLayer(openStreetLayer);
 
 				lc = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
 				lc.mi_autoRefreshPeriod = 60;
-				l = new InteractiveLayerWMS(m_iw, lc);
-				m_iw.addLayer(l);
-				l.refresh(true);
-				m_surfaceObsLayer = l;
+				lSurface = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				m_iw.addLayer(lSurface);
+				lSurface.refresh(true);
+				m_surfaceObsLayer = lSurface;
 
 				lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
 				lc.label = "Overlays/Border lines";
-				l = new InteractiveLayerWMS(m_iw, lc);
-				m_iw.addLayer(l);
-				l.refresh(true);
+				lForeground = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				m_iw.addLayer(lForeground);
+				lForeground.refresh(true);
 				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
@@ -84,6 +96,40 @@
 				var c: Coord = m_iw.pointToCoord(event.localX, event.localY).toLaLoCoord();
 				labelLocation.text += c != null ? c.toNiceString() : "?";
 			}
+			
+			private function avoidTilling(value: Boolean): void
+			{
+				if (useOpenStreeMap && value)
+				{
+					useOpenStreeMap = false;
+					m_iw.removeLayer(openStreetLayer);
+				}
+				lForeground.avoidTiling = value;
+				lBackground.avoidTiling = value;
+				lSurface.avoidTiling = value;
+			}
+			
+			[Bindable]
+			public var useOpenStreeMap: Boolean = true;
+			
+			protected function updateSurface():void
+			{
+				m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); 
+				m_surfaceObsLayer.updateData(true);
+			}
+			protected function chbUseOpenStreet_changeHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				useOpenStreeMap = chbUseOpenStreet.selected;
+				trace("chbUseOpenStreet_changeHandler: " + useOpenStreeMap);
+				
+				if (useOpenStreeMap)
+					m_iw.addLayer(openStreetLayer);
+				else {
+					m_iw.removeLayer(openStreetLayer);
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	<s:Label text="This example demonstrates basic OpenGIS WMS functionality with custom dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
@@ -101,19 +147,19 @@
 		<s:Label text="Projections:"/>
 		<s:ToggleButton label="LatLon"
 				selected="{m_iw.crs == 'EPSG:4326'}" 
-				click="m_iw.setCRS('EPSG:4326', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
+				click="avoidTilling(false);m_iw.setCRS('EPSG:4326', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
 		<s:ToggleButton label="Mercator"
 				selected="{m_iw.crs == 'EPSG:54004'}" 
-				click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-13000000,36000000,13000000);"/>
+				click="avoidTilling(false);m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-13000000,36000000,13000000);"/>
 		<s:ToggleButton label="North Polar Stereo"
 				selected="{m_iw.crs == 'EPSG:102018'}" 
-				click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+				click="avoidTilling(true);m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
 		<s:ToggleButton label="South Polar Stereo"
 				selected="{m_iw.crs == 'EPSG:102021'}" 
-				click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+				click="avoidTilling(true);avoidTilling(false);m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
 		<s:ToggleButton label="Google Maps"
 				selected="{m_iw.crs == 'EPSG:900913'}" 
-				click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+				click="avoidTilling(false);m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
 	</s:HGroup>
 	<s:HGroup width="100%">
 		<s:Label text="Displayed surface observations:"/>
@@ -121,13 +167,21 @@
 		<s:CheckBox id="checkMETARs" label="METARs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
 		<s:CheckBox id="checkBUOYs" label="BUOYs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
 		<s:Label text="Plot distance:"/>
-		<s:HSlider id="sliderPlotDistance" minimum="10" value="200" maximum="500" change="m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); m_surfaceObsLayer.updateData(true);"/>
+		<s:HSlider id="sliderPlotDistance" liveDragging="false" minimum="10" value="200" maximum="500" change="updateSurface()"/>
 		<s:Label text="[%]"/>
 		<s:Spacer width="10"/>
 		<s:Label id="labelLocation" text="[Mouse location]"/>
 	</s:HGroup>
-	<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)">
-		<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
-		<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
-	</widgets:InteractiveWidget>
+	<s:HGroup width="100%">
+		<s:Label text="OpenStreeMap layer alpha:"/>
+		<s:HSlider id="sliderAlpha" liveDragging="true" minimum="0" value="1" maximum="1" snapInterval="0.1" change="openStreetLayer.alpha = sliderAlpha.value"/>
+		<s:Label text="Use OpenStreeMap :"/>
+		<s:CheckBox id="chbUseOpenStreet" selected="{useOpenStreeMap}" change="chbUseOpenStreet_changeHandler(event)"/>
+	</s:HGroup>
+	<s:NavigatorContent width="100%" height="100%">
+		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)">
+			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+		</widgets:InteractiveWidget>
+	</s:NavigatorContent>
 </s:VGroup>
