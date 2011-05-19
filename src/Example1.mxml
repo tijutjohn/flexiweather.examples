@@ -5,11 +5,14 @@
 		creationComplete="onCreationComplete(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
@@ -22,10 +25,13 @@
 			
 			private function onCreationComplete(event: Event): void
 			{
-				//BackgroundJobManager.getInstance().createDefaultPreloader();
-				//BackgroundJobManager.getInstance().setupIndicator(hboxMenu);
+				BackgroundJobManager.getInstance().createDefaultPreloader();
+				BackgroundJobManager.getInstance().setupIndicator(hboxMenu);
 
-            	var scm: OGCServiceConfigurationManager =
+				m_iw.setCRS('EPSG:900913', false);
+				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
+
+				var scm: OGCServiceConfigurationManager =
             			OGCServiceConfigurationManager.getInstance();
 
     			var srv: WMSServiceConfiguration = scm.getService(
@@ -45,6 +51,13 @@
 				l.setWMSStyleName(0, "white-colours");
 				m_iw.addLayer(l);
 				l.refresh(true);
+
+				InteractiveLayerQTTMS.drawBorders = true;
+				InteractiveLayerQTTMS.drawDebugText = true;
+				var tl: InteractiveLayerQTTMS = new InteractiveLayerQTTMS(m_iw,
+						'http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png',
+						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 0, 10);
+				m_iw.addLayer(tl);
 
 				lc = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
@@ -98,6 +111,9 @@
 		<s:ToggleButton label="South Polar Stereo"
 				selected="{m_iw.crs == 'EPSG:102021'}" 
 				click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+		<s:ToggleButton label="Google Maps"
+				selected="{m_iw.crs == 'EPSG:900913'}" 
+				click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
 	</s:HGroup>
 	<s:HGroup width="100%">
 		<s:Label text="Displayed surface observations:"/>
