@@ -26,8 +26,8 @@
 			<arg value="5ecret" />
 		</java>
 
-		<mxmlc file="src/Example1.mxml"
-				output="${DISTDIR}/Example1.swf"
+		<mxmlc file="src/Example1WebApp.mxml"
+				output="${DISTDIR}/Example1WebApp.swf"
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
