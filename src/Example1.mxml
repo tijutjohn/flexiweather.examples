@@ -13,6 +13,7 @@
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
@@ -53,17 +54,17 @@
 				InteractiveLayerQTTMS.drawBorders = true;
 				InteractiveLayerQTTMS.drawDebugText = true;
 				
-				var lc: WMSLayerConfiguration;
-				lc = new WMSLayerConfiguration(srv, ["background-dem"]);
-				lc.label = "Backgrounds/DEM";
-				m_layerDEMBackground = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				var lcqt: WMSWithQTTLayerConfiguration;
+				lcqt = new WMSWithQTTLayerConfiguration(srv, ["background-dem"]);
+				lcqt.label = "Backgrounds/DEM";
+				m_layerDEMBackground = new InteractiveLayerWMSWithQTT(m_iw, lcqt);
 				m_layerDEMBackground.setWMSStyleName(0, "white-colours");
 				m_iw.addLayer(m_layerDEMBackground);
 				m_layerDEMBackground.name = 'DEMBackground';
 				m_layerDEMBackground.zOrder = -10;
 				m_layerDEMBackground.refresh(true);
 
-				m_openStreetLayer = new InteractiveLayerQTTMS(m_iw,
+				m_openStreetLayer = new InteractiveLayerQTTMS(m_iw, null,
 						'http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png',
 						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 1, 10);
 				m_openStreetLayer.alpha = 1;
@@ -71,7 +72,7 @@
 				m_openStreetLayer.zOrder = -8;
 				m_iw.addLayer(m_openStreetLayer);
 
-				lc = new WMSLayerConfiguration(srv2, ["Surface"]);
+				var lc: WMSLayerConfiguration = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
 				lc.mi_autoRefreshPeriod = 60;
 				m_layerSufraceObservations = new InteractiveLayerWMS(m_iw, lc);
@@ -81,9 +82,9 @@
 				m_layerSufraceObservations.refresh(true);
 				m_layerSufraceObservations.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
 
-				lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
-				lc.label = "Overlays/Border lines";
-				m_layerForegroundBorders = new InteractiveLayerWMSWithQTT(m_iw, lc);
+				lcqt = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
+				lcqt.label = "Overlays/Border lines";
+				m_layerForegroundBorders = new InteractiveLayerWMSWithQTT(m_iw, lcqt);
 				m_iw.addLayer(m_layerForegroundBorders);
 				m_layerForegroundBorders.name = 'Borders';
 				m_layerForegroundBorders.zOrder = -1;
