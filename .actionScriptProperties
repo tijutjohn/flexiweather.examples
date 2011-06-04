@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="Example1AIR.mxml" projectUUID="0bc2d61c-1fdb-49ab-b5aa-8303dc3ba720" version="10">
+<actionScriptProperties analytics="false" mainApplicationPath="Example1WebApp.mxml" projectUUID="0bc2d61c-1fdb-49ab-b5aa-8303dc3ba720" version="10">
   <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" flexSDK="Flex 4.5" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="1">
@@ -12,8 +12,19 @@
     <sourceAttachmentPath/>
   </compiler>
   <applications>
+    <application path="Example2.mxml"/>
+    <application path="Example1WebApp.mxml"/>
+    <application path="Example3.mxml"/>
   </applications>
   <modules/>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
+  <buildTargets>
+    <buildTarget buildTargetName="com.adobe.flexide.multiplatform.ios.platform">
+      <actionScriptSettings version="1"/>
+    </buildTarget>
+    <buildTarget buildTargetName="com.adobe.flexide.multiplatform.android.platform">
+      <actionScriptSettings version="1"/>
+    </buildTarget>
+  </buildTargets>
 </actionScriptProperties>
