@@ -48,10 +48,12 @@
 						OGCServiceConfigurationManager.getInstance();
 
 				var srv: WMSServiceConfiguration = scm.getService(
+						"ria",
 						s_serverURL + "/ria", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 
 				var srv2: WMSServiceConfiguration = scm.getService(
+						"obs",
 						s_serverURL + "/obs?STATION_MODEL_ZOOM=0.9", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 				srv2.updatePeriod = 5*60*1000;
