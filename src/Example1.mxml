@@ -43,7 +43,7 @@
 				m_iw.setCRS('EPSG:900913', false);
 				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
 
-				var s_serverURL: String = 'http://ogcie.iblsoft.com';
+				var s_serverURL: String = 'http://wms.iblsoft.com';
 				var scm: OGCServiceConfigurationManager =
 						OGCServiceConfigurationManager.getInstance();
 
@@ -115,7 +115,7 @@
 			protected function onSurfaceObservationsPlotDensityChanged():void
 			{
 				m_layerSufraceObservations.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); 
-				m_layerSufraceObservations.updateData(true);
+				m_layerSufraceObservations.invalidateData(true);
 			}
 
 			protected function onUseOpenStreetMapToggled():void
@@ -169,11 +169,11 @@
 	<s:HGroup width="100%" verticalAlign="middle">
 		<s:Label text="Displayed surface observations:"/>
 		<s:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true"
-				change="m_layerSufraceObservations.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_layerSufraceObservations.updateData(true);"/>
+				change="m_layerSufraceObservations.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_layerSufraceObservations.invalidateData(true);"/>
 		<s:CheckBox id="checkMETARs" label="METARs" selected="true"
-				change="m_layerSufraceObservations.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_layerSufraceObservations.updateData(true);"/>
+				change="m_layerSufraceObservations.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_layerSufraceObservations.invalidateData(true);"/>
 		<s:CheckBox id="checkBUOYs" label="BUOYs" selected="true"
-				change="m_layerSufraceObservations.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_layerSufraceObservations.updateData(true);"/>
+				change="m_layerSufraceObservations.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_layerSufraceObservations.invalidateData(true);"/>
 		<s:Label text="Plot distance:"/>
 		<s:HSlider id="sliderPlotDistance" liveDragging="false" minimum="10" value="200" maximum="500" change="onSurfaceObservationsPlotDensityChanged()"/>
 		<s:Label text="[%]"/>
