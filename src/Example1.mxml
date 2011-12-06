@@ -7,6 +7,7 @@
 		paddingTop="2" paddingBottom="2" paddingRight="2" paddingLeft="2">
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
@@ -20,6 +21,7 @@
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			
@@ -80,6 +82,8 @@
 				m_openStreetLayer.name = 'OpenStreetMap';
 				m_openStreetLayer.zOrder = -8;
 				m_iw.addLayer(m_openStreetLayer);
+				
+				m_openStreetLayer.addEventListener(InteractiveDataLayer.PROGRESS, onOpenStreetLayerProgress);
 
 				var lc: WMSLayerConfiguration = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
@@ -102,6 +106,11 @@
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+			}
+			
+			private function onOpenStreetLayerProgress(event: InteractiveLayerProgressEvent): void
+			{
+				qttProgress.setProgress(event.loaded, event.total);
 			}
 
 			protected function onMouseMove(event: MouseEvent):void
@@ -139,6 +148,8 @@
 	<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
 		<s:Label text="This example demonstrates basic OpenGIS WMS functionality including tiling with custom WMS dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
 		<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
+		<s:Label textAlign="right" fontWeight="bold" text="Open Street Map tiles progress:"/>
+		<mx:ProgressBar id="qttProgress" width="100" mode="manual"/>
 	</s:HGroup>
 	<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle">
 		<s:Label text="Tools:"/>
