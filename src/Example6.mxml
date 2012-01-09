@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
+			   creationComplete="onCreationComplete(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%">
+		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
+			<s:Label text="This example demonstrates basic OpenGIS WMS functionality including tiling with custom WMS dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
+			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
+		</s:HGroup>
+		
+		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
+			<s:Button label="Preload all frames" click="preloadAllFrames()"/>
+			<s:Button label="Clear cache" click="clearCache()"/>
+			<s:ToggleButton label="Auto play" click="autoPlay((event.currentTarget as ToggleButton).selected)" enabled="{b_allFramesPreloaded}"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label textAlign="right" fontWeight="bold" text="Frames:" width="150"/>
+			<mx:HSlider id="sliderFrame" width="500" minimum="0" maximum="{maxFrames}" snapInterval="1"
+						enabled="{!autoPlayEnabled}"
+						liveDragging="true" showDataTip="true"
+						change="frameChangeHandler(event)"/>
+		</mx:HBox>
+		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
+			<mx:Label textAlign="right" fontWeight="bold" text="Preloading progress:" width="150"/>
+			<mx:ProgressBar id="progress" width="500" mode="manual" labelPlacement="center" label="Preloading frames"/>
+		</mx:HBox>
+		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
+			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+		</widgets:InteractiveWidget>
+		
+		
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
+			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
+			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
+			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.SynchronisedVariableChangeEvent;
+			import com.iblsoft.flexiweather.ogc.Version;
+			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.data.WMSViewProperties;
+			import com.iblsoft.flexiweather.ogc.events.GetCapabilitiesEvent;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
+			import com.iblsoft.flexiweather.ogc.tiling.QTTTilesProvider;
+			import com.iblsoft.flexiweather.proj.Coord;
+			import com.iblsoft.flexiweather.proj.Projection;
+			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
+			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
+			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
+			
+			import mx.controls.Alert;
+			import mx.events.SliderEvent;
+			
+			import spark.filters.GlowFilter;
+			
+			[Bindable]
+			public var maxFrames: int;
+			
+			/**
+			 * Temperature layer
+			 */
+			private var m_layerTemperature: InteractiveLayerWMS;
+			
+			/**
+			 * Boolean property if capabilities are received
+			 */
+			private var b_getCapabilitiesReceived: Boolean;
+
+			/**
+			 * Boolean property indicates that user wants to preload all frames
+			 */
+			private var b_preloadAllFrames: Boolean;
+			/**
+			 * Boolean property indicates that all frames were preloaded
+			 */
+			[Bindable]
+			private var b_allFramesPreloaded: Boolean;
+			
+			/** 
+			 * array of forecast string values from capabilities request. We need it for slider to change FORECAST dimension of temperature layer
+			 */
+			private var preloadingData: Array;
+			
+			private var scm: OGCServiceConfigurationManager;
+			
+			/**
+			 * Timer for auto play
+			 */
+			private var autoPlayTimer: Timer;
+			/** 
+			 * Current auto play position
+			 */
+			private var autoPlayFramePosition: int;
+			
+			/** 
+			 * True if auto play is "ON"
+			 */
+			private var autoPlayEnabled: Boolean;
+			
+			/**
+			 * Clear whole cache
+			 */
+			private function clearCache(): void
+			{
+				m_layerTemperature.clearCache();
+				progress.setProgress(0, 100);
+			}
+			
+			/** 
+			 * Initialization of example. Temperature layer creation, call get capabilities
+			 */
+			private function onCreationComplete(event: Event): void
+			{
+				if(Capabilities.playerType == "Desktop")
+					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
+				else {
+					BackgroundJobManager.getInstance().createDefaultPreloader();
+					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
+				}
+				
+				m_iw.setCRS('EPSG:900913', false);
+				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
+				
+				var s_serverURL: String = 'http://wms.iblsoft.com';
+				scm = OGCServiceConfigurationManager.getInstance();
+				
+				var srv2: WMSServiceConfiguration = scm.getService(
+					"gfs",
+					s_serverURL + "/gfs", new Version(1, 3, 0),
+					WMSServiceConfiguration) as WMSServiceConfiguration;
+				
+				var lc: WMSLayerConfiguration = new WMSLayerConfiguration(srv2, ["Temperature"]);
+				lc.label = "Temperature";
+				m_layerTemperature = new InteractiveLayerWMS(m_iw, lc);
+				m_iw.addLayer(m_layerTemperature);
+				m_layerTemperature.name = 'Temperature';
+				m_layerTemperature.zOrder = 0;
+				m_layerTemperature.refresh(true);
+				m_layerTemperature.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
+				
+				m_layerTemperature.addEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
+				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
+				scm.update(scm.getAllServicesNames());
+				
+				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+			}
+			
+			/**
+			 * start autoplay of frames
+			 */
+			private function autoPlay(b_play: Boolean): void
+			{
+				if (!autoPlayTimer)
+				{
+					autoPlayTimer = new Timer(50);
+					autoPlayTimer.addEventListener(TimerEvent.TIMER, onAutoPlayTimer);
+				}
+				
+				if (b_play) {
+					autoPlayFramePosition = sliderFrame.value;
+					autoPlayEnabled = true;
+					autoPlayTimer.start();
+				} else {
+					autoPlayEnabled = false;
+					autoPlayTimer.stop();
+				}
+			}
+			
+			/** 
+			 * Main animating function for auto play all temperatures frames
+			 */
+			private function onAutoPlayTimer(event: TimerEvent): void
+			{
+				autoPlayFramePosition++;
+				if (autoPlayFramePosition >= preloadingData.length)
+				{
+					autoPlayFramePosition = 0;
+				}
+				
+				sliderFrame.value = autoPlayFramePosition;
+				
+				changeFrame(autoPlayFramePosition);
+			}
+			
+			/**
+			 * User calls this function to preload all frames
+			 */
+			private function preloadAllFrames(): void
+			{
+				b_preloadAllFrames = true;
+				//load get capabilities request to find out all frames
+				if (b_getCapabilitiesReceived)
+					preloadAllFramesAfterCapabilitiesReceived();
+					
+			}
+			
+			/**
+			 * Get all FORECAST value string from Temperature layer. It must be called after capabilities are receiverd and parsed
+			 */
+			private function getForecastValues(): void
+			{
+				trace("Example 6 onCapabilitiesReceived");
+				var dimNames: Array = m_layerTemperature.getWMSDimensionsNames();
+				var dimValues: Array = m_layerTemperature.getWMSDimensionsValues('FORECAST');
+				
+				if (dimValues)
+				{
+					maxFrames = dimValues.length - 1;
+					var currViewData: WMSViewProperties = m_layerTemperature.currentWMSViewProperties;
+					var total: int = dimValues.length;
+					preloadingData = [];
+					//0th item is currently loaded frame, so it will not be preloaded again
+					for (var i: int = 1; i < total; i++)
+					{
+						var dimValue: Object = dimValues[i] as Object;
+						preloadingData.push(dimValue.value);
+					}
+				}
+				trace("preloadingData: " + preloadingData);
+			}
+			
+			/**
+			 * Preload all Temperature layer frames with new WMSViewProperties class
+			 */
+			private function preloadAllFramesAfterCapabilitiesReceived(): void
+			{
+				trace("Example 6 onCapabilitiesReceived");
+				if (preloadingData)
+				{
+					var total: int = preloadingData.length;
+					var currViewData: WMSViewProperties = m_layerTemperature.currentWMSViewProperties;
+					//0th item is currently loaded frame, so it will not be preloaded again
+					for (var i: int = 1; i < total; i++)
+					{
+						var forecast: String = preloadingData[i] as String;
+						
+						//clone current view properties from temperature layer
+						var preloadingViewData: WMSViewProperties = currViewData.clone() as WMSViewProperties;
+						//and set FORECAST for this view properties
+						preloadingViewData.setWMSDimensionValue('FORECAST', forecast);
+						//and preload it
+						m_layerTemperature.preload(preloadingViewData);
+					}
+				}
+			}
+			
+			/**
+			 * Capabilities are received
+			 */
+			private function onCapabilitiesReceived(event: GetCapabilitiesEvent): void
+			{
+				b_getCapabilitiesReceived = true;
+				
+				//get forecast values from temperature layer, to have them to be able to change temperature frame on slider change
+				getForecastValues();
+				
+				if (b_preloadAllFrames)
+				{
+					//if user wants to preload frames already, now you can preload it (because we have forecast values parsed)
+					preloadAllFramesAfterCapabilitiesReceived();
+				}
+				
+			}
+			
+			/**
+			 * display preloading of temperature layer progress (frames already preloaded / all preloading frames)
+			 */
+			private function onTemperatureLayerProgress(event: InteractiveLayerProgressEvent): void
+			{
+				progress.setProgress(event.loaded, event.total);
+				if (event.loaded >= event.total)
+					b_allFramesPreloaded = true;
+				
+				trace("onSurfaceObservationsLayerProgress: " + event.loaded + " / " + event.total + " percent: " + progress.percentComplete);
+			}
+
+			/**
+			 * Function is called when slider is changed by user interaction
+			 */
+			protected function frameChangeHandler(event:SliderEvent):void
+			{
+				var currPos: int = event.value;
+				changeFrame(currPos);
+			}
+			
+			
+			/**
+			 * Main function for changing frame for temperature layer. It's called from user interaction on slider, or byt auto play animation
+			 */
+			private function changeFrame(currPos: int): void
+			{
+				if (!preloadingData)
+					return;
+				
+				if (currPos > 0 && currPos < preloadingData.length)
+				{
+					var forecast: String = preloadingData[currPos] as String;
+					trace("\n" + forecast);
+					
+					m_layerTemperature.setWMSDimensionValue('FORECAST', forecast);
+					
+					//there must be "false" value, otherwise it will not check cached bitmaps
+					m_layerTemperature.refresh(false);
+				}
+				
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+
+</s:Application>
