@@ -131,13 +131,6 @@
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
-		<mxmlc file="src/Example4.mxml"
-				output="${DISTDIR}/Example4.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
 		<mxmlc file="src/Example5.mxml"
 				output="${DISTDIR}/Example5.swf"
 				keep-generated-actionscript="false">
