@@ -7,9 +7,9 @@
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	
-	<s:VGroup width="100%" height="100%">
+	<s:VGroup width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
 		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
-			<s:Label text="This example demonstrates basic OpenGIS WMS functionality including tiling with custom WMS dimensions support,&#xa;zooming, panning, change of projection reference system and data layer autorefresh."/>
+			<s:Label text="This example demonstrates preloading of frames for WMS Temperature layer for smooth animation."/>
 			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
 		</s:HGroup>
 		
@@ -28,7 +28,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label textAlign="right" fontWeight="bold" text="Preloading progress:" width="150"/>
-			<mx:ProgressBar id="progress" width="500" mode="manual" labelPlacement="center" label="Preloading frames"/>
+			<mx:ProgressBar id="progress" width="500" height="20" mode="manual" labelPlacement="center" label="Preloading frames"/>
 		</mx:HBox>
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
