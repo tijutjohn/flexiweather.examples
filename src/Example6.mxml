@@ -14,16 +14,13 @@
 		</s:HGroup>
 		
 		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
-			<s:Button label="Preload all frames" click="preloadAllFrames()"/>
-			<s:Button label="Preload next 4 frames" click="preloadFrames(4)"/>
+			<s:Button label="Preload all frames" click="preloadAllFrames()" enabled="{!b_framesArePreloaded &amp;&amp; !b_framesArePreloading}"/>
+			<!--s:Button label="Preload next 4 frames" click="preloadFrames(4)"/-->
 			<s:Button label="Clear cache" click="clearCache()"/>
-			<s:ToggleButton label="Auto play" click="autoPlay((event.currentTarget as ToggleButton).selected)" enabled="{b_allFramesPreloaded}"/>
+			<s:ToggleButton label="Auto play" click="autoPlay((event.currentTarget as ToggleButton).selected)" selected="{autoPlayEnabled}"/>
+			<!--s:Button label="Update progress" click="updateTotalProgress()"/-->
 		</mx:HBox>
 		
-		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label textAlign="right" fontWeight="bold" text="Preloaded Frames:" width="{labelWidth}"/>
-			<mx:Label textAlign="left" fontWeight="bold" text="Preloaded: {m_preloadedFramesCount} Preloading: {m_preloadingFramesCount} Total: {maxFrames}"/>
-		</mx:HBox>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label textAlign="right" fontWeight="bold" text="Frames:" width="{labelWidth}"/>
 			<mx:HSlider id="sliderFrame" width="500" minimum="0" maximum="{maxFrames}" snapInterval="1"
@@ -35,10 +32,7 @@
 			<mx:Label textAlign="right" fontWeight="bold" text="Total Preloading progress:" width="{labelWidth}"/>
 			<mx:ProgressBar id="totalProgress" width="500" height="20" mode="manual" labelPlacement="center" label="Preloading frames"/>
 		</mx:HBox>
-		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label textAlign="right" fontWeight="bold" text="Current preloading progress:" width="{labelWidth}"/>
-			<mx:ProgressBar id="progress" width="500" height="20" mode="manual" labelPlacement="center" label="Preloading frames"/>
-		</mx:HBox>
+
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
@@ -49,6 +43,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
@@ -69,6 +64,8 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
+			
+			import flash.utils.setInterval;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
@@ -93,14 +90,16 @@
 			private var b_getCapabilitiesReceived: Boolean;
 
 			/**
-			 * Boolean property indicates that user wants to preload all frames
-			 */
-			private var b_preloadAllFrames: Boolean;
-			/**
-			 * Boolean property indicates that all frames were preloaded
+			 * Boolean property indicates that all frames are preloading
 			 */
 			[Bindable]
-			private var b_allFramesPreloaded: Boolean;
+			private var b_framesArePreloaded: Boolean;
+			
+			/**
+			 * Boolean property indicates that all frames are preloading
+			 */
+			[Bindable]
+			private var b_framesArePreloading: Boolean;
 			
 			/** 
 			 * array of forecast string values from capabilities request. We need it for slider to change FORECAST dimension of temperature layer
@@ -134,7 +133,14 @@
 			/** 
 			 * True if auto play is "ON"
 			 */
+			[Bindable]
 			private var autoPlayEnabled: Boolean;
+
+			/**
+			 * True if autoplay is paused because of waiting for loading new frame
+			 */
+			[Bindable]
+			private var autoPlayPaused: Boolean;
 			
 			/**
 			 * Clear whole cache
@@ -144,7 +150,12 @@
 				m_preloadedFramesCount = 0;
 				m_preloadingFramesCount = 0;
 				m_layerTemperature.clearCache();
-				progress.setProgress(0, 100);
+				
+				//set slider to first frame
+				sliderFrame.value = 0;
+				
+				b_framesArePreloaded = false;
+				b_framesArePreloading = false;
 			}
 			
 			/** 
@@ -179,6 +190,8 @@
 				m_layerTemperature.refresh(true);
 				m_layerTemperature.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
 				
+				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
+				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
 				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
 				scm.update(scm.getAllServicesNames());
@@ -186,6 +199,9 @@
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				
+				setInterval(updateTotalProgress, 500);
+				
 			}
 			
 			/**
@@ -200,13 +216,37 @@
 				}
 				
 				if (b_play) {
-					autoPlayFramePosition = sliderFrame.value;
-					autoPlayEnabled = true;
-					autoPlayTimer.start();
+					startAutoPlay();
 				} else {
-					autoPlayEnabled = false;
-					autoPlayTimer.stop();
+					stopAutoPlay();
 				}
+			}
+			
+			private function startAutoPlay(bJustStartTimer: Boolean = false): void
+			{
+				trace("\t start autoplay");
+				autoPlayFramePosition = sliderFrame.value;
+				autoPlayTimer.start();
+				
+				if (!bJustStartTimer)
+					autoPlayEnabled = true;
+			}
+			
+			/**
+			 * Pause autoplay functionality because of loading next frame from server
+			 */
+			private function pauseAutoPlay(): void
+			{
+				stopAutoPlay(true);
+				autoPlayPaused = true;
+			}
+			
+			private function stopAutoPlay(bJustStopTimer: Boolean = false): void
+			{
+				autoPlayTimer.stop();
+				
+				if (!bJustStopTimer)
+					autoPlayEnabled = false;
 			}
 			
 			/** 
@@ -232,6 +272,7 @@
 			{
 				if (b_getCapabilitiesReceived)
 				{
+					b_framesArePreloading = true;
 					preloadFramesAfterCapabilitiesReceived(count);
 				}				
 			}
@@ -244,7 +285,7 @@
 				//load get capabilities request to find out all frames
 				if (b_getCapabilitiesReceived)
 				{
-					b_preloadAllFrames = true;
+					b_framesArePreloading = true;
 					preloadAllFramesAfterCapabilitiesReceived();
 				}
 					
@@ -255,42 +296,43 @@
 			 */
 			private function getForecastValues(): void
 			{
-				trace("Example 6 getForecastValues");
 				var dimNames: Array = m_layerTemperature.getWMSDimensionsNames();
 				var dimValues: Array = m_layerTemperature.getWMSDimensionsValues('FORECAST');
 				
 				if (dimValues)
 				{
-					maxFrames = dimValues.length - 1;
+					maxFrames = dimValues.length;
 					var currViewData: WMSViewProperties = m_layerTemperature.currentWMSViewProperties;
 					var total: int = dimValues.length;
 					preloadingData = new ArrayCollection();
 					//0th item is currently loaded frame, so it will not be preloaded again
-					for (var i: int = 1; i < total; i++)
+					for (var i: int = 0; i < total; i++)
 					{
 						var dimValue: Object = dimValues[i] as Object;
-						preloadingData.addItem(dimValue.value);
+						//store viewProperties for each frame
+						var frameViewProperties: WMSViewProperties = getViewData(dimValue.value);
+						preloadingData.addItem(frameViewProperties);
+						
 					}
 				}
-				trace("preloadingData: " + preloadingData);
 			}
 			
 			private function preloadFramesAfterCapabilitiesReceived(count: int): void
 			{
-				trace("Example 6 preloadFramesAfterCapabilitiesReceived");
 				if (preloadingData)
 				{
+					updateTotalProgress();
+					
 					var total: int = preloadingData.length;
 					var preloading: int = m_preloadedFramesCount + m_preloadingFramesCount;
 					var totalForPreloading: int = Math.min(total, preloading + count);
 					var leftForPreloading: int = total - totalForPreloading;
 					
-					trace("Preload next: " + totalForPreloading + " After preload there will be left: " + leftForPreloading + " frames for preloading.");
+//					trace("Preload next: [" + preloading + " , " + totalForPreloading + "] After preload there will be left: " + leftForPreloading + " frames for preloading.");
 					for (var i: int = preloading ; i < totalForPreloading; i++)
 					{
-						var forecast: String = preloadingData.getItemAt(i) as String;
-						preloadViewData(forecast);
-						m_preloadingFramesCount++;
+						var wmsViewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
+						preloadViewData(wmsViewProperties);
 					}
 				}
 				
@@ -301,15 +343,15 @@
 			 */
 			private function preloadAllFramesAfterCapabilitiesReceived(): void
 			{
-				trace("Example 6 preloadAllFramesAfterCapabilitiesReceived");
 				if (preloadingData)
 				{
+					b_framesArePreloading = true;
 					var total: int = preloadingData.length;
 					//0th item is currently loaded frame, so it will not be preloaded again
-					for (var i: int = 1; i < total; i++)
+					for (var i: int = 0; i < total; i++)
 					{
-						var forecast: String = preloadingData.getItemAt(i) as String;
-						preloadViewData(forecast);
+						var wmsViewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
+						preloadViewData(wmsViewProperties);
 					}
 				}
 			}
@@ -326,12 +368,35 @@
 				//get forecast values from temperature layer, to have them to be able to change temperature frame on slider change
 				getForecastValues();
 				
-				if (b_preloadAllFrames)
-				{
-					//if user wants to preload frames already, now you can preload it (because we have forecast values parsed)
-					preloadAllFramesAfterCapabilitiesReceived();
-				}
+				//if user wants to preload frames already, now you can preload it (because we have forecast values parsed)
+				preloadAllFramesAfterCapabilitiesReceived();
 				
+			}
+			
+			
+			private function onTemperatureLayerLoadingStarted(event: InteractiveLayerEvent): void
+			{
+				m_preloadingFramesCount++;
+//				trace("onTemperatureLayerLoadingStarted autoPlayPaused: " + autoPlayPaused + " m_preloadingFramesCount: " + m_preloadingFramesCount);
+			}
+			
+			private function onTemperatureLayerLoadingFinished(event: InteractiveLayerEvent): void
+			{
+				/// need to update frames on next frame (frame wil be cached in cache)
+				callLater(updateProgressAfterFrameLoadingFinished);
+				
+//				trace("onTemperatureLayerLoadingFinished autoPlayPaused: " + autoPlayPaused + " autoPlayEnabled: " + autoPlayEnabled + " m_preloadingFramesCount: " + m_preloadingFramesCount + " m_preloadedFramesCount: " + m_preloadedFramesCount);
+				continueWithAutoPlayIfPossible();
+			}
+			
+			private function updateProgressAfterFrameLoadingFinished(): void
+			{
+				m_preloadingFramesCount--;
+//				trace("updateProgressAfterFrameLoadingFinished m_preloadingFramesCount: " + m_preloadingFramesCount);
+				//check how many frames are preloaded on temperature layer
+				m_preloadedFramesCount = getCachedFramesCount();
+				//frame was preloaded, so we can increment m_preloadedFramesCount
+				updateTotalProgress();
 			}
 			
 			/**
@@ -339,28 +404,42 @@
 			 */
 			private function onTemperatureLayerProgress(event: InteractiveLayerProgressEvent): void
 			{
-				totalProgress.setProgress(m_preloadedFramesCount + event.loaded, maxFrames);
-				totalProgress.label = "Preloaded frames: " + (m_preloadedFramesCount + event.loaded) + " from " + maxFrames + " frames";
-
-				progress.setProgress(event.loaded, event.total);
-				progress.label = "Preloaded frames: " + event.loaded + " from " + event.total + " frames";
-				if (event.loaded >= event.total)
-				{
-					m_preloadedFramesCount += event.total;
-					m_preloadingFramesCount -= event.total;
-					b_allFramesPreloaded = true;
-				}
+				updateTotalProgress();
 				
-				trace("onSurfaceObservationsLayerProgress: " + event.loaded + " / " + event.total + " percent: " + progress.percentComplete);
+				if (m_preloadedFramesCount >= maxFrames)
+				{
+					b_framesArePreloading = false;
+					b_framesArePreloaded = true;
+				}
+				continueWithAutoPlayIfPossible();
 			}
 
 			/**
-			 * Function is called when slider is changed by user interaction
+			 * Returns amount of already cached frames
 			 */
-			protected function frameChangeHandler(event:SliderEvent):void
+			private function getCachedFramesCount(): int
 			{
-				var currPos: int = event.value;
-				changeFrame(currPos);
+				var cachedCount: int = 0;
+				
+//				trace("getCachedFramesCount preloadingData: " + preloadingData.length)
+				for each (var wmsViewProperties: WMSViewProperties in preloadingData)
+				{
+					var isCached: Boolean = m_layerTemperature.isPreloaded(wmsViewProperties);
+					if (isCached)
+					{
+//						trace("\t getCachedFramesCount cached: " + wmsViewProperties.getWMSDimensionValue('FORECAST'))
+						cachedCount ++;
+					}
+				}
+//				trace("\t getCachedFramesCount cachedCount: " + cachedCount)
+				return cachedCount;
+			}
+			
+			private function updateTotalProgress(): void
+			{
+				m_preloadedFramesCount = getCachedFramesCount();
+				totalProgress.setProgress(m_preloadedFramesCount, maxFrames);
+				totalProgress.label = "Preloaded frames: " + m_preloadedFramesCount + " from " + maxFrames + " frames";
 			}
 			
 			private function getViewData(forecast: String): WMSViewProperties
@@ -374,10 +453,10 @@
 
 				return preloadingViewData;
 			}
-			private function preloadViewData(forecast: String): void
+			
+			private function preloadViewData(preloadingViewData: WMSViewProperties): void
 			{
 				//and preload it
-				var preloadingViewData: WMSViewProperties = getViewData(forecast);
 				m_layerTemperature.preload(preloadingViewData);
 			}
 			
@@ -389,21 +468,20 @@
 				if (!preloadingData)
 					return;
 				
-				if (currPos > 0 && currPos < preloadingData.length)
+				if (currPos >= 0 && currPos < preloadingData.length)
 				{
-					var forecast: String = preloadingData.getItemAt(currPos) as String;
-					trace("\n" + forecast);
+					var preloadingViewData: WMSViewProperties = preloadingData.getItemAt(currPos) as WMSViewProperties;
+					var forecast: String = preloadingViewData.getWMSDimensionValue('FORECAST') as String;
 					
-					var preloadingViewData: WMSViewProperties = getViewData(forecast);
-					
-					//TODO need to implemt isPreloaded function in InteractiveLayerWMS to check preloaded data in cache
 					var isPreloaded: Boolean = m_layerTemperature.isPreloaded(preloadingViewData);
 					if (!isPreloaded)
 					{
+						preloadViewData(preloadingViewData);
+						
 						if (autoPlayTimer && autoPlayTimer.running)
 						{
 							//stop timer
-							autoPlayTimer.stop();
+							pauseAutoPlay();
 						}
 					}
 					m_layerTemperature.setWMSDimensionValue('FORECAST', forecast);
@@ -414,9 +492,39 @@
 				
 			}
 			
+			/**
+			 * Function is called when slider is changed by user interaction
+			 */
+			protected function frameChangeHandler(event:SliderEvent):void
+			{
+				var currPos: int = event.value;
+				changeFrame(currPos);
+			}
 			
+			protected function isNextFramePreloaded(): Boolean
+			{
+				var currPos: int = sliderFrame.value;
+				var nextFramePos: int = currPos + 1;
+			
+				if (nextFramePos >= preloadingData.length)
+					nextFramePos = 0;
+				
+				var preloadingViewData: WMSViewProperties = preloadingData.getItemAt(nextFramePos) as WMSViewProperties;
+				var forecast: String = preloadingViewData.getWMSDimensionValue('FORECAST') as String;
+				
+				var isPreloaded: Boolean = m_layerTemperature.isPreloaded(preloadingViewData);
+				return isPreloaded;
+			}
+			
+			private function continueWithAutoPlayIfPossible(): void
+			{
+				if (autoPlayPaused && autoPlayEnabled && isNextFramePreloaded())
+				{
+					//auto play was just pause, continue with autoplay
+					autoPlayPaused =  false;
+					startAutoPlay(true);
+				}
+			}
 		]]>
 	</fx:Script>
-	
-
 </s:Application>
