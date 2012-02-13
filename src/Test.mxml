@@ -7,8 +7,10 @@
 
 	<mx:Script>
 		<![CDATA[
-			import com.iblsoft.flexiweather.utils.UniURLLoader;
-			import com.iblsoft.flexiweather.utils.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
+			import com.iblsoft.flexiweather.net.loaders.UniURLLoader;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
 			
 			import mx.events.FlexEvent;
@@ -27,10 +29,10 @@
 			{
 				BackgroundJobManager.getInstance().createDefaultPreloader();
 				BackgroundJobManager.getInstance().setupIndicator(box);
-				loader.addEventListener(UniURLLoader.DATA_LOADED, onDataLoaded);
-				loader.addEventListener(UniURLLoader.DATA_LOAD_FAILED, onDataLoadFailed);
-				UniURLLoader.baseURL = "http://nb7:8008";
-				UniURLLoader.crossDomainProxyURLPattern = "${BASE_URL}/ria/proxy?u=${URL}";
+				loader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onDataLoaded);
+				loader.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onDataLoadFailed);
+				AbstractURLLoader.baseURL = "http://nb7:8008";
+				AbstractURLLoader.crossDomainProxyURLPattern = "${BASE_URL}/ria/proxy?u=${URL}";
 			}
 			
 			protected function onDataLoaded(event: UniURLLoaderEvent): void
@@ -38,7 +40,7 @@
 				area.text = String(event.result); 
 			}
 
-			protected function onDataLoadFailed(event: UniURLLoaderEvent): void
+			protected function onDataLoadFailed(event: UniURLLoaderErrorEvent): void
 			{
 				area.text = "ERROR!\n" + event.toString(); 
 			}
