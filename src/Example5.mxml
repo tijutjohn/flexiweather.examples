@@ -40,7 +40,7 @@
 				
 				m_iw.setCRS('CRS:84', false);
 				m_iw.setExtentBBOXRaw(-180,-90,180, 90);
-				var s_serverURL: String = 'http://wms.iblsoft.com';
+				var s_serverURL: String = 'http://ogcie.iblsoft.com';
 				
 				InteractiveLayerQTTMS.drawBorders = true;
 				InteractiveLayerQTTMS.drawDebugText = true;
