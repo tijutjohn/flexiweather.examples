@@ -1,5 +1,6 @@
 package
 {
+	import com.iblsoft.flexiweather.ogc.InteractiveLayerFeatureBase;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWFS;
 	import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableCurve;
 	import com.iblsoft.flexiweather.utils.AnnotationTextBox;
@@ -21,7 +22,7 @@ package
 			ms_type = s_type;
 		}
 
-		public override function setMaster(master: InteractiveLayerWFS): void
+		public override function setMaster(master: InteractiveLayerFeatureBase): void
 		{
 			super.setMaster(master);
 			master.container.labelLayout.addObstacle(this);
