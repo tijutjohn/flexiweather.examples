@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   creationComplete="onCreationComplete(event)"
+			   xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
+			   minWidth="955" minHeight="600"
+			   skinClass="spark.skins.spark.ApplicationSkin">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
+		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
+			<s:Label text="This example demonstrates preloading of multiple layers and shows correct behaviour of InteractiveWidget InteractiveLayerEvent.ALL_DATA_LAYERS_LOADED event."/>
+			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label text="Add layer:"/>
+			<s:Button label="DEM" click="addLayer('dem')"/>
+			<s:Button label="Temperature" click="addLayer('temperature')"/>
+			<s:Button label="Pressure" click="addLayer('pressure')"/>
+			<s:Button label="Wind" click="addLayer('wind')"/>
+			<s:Button label="Borders" click="addLayer('foreground')"/>
+		</s:HGroup>
+		
+		<s:TextArea id="output" width="100%" heightInLines="30" fontSize="13"/>
+		
+		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" 
+								   allDataLayersLoaded="onAllLayersLoaded(event)"
+								   dataLayerLoadingStarted="dataLayerLoadingStarted(event)"
+								   dataLayerLoadingFinished="dataLayerLoadingFinished(event)"
+								   >
+			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+		</widgets:InteractiveWidget>
+		
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.events.InteractiveWidgetEvent;
+			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
+			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.Version;
+			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
+			
+			[Bindable]
+			public var labelWidth: int = 220;
+			
+			private var scm: OGCServiceConfigurationManager;
+			private var serviceRIA: WMSServiceConfiguration;
+			private var serviceGFS: WMSServiceConfiguration;
+			
+			private function writeToOutput(txt: String): void
+			{
+				output.text = txt + "\n" + output.text;
+			}
+			private function dataLayerLoadingStarted(event: InteractiveWidgetEvent): void
+			{
+				writeToOutput("Layer starts loading. Currently layers loading: " + event.layersLoading);
+			}
+			private function dataLayerLoadingFinished(event: InteractiveWidgetEvent): void
+			{
+				writeToOutput("Layer finished loading. Currently layers loading: " + event.layersLoading);
+			}
+			
+			private function onAllLayersLoaded(event: InteractiveWidgetEvent): void
+			{
+				writeToOutput("ALL LAYERS ARE LOADED ");
+				
+			}
+			
+			/** 
+			 * Initialization of example. Temperature layer creation, call get capabilities
+			 */
+			private function onCreationComplete(event: Event): void
+			{
+//				if(Capabilities.playerType == "Desktop")
+//					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
+//				else {
+//					BackgroundJobManager.getInstance().createDefaultPreloader();
+//					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
+//				}
+				
+				m_iw.setCRS('EPSG:900913', false);
+				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
+				
+				var s_serverURL: String = 'http://ogcie.iblsoft.com';
+				scm = OGCServiceConfigurationManager.getInstance();
+				
+				serviceRIA = scm.getService(
+					"ria",
+					s_serverURL + "/ria", new Version(1, 3, 0),
+					WMSServiceConfiguration) as WMSServiceConfiguration;
+				
+				serviceGFS = scm.getService(
+					"gfs",
+					s_serverURL + "/gfs", new Version(1, 3, 0),
+					WMSServiceConfiguration) as WMSServiceConfiguration;
+				
+				
+				scm.update(scm.getAllServicesNames());
+				
+			}
+			
+			private function getWMSLayerConfiguration(type: String): WMSServiceConfiguration
+			{
+				var srv: WMSServiceConfiguration
+				switch(type)
+				{
+					case 'ria':
+						return serviceRIA;
+						break;
+					case 'gfs':
+						return serviceGFS;
+						break;
+				}
+				return null;
+			}
+			
+			private function addLayer(type: String): void
+			{
+				var lWMS: InteractiveLayerWMS;
+				var srv: WMSServiceConfiguration;
+				var lc: WMSLayerConfiguration;
+				
+				switch(type)
+				{
+					case 'dem':
+						srv = getWMSLayerConfiguration('ria');
+						
+						lc = new WMSLayerConfiguration(srv, ["background-dem"]);
+						lc.label = "Background";
+						
+						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						m_iw.addLayer(lWMS);
+						lWMS.name = 'Background';
+//						m_layerForegroundBorders.zOrder = 10;
+						lWMS.refresh(true);
+						break;
+					
+					case 'temperature':
+						
+						srv = getWMSLayerConfiguration('gfs');
+						
+						lc = new WMSLayerConfiguration(srv, ["Temperature"]);
+						lc.label = "Temperature";
+						
+						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						m_iw.addLayer(lWMS);
+						
+						lWMS.name = 'Temperature';
+						lWMS.zOrder = 0;
+						lWMS.refresh(true);
+						break;
+					case 'pressure':
+						srv = getWMSLayerConfiguration('gfs');
+						
+						lc = new WMSLayerConfiguration(srv, ["Pressure"]);
+						lc.label = "Pressure";
+						
+						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						m_iw.addLayer(lWMS);
+						
+						lWMS.name = 'Pressure';
+						lWMS.zOrder = 0;
+						lWMS.refresh(true);
+						
+						break;
+					case 'wind':
+						srv = getWMSLayerConfiguration('gfs');
+						
+						lc = new WMSLayerConfiguration(srv, ["Windbarbs"]);
+						lc.label = "Windbarbs";
+						
+						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						m_iw.addLayer(lWMS);
+						
+						lWMS.name = 'Wind';
+						lWMS.zOrder = 0;
+						lWMS.refresh(true);
+						break;
+					
+					case 'foreground':
+						
+						srv = getWMSLayerConfiguration('ria');
+						
+						lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
+						lc.label = "Overlays/Border lines";
+						
+						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						m_iw.addLayer(lWMS);
+						lWMS.name = 'Borders';
+//						m_layerForegroundBorders.zOrder = 10;
+						lWMS.refresh(true);
+						
+						break;
+				}
+			}
+		]]>
+	</fx:Script>
+	
+</s:Application>

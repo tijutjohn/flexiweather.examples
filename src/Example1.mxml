@@ -7,6 +7,7 @@
 		paddingTop="2" paddingBottom="2" paddingRight="2" paddingLeft="2">
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
@@ -87,7 +88,7 @@
 
 				var lc: WMSLayerConfiguration = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
-				lc.mi_autoRefreshPeriod = 60;
+				lc.mi_autoRefreshPeriod = 30;
 				m_layerSufraceObservations = new InteractiveLayerWMS(m_iw, lc);
 				m_iw.addLayer(m_layerSufraceObservations);
 				m_layerSufraceObservations.name = 'SurfaceObservations';
@@ -96,6 +97,8 @@
 				m_layerSufraceObservations.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
 
 				m_layerSufraceObservations.addEventListener(InteractiveDataLayer.PROGRESS, onSurfaceObservationsLayerProgress);
+				m_layerSufraceObservations.addEventListener(InteractiveDataLayer.LOADING_STARTED, onSurfaceObservationsLayerLoadingStarted);
+				m_layerSufraceObservations.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onSurfaceObservationsLayerLoadingFinished);
 				
 				lcqt = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
 				lcqt.label = "Overlays/Border lines";
@@ -114,10 +117,20 @@
 			{
 				qttProgress.setProgress(event.loaded, event.total);
 			}
+			private function onSurfaceObservationsLayerLoadingStarted(event: InteractiveLayerEvent): void
+			{
+				trace("surface observations LOADING START");
+			}
+			private function onSurfaceObservationsLayerLoadingFinished(event: InteractiveLayerEvent): void
+			{
+				trace("surface observations LOADING FINISHED");
+				
+			}
+			
 			private function onSurfaceObservationsLayerProgress(event: InteractiveLayerProgressEvent): void
 			{
 				surfaceProgress.setProgress(event.loaded, event.total);
-				trace("onSurfaceObservationsLayerProgress: " + event.loaded + " / " + event.total + " percent: " + surfaceProgress.percentComplete);
+//				trace("onSurfaceObservationsLayerProgress: " + event.loaded + " / " + event.total + " percent: " + surfaceProgress.percentComplete);
 			}
 
 			protected function onMouseMove(event: MouseEvent):void
