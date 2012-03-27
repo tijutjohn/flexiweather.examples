@@ -5,6 +5,7 @@
 			   creationComplete="onCreationComplete(event)"
 			   xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
 			   minWidth="955" minHeight="600"
+			   backgroundColor="0x888888"
 			   skinClass="spark.skins.spark.ApplicationSkin">
 	
 	<fx:Declarations>
@@ -146,7 +147,7 @@
 //				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 //				kmzFiles = new ArrayCollection(String("assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
-				kmzFiles = new ArrayCollection(String("assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+				kmzFiles = new ArrayCollection(String("assets/kmz/balloon-image-rel.kmz,assets/kmz/usa-ca-sf.kmz,assets/kmz/continents.kmz").split(","));
 				
 				lstOpenedDocuments.addEventListener('unload', onUnloadKMLFile);
 
@@ -538,13 +539,16 @@
 			
 			private function onKMLTreeItemClick(event: ListEvent): void
 			{
-				trace("onKMLTreeItemClick");
+				
+				debug("onKMLTreeItemClick: " + event.itemRenderer);
+				debug("onKMLTreeItemClick: data: " + event.itemRenderer.data);
 				var data: Object = event.itemRenderer.data;
 				var feature: KMLFeature = data.data as KMLFeature;
 				
 				if (feature is Placemark)
 				{
 					var placemark: Placemark = feature as Placemark;
+					debug("onKMLTreeItemClick: placemark: " + placemark + " geometry: " + placemark.geometry);
 					if (placemark.geometry is com.iblsoft.flexiweather.ogc.kml.features.Point)
 					{
 						var point: com.iblsoft.flexiweather.ogc.kml.features.Point = placemark.geometry as com.iblsoft.flexiweather.ogc.kml.features.Point;
@@ -556,7 +560,9 @@
 					}
 				} else if (feature is GroundOverlay) {
 					trace("groundOverlay");
-					var latlonbox: LatLonBox = (feature as GroundOverlay).latLonBox;
+					var overlay: GroundOverlay = feature as GroundOverlay
+					debug("onKMLTreeItemClick: overlay: " + overlay);
+					var latlonbox: LatLonBox = overlay.latLonBox;
 					var lat: Number = latlonbox.north + (latlonbox.south - latlonbox.north)/2 
 					var lon: Number = latlonbox.west + (latlonbox.east - latlonbox.west)/2 
 					
@@ -614,7 +620,13 @@
 				for each (var obj: Object in _kmlLayerDictionary)
 				{
 					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
+					if (!layer)
+						continue;
+					
 					var resourceManager: KMLResourceManager = layer.kml.resourceManager;
+					if (!resourceManager)
+						continue;
+					
 					var bitmapDatas: Array = resourceManager.getAllBitmapDatas();
 					
 					for each (var bd: BitmapData in bitmapDatas)
@@ -629,6 +641,14 @@
 						}
 						icons.addElement(img);
 					}
+				}
+			}
+			
+			private function debug(txt: String): void
+			{
+				if (debugConsole)
+				{
+					debugConsole.print("Example8: " + txt,'Info','Example8');
 				}
 			}
 		]]>
