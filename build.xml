@@ -9,6 +9,7 @@
 	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
 	<property name="UPLOAD_TO" value="${UPLOAD_TO}" />
 	<property name="DISTDIR" value="bin" />
+	<property name="LIBDIR" value="libs" />
 	<property name="BUILDDIR" value="${DISTDIR}-build" />
 	<target name="main">
 		<java jar="${FLEX_HOME}/lib/adt.jar" fork="true" failonerror="true">
@@ -157,6 +158,7 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${LIBDIR}" includes="DConsole2SWC.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 	</target>
