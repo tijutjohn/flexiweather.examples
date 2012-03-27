@@ -161,6 +161,20 @@
 			<library-path dir="${LIBDIR}" includes="DConsole2SWC.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
+		<echo message="Preparing assets"/>
+		<mkdir dir="${DISTDIR}/assets"/>
+		<mkdir dir="${DISTDIR}/assets/kml"/>
+		<mkdir dir="${DISTDIR}/assets/kmz"/>
+		<copy todir="${DISTDIR}/assets/kml">
+			<fileset dir="${APP_ROOT}/assets/kml">
+				<include name="*.kml" />
+			</fileset>
+		</copy>
+		<copy todir="${DISTDIR}/assets/kmz">
+			<fileset dir="${APP_ROOT}/assets/kmz">
+				<include name="*.kmz" />
+			</fileset>
+		</copy>
 	</target>
 	<target name="clean">
 		<delete dir="${DISTDIR}"/>
