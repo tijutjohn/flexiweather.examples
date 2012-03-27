@@ -143,8 +143,10 @@
 			private function onCreationComplete(event: Event): void
 			{
 				openedDocuments = new ArrayCollection();
-				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
-				kmzFiles = new ArrayCollection(String("assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+//				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+//				kmzFiles = new ArrayCollection(String("assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+				kmzFiles = new ArrayCollection(String("assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 				
 				lstOpenedDocuments.addEventListener('unload', onUnloadKMLFile);
 
