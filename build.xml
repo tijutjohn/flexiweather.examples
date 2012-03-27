@@ -166,12 +166,12 @@
 		<mkdir dir="${DISTDIR}/assets/kml"/>
 		<mkdir dir="${DISTDIR}/assets/kmz"/>
 		<copy todir="${DISTDIR}/assets/kml">
-			<fileset dir="${APP_ROOT}/assets/kml">
+			<fileset dir="src/assets/kml">
 				<include name="*.kml" />
 			</fileset>
 		</copy>
 		<copy todir="${DISTDIR}/assets/kmz">
-			<fileset dir="${APP_ROOT}/assets/kmz">
+			<fileset dir="src/assets/kmz">
 				<include name="*.kmz" />
 			</fileset>
 		</copy>
