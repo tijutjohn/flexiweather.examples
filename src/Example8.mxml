@@ -255,7 +255,7 @@
 					kmlString = ba.readUTFBytes(ba.length);
 					
 					kmlConfig.addEventListener(KMLLayerConfiguration.KML_FILE_LOADED, onKMLFileLoaded);
-					kmlConfig.addKMLSource(kmlString, 'assets/');
+					kmlConfig.addKMLSource(kmlString, kmlURL, 'assets/');
 					
 					_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kml"};
 					
@@ -404,6 +404,8 @@
 					kmlLayer.destroy();
 					
 					delete _kmlLayerDictionary[kmlURL];
+				} else {
+					debug("unloadLayer: cannot find layer in dictionary");
 				}
 				
 			}
