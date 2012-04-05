@@ -5,6 +5,7 @@
 			   creationComplete="onCreationComplete(event)"
 			   xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
 			   minWidth="955" minHeight="600"
+			   frameRate="30"
 			   backgroundColor="0x888888"
 			   skinClass="spark.skins.spark.ApplicationSkin">
 	
@@ -62,14 +63,14 @@
 				<s:List id="lstOpenedDocuments" dataProvider="{openedDocuments}" width="100%" itemRenderer="com.iblsoft.view.itemrenderers.KMLFileListItemRenderer"
 						change="changeKML((event.target as List).selectedItem as String)"/>
 				
-				<mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"/>
+				<mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"
+						 itemRenderer="com.iblsoft.view.itemrenderers.KMLTreeItemRenderer"/>
 				
 			</s:VGroup>
 			
 			<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" anticollisionUpdated="anticollisionUpdateCount++">
 				<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 				<widgets:InteractiveLayerPan id="m_ilp" zOrder="2" startPanning="startPanning()" stopPanning="stopPanning()"/>
-			
 			</widgets:InteractiveWidget>
 		</s:HGroup>
 		
@@ -95,11 +96,13 @@
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLBitmapLoader;
 			import com.iblsoft.flexiweather.ogc.kml.data.KMZFile;
+			import com.iblsoft.flexiweather.ogc.kml.events.KMLEvent;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLFeatureEvent;
 			import com.iblsoft.flexiweather.ogc.kml.features.GroundOverlay;
 			import com.iblsoft.flexiweather.ogc.kml.features.KML;
 			import com.iblsoft.flexiweather.ogc.kml.features.KMLFeature;
 			import com.iblsoft.flexiweather.ogc.kml.features.LatLonBox;
+			import com.iblsoft.flexiweather.ogc.kml.features.MultiGeometry;
 			import com.iblsoft.flexiweather.ogc.kml.features.Placemark;
 			import com.iblsoft.flexiweather.ogc.kml.features.Point;
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLPopupManager;
@@ -109,13 +112,17 @@
 			import com.iblsoft.flexiweather.plugins.IConsole;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
+			import com.iblsoft.flexiweather.utils.AnticollisionLayout;
 			import com.iblsoft.flexiweather.utils.DebugUtils;
 			import com.iblsoft.utils.CustomDebugConsole;
+			import com.iblsoft.utils.Stats;
 			import com.iblsoft.view.itemrenderers.KMLFileListItemRenderer;
 			
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
 			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
 			
 			import spark.components.Image;
 			
@@ -144,9 +151,9 @@
 			private function onCreationComplete(event: Event): void
 			{
 				openedDocuments = new ArrayCollection();
-//				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 //				kmzFiles = new ArrayCollection(String("assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
-				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
+//				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 				kmzFiles = new ArrayCollection(String("assets/kmz/balloon-image-rel.kmz,assets/kmz/usa-ca-sf.kmz,assets/kmz/continents.kmz").split(","));
 				
 				lstOpenedDocuments.addEventListener('unload', onUnloadKMLFile);
@@ -196,6 +203,8 @@
 				
 				initConsole();
 				
+				dConsoleParent.addChild( new Stats());
+				
 			}
 			
 			private function onKeyUp(event: KeyboardEvent): void
@@ -206,6 +215,25 @@
 				{
 					trace("do not write");
 				}
+			}
+			
+			private var _loadingPopup: Alert;
+			private function hideLoadingPopup(): void
+			{
+				PopUpManager.removePopUp(_loadingPopup);
+			}
+			private function showLoadingPopup(text: String): void
+			{
+				_loadingPopup = Alert.show(text, "Wait please", Alert.OK);
+			}
+			
+			private function kmlLoadingAndParsingStarted(): void
+			{
+				m_iw.suspendAnticollisionProcessing = true;
+			}
+			private function kmlLoadingAndParsingFinished(): void
+			{
+				m_iw.suspendAnticollisionProcessing = false;
 			}
 			
 			private function browseForKMLFile(): void
@@ -236,17 +264,30 @@
 				var kmlURL: String = fileReference.name;
 				var kmzFile: KMZFile;
 				
+				
+				//start kml loadind and parsing => suspend anticollision layout updating for now
+				kmlLoadingAndParsingStarted();
+					
 				if (!_kmlLayerDictionary)
 				{
 					_kmlLayerDictionary = new Dictionary();
 				}
 				
+				openedDocuments.addItem(kmlURL);
+				
 				if (fileReference.type == '.kmz')
 				{
+					kmlConfig.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
+					kmlConfig.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
+					kmlConfig.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
+					kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
+					kmlConfig.addEventListener(KMLLayerConfiguration.KMZ_FILE_LOADED, onKMZFileLoaded);
+					kmlConfig.addKMZByteArray(kmlURL, ba);
+					
 					//unzip .kmz file
-					kmzFile = new KMZFile(kmlURL);
-					kmzFile.addEventListener(KMZFile.KMZ_FILE_READY, onKMZFileReady);
-					kmzFile.createFromByteArray(ba);
+//					kmzFile = new KMZFile(kmlURL);
+//					kmzFile.addEventListener(KMZFile.KMZ_FILE_READY, onKMZFileReady);
+//					kmzFile.createFromByteArray(ba);
 					
 					_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kmz", configuration: kmlConfig};
 					
@@ -254,6 +295,8 @@
 				
 					kmlString = ba.readUTFBytes(ba.length);
 					
+					kmlConfig.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
+					kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
 					kmlConfig.addEventListener(KMLLayerConfiguration.KML_FILE_LOADED, onKMLFileLoaded);
 					kmlConfig.addKMLSource(kmlString, kmlURL, 'assets/');
 					
@@ -319,6 +362,9 @@
 			
 			private function loadLayer(kmlURL: String): void
 			{
+				//start kml loadind and parsing => suspend anticollision layout updating for now
+				kmlLoadingAndParsingStarted();
+				
 				openedDocuments.addItem(kmlURL);
 				
 				var extension: String;
@@ -334,12 +380,18 @@
 					
 					
 					//kml layer does not exist yet create it
+					kmlConfig.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
+					kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
 					kmlConfig.addEventListener(KMLLayerConfiguration.KML_FILE_LOADED, onKMLFileLoaded);
 					kmlConfig.loadKML(kmlURL, 'assets/');
 					
 				} else if (extension == 'kmz') {
 					_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kmz"};
 					
+					kmlConfig.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
+					kmlConfig.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
+					kmlConfig.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
+					kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
 					kmlConfig.addEventListener(KMLLayerConfiguration.KMZ_FILE_LOADED, onKMZFileLoaded);
 					kmlConfig.loadKMZ(kmlURL);
 				}
@@ -420,6 +472,26 @@
 				
 			}
 			
+			private function onKMZUnpackingStarted(event: KMLEvent): void
+			{
+				showLoadingPopup("KMZ unpacking started");
+			}
+			private function onKMZUnpackingFinished(event: KMLEvent): void
+			{
+				hideLoadingPopup();
+			}
+			
+			
+			
+			private function onKMLParsingStarted(event: KMLEvent): void
+			{
+				showLoadingPopup("KML parsing started");
+			}
+			private function onKMLParsingFinished(event: KMLEvent): void
+			{
+				hideLoadingPopup();
+			}
+			
 			private function onKMLFileLoaded(event: Event): void
 			{
 				var kmLConfig: KMLLayerConfiguration = event.currentTarget as KMLLayerConfiguration;
@@ -428,6 +500,8 @@
 				 * But if you load KML by yourself, you need to call addKMLSource function add KML source to KMLLayerConfiguration);
 				 */
 				createKMLLayerFromKMLConfiguration(kmLConfig);
+				
+				kmlLoadingAndParsingFinished();
 			}
 			
 			private function createKMLLayerFromKMLConfiguration(kmlConfig: KMLLayerConfiguration, kmzFile: KMZFile = null): void
@@ -547,35 +621,42 @@
 				var data: Object = event.itemRenderer.data;
 				var feature: KMLFeature = data.data as KMLFeature;
 				
-				if (feature is Placemark)
-				{
-					var placemark: Placemark = feature as Placemark;
-					debug("onKMLTreeItemClick: placemark: " + placemark + " geometry: " + placemark.geometry);
-					if (placemark.geometry is com.iblsoft.flexiweather.ogc.kml.features.Point)
-					{
-						var point: com.iblsoft.flexiweather.ogc.kml.features.Point = placemark.geometry as com.iblsoft.flexiweather.ogc.kml.features.Point;
-						
-						var latString: String = (point.coordinates.coordsList[0] as Object).lat;
-						var lonString: String = (point.coordinates.coordsList[0] as Object).lon;
-						
-						setCenter('CRS:84', parseFloat(latString), parseFloat(lonString));
-					}
-				} else if (feature is GroundOverlay) {
-					trace("groundOverlay");
-					var overlay: GroundOverlay = feature as GroundOverlay
-					debug("onKMLTreeItemClick: overlay: " + overlay);
-					var latlonbox: LatLonBox = overlay.latLonBox;
-					var lat: Number = latlonbox.north + (latlonbox.south - latlonbox.north)/2 
-					var lon: Number = latlonbox.west + (latlonbox.east - latlonbox.west)/2 
-					
-					setCenter('CRS:84', lat, lon);
-				}
+				var centerPoint: flash.geom.Point = feature.getCenter();
+				var coord: Coord = new Coord("CRS:84", centerPoint.x, centerPoint.y);
+				setCenter(coord);
+//				if (feature is Placemark)
+//				{
+//					var placemark: Placemark = feature as Placemark;
+//					debug("onKMLTreeItemClick: placemark: " + placemark + " geometry: " + placemark.geometry);
+//					if (placemark.geometry is MultiGeometry)
+//					{
+//							
+//					}
+//					
+//					if (placemark.geometry is com.iblsoft.flexiweather.ogc.kml.features.Point)
+//					{
+//						var point: com.iblsoft.flexiweather.ogc.kml.features.Point = placemark.geometry as com.iblsoft.flexiweather.ogc.kml.features.Point;
+//						
+//						var latString: String = (point.coordinates.coordsList[0] as Object).lat;
+//						var lonString: String = (point.coordinates.coordsList[0] as Object).lon;
+//						
+//						setCenter('CRS:84', parseFloat(latString), parseFloat(lonString));
+//					}
+//				} else if (feature is GroundOverlay) {
+//					trace("groundOverlay");
+//					var overlay: GroundOverlay = feature as GroundOverlay
+//					debug("onKMLTreeItemClick: overlay: " + overlay);
+//					var latlonbox: LatLonBox = overlay.latLonBox;
+//					var lat: Number = latlonbox.north + (latlonbox.south - latlonbox.north)/2 
+//					var lon: Number = latlonbox.west + (latlonbox.east - latlonbox.west)/2 
+//					
+//					setCenter('CRS:84', lat, lon);
+//				}
 			}
-			private function setCenter(crs: String, lat: Number, long: Number): void
+			private function setCenter(c: Coord): void
 			{
 				trace("old bbox: " + m_iw.getViewBBox());
 				
-				var c: Coord = new Coord(crs, long, lat);
 				m_iw.setCenter(c);
 			}
 			
@@ -588,8 +669,10 @@
 				
 				KMLBitmapLoader.console = debugConsole;
 				AbstractURLLoader.debugConsole = debugConsole;
-				KMLResourceManager.debugConsole = debugConsole;
+//				KMLResourceManager.debugConsole = debugConsole;
 				DefaultKMLRenderer.debugConsole = debugConsole;
+				KMLFeature.debugConsole = debugConsole;
+				AnticollisionLayout.debugConsole = debugConsole;
 			}
 			private function initializeDConsole(consoleObject: DConsole): void
 			{

@@ -8,4 +8,5 @@
 		<s:Button label="Unload" click="dispatchEvent(new Event('unload', true))"/>
 		<s:Label text="{data}" width="100%"/>
 	</s:HGroup>
+	
 </s:ItemRenderer>
