@@ -1,5 +1,6 @@
 package
 {
+	import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerFeatureBase;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWFS;
 	import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableCurve;
@@ -29,9 +30,9 @@ package
 			master.container.labelLayout.addObject(m_label, [this]);
 		}
 
-		public override function update(): void
+		public override function update(changeFlag: FeatureUpdateContext): void
 		{
-			super.update();
+			super.update(changeFlag);
 			
 			graphics.clear();
 
