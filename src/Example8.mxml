@@ -84,6 +84,7 @@
 			import com.furusystems.dconsole2.IConsole;
 			import com.furusystems.dconsole2.core.gui.maindisplay.ConsoleView;
 			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
+			import com.iblsoft.flexiweather.net.loaders.KMLLoader;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.FeatureBase;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
@@ -105,6 +106,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.features.MultiGeometry;
 			import com.iblsoft.flexiweather.ogc.kml.features.Placemark;
 			import com.iblsoft.flexiweather.ogc.kml.features.Point;
+			import com.iblsoft.flexiweather.ogc.kml.managers.KMLLoaderManager;
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLPopupManager;
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLResourceManager;
 			import com.iblsoft.flexiweather.ogc.kml.renderer.DefaultKMLRenderer;
@@ -145,11 +147,22 @@
 			[Bindable]
 			public var kmlDataProvider: ArrayCollection;
 			public var displayedKmlURL: String;
+			
+			private var _kmlLoaderManager: KMLLoaderManager;
+			
 			/** 
 			 * Initialization of example. Temperature layer creation, call get capabilities
 			 */
 			private function onCreationComplete(event: Event): void
 			{
+				_kmlLoaderManager = new KMLLoaderManager();
+				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
+				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
+				_kmlLoaderManager.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
+				_kmlLoaderManager.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
+				_kmlLoaderManager.addEventListener(KMLEvent.KML_FILE_LOADED, onKMLFileLoaded);
+				_kmlLoaderManager.addEventListener(KMLEvent.KMZ_FILE_LOADED, onKMZFileLoaded);
+				
 				openedDocuments = new ArrayCollection();
 				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 //				kmzFiles = new ArrayCollection(String("assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
@@ -264,17 +277,20 @@
 				var kmlURL: String = fileReference.name;
 				var kmzFile: KMZFile;
 				
-				
 				//start kml loadind and parsing => suspend anticollision layout updating for now
 				kmlLoadingAndParsingStarted();
+				
+				_kmlLoaderManager.addKMLLink(kmlURL, ba, true);
+				
+				
+				openedDocuments.addItem(kmlURL);
 					
 				if (!_kmlLayerDictionary)
 				{
 					_kmlLayerDictionary = new Dictionary();
 				}
 				
-				openedDocuments.addItem(kmlURL);
-				
+				/*
 				if (fileReference.type == '.kmz')
 				{
 					kmlConfig.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
@@ -305,6 +321,7 @@
 					//and create KML layer now
 					createKMLLayerFromKMLConfiguration(kmlConfig, kmzFile);
 				}
+				*/
 			}
 			
 			private function onKMZFileReady(event: Event): void
@@ -367,6 +384,9 @@
 				
 				openedDocuments.addItem(kmlURL);
 				
+				_kmlLoaderManager.addKMLLink(kmlURL, null, true);
+				
+				/*
 				var extension: String;
 				var urlArr: Array = kmlURL.split('.');
 				if (urlArr)
@@ -395,6 +415,7 @@
 					kmlConfig.addEventListener(KMLLayerConfiguration.KMZ_FILE_LOADED, onKMZFileLoaded);
 					kmlConfig.loadKMZ(kmlURL);
 				}
+				*/
 			}
 			
 			private function onUnloadKMLFile(event: Event): void
@@ -461,14 +482,15 @@
 				}
 				
 			}
-			private function onKMZFileLoaded(event: Event): void
+			private function onKMZFileLoaded(event: KMLEvent): void
 			{
-				var kmLConfig: KMLLayerConfiguration = event.currentTarget as KMLLayerConfiguration;
+				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
+				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data; 
 				/**
 				 * we don't need to call kmlConfig.addKMLSource, because it was called, when kml was loaded.
 				 * But if you load KML by yourself, you need to call addKMLSource function add KML source to KMLLayerConfiguration);
 				 */
-				createKMLLayerFromKMLConfiguration(kmLConfig);
+				createKMLLayerFromKMLConfiguration(kmlConfig);
 				
 			}
 			
@@ -492,14 +514,15 @@
 				hideLoadingPopup();
 			}
 			
-			private function onKMLFileLoaded(event: Event): void
+			private function onKMLFileLoaded(event: KMLEvent): void
 			{
-				var kmLConfig: KMLLayerConfiguration = event.currentTarget as KMLLayerConfiguration;
+				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
+				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data; 
 				/**
 				 * we don't need to call kmlConfig.addKMLSource, because it was called, when kml was loaded.
 				 * But if you load KML by yourself, you need to call addKMLSource function add KML source to KMLLayerConfiguration);
 				 */
-				createKMLLayerFromKMLConfiguration(kmLConfig);
+				createKMLLayerFromKMLConfiguration(kmlConfig);
 				
 				kmlLoadingAndParsingFinished();
 			}
