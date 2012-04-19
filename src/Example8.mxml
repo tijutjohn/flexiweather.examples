@@ -96,6 +96,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.InteractiveLayerKML;
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLBitmapLoader;
+			import com.iblsoft.flexiweather.ogc.kml.data.KMLLoaderObject;
 			import com.iblsoft.flexiweather.ogc.kml.data.KMZFile;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLEvent;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLFeatureEvent;
@@ -120,6 +121,8 @@
 			import com.iblsoft.utils.Stats;
 			import com.iblsoft.view.itemrenderers.KMLFileListItemRenderer;
 			
+			import mx.binding.utils.BindingUtils;
+			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
@@ -456,6 +459,12 @@
 				//remove KML layer
 				var layerObject: Object = _kmlLayerDictionary[kmlURL];
 				var kmlLayer: InteractiveLayerKML = layerObject.layer as InteractiveLayerKML;
+				var watcher: ChangeWatcher = layerObject.dataProviderWatcher as ChangeWatcher;
+				
+				if (watcher)
+				{
+					watcher.unwatch();
+				}
 				
 				if (kmlLayer)
 				{
@@ -547,12 +556,15 @@
 					}
 				}
 				
+				
+				var watcher: ChangeWatcher = BindingUtils.bindProperty(this, "kmlDataProvider", kmlLayer.kml, "kmlDataProvider");
 				if (_kmlLayerDictionary[kmlConfig.kmlPath])
 				{
-					_kmlLayerDictionary[kmlConfig.kmlPath].layer = kmlLayer;
+					var kmlLoaderObject: KMLLoaderObject = _kmlLayerDictionary[kmlConfig.kmlPath] as KMLLoaderObject;
+					kmlLoaderObject.layer = kmlLayer;
+					kmlLoaderObject.dataProviderWatcher = watcher;
 				}
-				
-				kmlDataProvider = kmlLayer.kml.kmlDataProvider;
+//				kmlDataProvider = kmlLayer.kml.kmlDataProvider;
 				trace("kmlDataProvider: " + kmlDataProvider);
 			}
 			
@@ -692,7 +704,7 @@
 				
 				KMLBitmapLoader.console = debugConsole;
 				AbstractURLLoader.debugConsole = debugConsole;
-//				KMLResourceManager.debugConsole = debugConsole;
+				KMLResourceManager.debugConsole = debugConsole;
 				DefaultKMLRenderer.debugConsole = debugConsole;
 				KMLFeature.debugConsole = debugConsole;
 				AnticollisionLayout.debugConsole = debugConsole;
