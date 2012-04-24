@@ -9,6 +9,7 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
+			import com.iblsoft.flexiweather.events.InteractiveLayerQTTEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
@@ -162,6 +163,11 @@
 					m_iw.removeLayer(m_openStreetLayer);
 				}
 			}
+			
+			private function onZoomLevelChanged(event: InteractiveLayerQTTEvent): void
+			{
+				trace("new zoom level: " + event.zoomLevel);
+			}
 		]]>
 	</fx:Script>
 
@@ -225,7 +231,7 @@
 				change="m_openStreetLayer.alpha = sliderAlpha.value"/>
 	</s:HGroup>
 	<s:NavigatorContent width="100%" height="100%">
-		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)">
+		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)" zoomLevelChanged="onZoomLevelChanged(event)">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 		</widgets:InteractiveWidget>
