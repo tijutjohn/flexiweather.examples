@@ -4,6 +4,10 @@
 			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
 			   creationComplete="onCreationComplete(event)"
 			   skinClass="spark.skins.spark.ApplicationSkin">
+	<fx:Metadata>
+		[Event(name="preloadedFramesCountChange",type="flash.events.Event")]
+		[Event(name="preloadingFramesCountChange",type="flash.events.Event")]
+	</fx:Metadata>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -75,12 +79,19 @@
 			import mx.events.SliderEvent;
 			
 			import spark.filters.GlowFilter;
+			public static const PRELOADINGFRAMESCOUNT_CHANGE_EVENT:String = "preloadingFramesCountChange";
+			public static const PRELOADEDFRAMESCOUNT_CHANGE_EVENT:String = "preloadedFramesCountChange";
 			
 			[Bindable]
 			public var maxFrames: int;
 			
 			[Bindable]
 			public var labelWidth: int = 220;
+			
+			public var timerInterval: int = 50;
+			
+			// set this to true to use tiled temperature layer
+			private var m_createTiledLayers: Boolean = false;
 			
 			/**
 			 * Temperature layer
@@ -94,6 +105,9 @@
 			 */
 			private var b_getCapabilitiesReceived: Boolean;
 
+			[Bindable]
+			private var currentTime: String;
+			
 			/**
 			 * Boolean property indicates that all frames are preloading
 			 */
@@ -115,18 +129,44 @@
 			/**
 			 * how many frames are already preloaded
 			 */
-			[Bindable]
-			private var m_preloadedFramesCount: int = 0;
+			private var _preloadedFramesCount: int = 0;
+			[Bindable(event="preloadedFramesCountChange")]
+			public function get preloadedFramesCount():int
+			{
+				return _preloadedFramesCount;
+			}
+
+			public function set preloadedFramesCount(value:int):void
+			{
+				if (_preloadedFramesCount != value)
+				{
+					_preloadedFramesCount = value;
+					dispatchEvent(new Event(PRELOADEDFRAMESCOUNT_CHANGE_EVENT));
+				}
+			}
 			
-			
-			[Bindable]
-			private var currentTime: String;
 			
 			/**
 			 * how many frames are currently preloading
 			 */
-			[Bindable]
-			private var m_preloadingFramesCount: int = 0;
+			private var _preloadingFramesCount: int = 0;
+			
+
+
+			[Bindable(event="preloadingFramesCountChange")]
+			public function get preloadingFramesCount():int
+			{
+				return _preloadingFramesCount;
+			}
+
+			public function set preloadingFramesCount(value:int):void
+			{
+				if (_preloadingFramesCount != value)
+				{
+					_preloadingFramesCount = value;
+					dispatchEvent(new Event(PRELOADINGFRAMESCOUNT_CHANGE_EVENT));
+				}
+			}
 			
 			private var scm: OGCServiceConfigurationManager;
 			
@@ -151,13 +191,15 @@
 			[Bindable]
 			private var autoPlayPaused: Boolean;
 			
+
+
 			/**
 			 * Clear whole cache
 			 */
 			private function clearCache(): void
 			{
-				m_preloadedFramesCount = 0;
-				m_preloadingFramesCount = 0;
+				preloadedFramesCount = 0;
+				preloadingFramesCount = 0;
 				m_layerTemperature.clearCache();
 				
 				//set slider to first frame
@@ -195,9 +237,9 @@
 					s_serverURL + "/gfs", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
 				
-				var lc: WMSLayerConfiguration = new WMSLayerConfiguration(srv2, ["Temperature"]);
+				var lc: WMSLayerConfiguration = createLayerConfiguration(srv2, ["Temperature"]);
 				lc.label = "Temperature";
-				m_layerTemperature = new InteractiveLayerWMS(m_iw, lc);
+				m_layerTemperature = lc.createInteractiveLayer(m_iw) as InteractiveLayerWMS;
 				m_iw.addLayer(m_layerTemperature);
 				m_layerTemperature.name = 'Temperature';
 				m_layerTemperature.zOrder = 0;
@@ -206,17 +248,19 @@
 //				m_layerTemperature.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
 				
 				
-				var lcqt: WMSLayerConfiguration = new WMSLayerConfiguration(srv, ["foreground-lines"]);
-				lcqt.label = "Overlays/Border lines";
-				m_layerForegroundBorders = new InteractiveLayerWMS(m_iw, lcqt);
-				m_iw.addLayer(m_layerForegroundBorders);
-				m_layerForegroundBorders.name = 'Borders';
-//				m_layerForegroundBorders.zOrder = 10;
-				m_layerForegroundBorders.refresh(true);
+//				var lcqt: WMSLayerConfiguration = createLayerConfiguration(srv, ["foreground-lines"]);
+//				lcqt.label = "Overlays/Border lines";
+//				m_layerForegroundBorders = lcqt.createInteractiveLayer(m_iw) as InteractiveLayerWMS;
+//				m_iw.addLayer(m_layerForegroundBorders);
+//				m_layerForegroundBorders.name = 'Borders';
+//				m_layerForegroundBorders.refresh(true);
+				
 				
 				
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
+				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_STARTED, onTemperatureLayerPreLoadingStarted);
+				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreLoadingFinished);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
 				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
 				scm.update(scm.getAllServicesNames());
@@ -229,6 +273,15 @@
 				
 			}
 			
+			private function createLayerConfiguration(srv: WMSServiceConfiguration, layerNames: Array): WMSLayerConfiguration
+			{
+				if (m_createTiledLayers)
+					return new WMSWithQTTLayerConfiguration(srv, layerNames);
+				else
+					return new WMSLayerConfiguration(srv, layerNames);
+				
+			}
+			
 			/**
 			 * start autoplay of frames
 			 */
@@ -236,7 +289,7 @@
 			{
 				if (!autoPlayTimer)
 				{
-					autoPlayTimer = new Timer(50);
+					autoPlayTimer = new Timer(timerInterval);
 					autoPlayTimer.addEventListener(TimerEvent.TIMER, onAutoPlayTimer);
 				}
 				
@@ -278,15 +331,33 @@
 			 */
 			private function onAutoPlayTimer(event: TimerEvent): void
 			{
+				if (!preloadingData)
+					return;
+				
 				autoPlayFramePosition++;
-				if (autoPlayFramePosition >= preloadingData.length)
+				var totalFrames: int = preloadingData.length;
+				if (autoPlayFramePosition >= totalFrames)
 				{
 					autoPlayFramePosition = 0;
 				}
-				
-				sliderFrame.value = autoPlayFramePosition;
-				
-				changeFrame(autoPlayFramePosition);
+				if (isFramePreloaded(autoPlayFramePosition))
+				{
+					sliderFrame.value = autoPlayFramePosition;
+					
+					changeFrame(autoPlayFramePosition);
+				} else {
+					autoPlayFramePosition--;
+				}
+			}
+			
+			private function isFramePreloaded(frameNr: int): Boolean
+			{
+				if (preloadingData && preloadingData.length > frameNr)
+				{
+					var wmsViewProperties: WMSViewProperties = preloadingData.getItemAt(frameNr) as WMSViewProperties;
+					return m_layerTemperature.isPreloaded(wmsViewProperties);
+				} 
+				return false;
 			}
 			
 			/**
@@ -348,7 +419,7 @@
 					updateTotalProgress();
 					
 					var total: int = preloadingData.length;
-					var preloading: int = m_preloadedFramesCount + m_preloadingFramesCount;
+					var preloading: int = preloadedFramesCount + preloadingFramesCount;
 					var totalForPreloading: int = Math.min(total, preloading + count);
 					var leftForPreloading: int = total - totalForPreloading;
 					
@@ -400,8 +471,8 @@
 			
 			private function onTemperatureLayerLoadingStarted(event: InteractiveLayerEvent): void
 			{
-				m_preloadingFramesCount++;
-//				trace("onTemperatureLayerLoadingStarted autoPlayPaused: " + autoPlayPaused + " m_preloadingFramesCount: " + m_preloadingFramesCount);
+				preloadingFramesCount++;
+				trace("\nonTemperatureLayerLoadingStarted autoPlayPaused: " + autoPlayPaused + " preloadingFramesCount: " + preloadingFramesCount);
 			}
 			
 			private function onTemperatureLayerLoadingFinished(event: InteractiveLayerEvent): void
@@ -409,17 +480,29 @@
 				/// need to update frames on next frame (frame wil be cached in cache)
 				callLater(updateProgressAfterFrameLoadingFinished);
 				
-//				trace("onTemperatureLayerLoadingFinished autoPlayPaused: " + autoPlayPaused + " autoPlayEnabled: " + autoPlayEnabled + " m_preloadingFramesCount: " + m_preloadingFramesCount + " m_preloadedFramesCount: " + m_preloadedFramesCount);
+				trace("onTemperatureLayerLoadingFinished autoPlayPaused: " + autoPlayPaused + " autoPlayEnabled: " + autoPlayEnabled + " preloadingFramesCount: " + preloadingFramesCount + " preloadedFramesCount: " + preloadedFramesCount+"\n");
 				continueWithAutoPlayIfPossible();
+			}
+			
+			private function onTemperatureLayerPreLoadingStarted(event: InteractiveLayerEvent): void
+			{
+				trace("FRAMES PRELOADING HAS STARTED");
+				
+			}
+			
+			private function onTemperatureLayerPreLoadingFinished(event: InteractiveLayerEvent): void
+			{
+				//all frames are preloaded
+				trace("ALL FRAMES ARE PRELOADED");
 			}
 			
 			private function updateProgressAfterFrameLoadingFinished(): void
 			{
-				m_preloadingFramesCount--;
-//				trace("updateProgressAfterFrameLoadingFinished m_preloadingFramesCount: " + m_preloadingFramesCount);
+				preloadingFramesCount--;
+//				trace("updateProgressAfterFrameLoadingFinished preloadingFramesCount: " + preloadingFramesCount);
 				//check how many frames are preloaded on temperature layer
-				m_preloadedFramesCount = getCachedFramesCount();
-				//frame was preloaded, so we can increment m_preloadedFramesCount
+				preloadedFramesCount = getCachedFramesCount();
+				//frame was preloaded, so we can increment preloadedFramesCount
 				updateTotalProgress();
 			}
 			
@@ -430,7 +513,7 @@
 			{
 				updateTotalProgress();
 				
-				if (m_preloadedFramesCount >= maxFrames)
+				if (preloadedFramesCount >= maxFrames)
 				{
 					b_framesArePreloading = false;
 					b_framesArePreloaded = true;
@@ -461,9 +544,9 @@
 			
 			private function updateTotalProgress(): void
 			{
-				m_preloadedFramesCount = getCachedFramesCount();
-				totalProgress.setProgress(m_preloadedFramesCount, maxFrames);
-				totalProgress.label = "Preloaded frames: " + m_preloadedFramesCount + " from " + maxFrames + " frames";
+				preloadedFramesCount = getCachedFramesCount();
+				totalProgress.setProgress(preloadedFramesCount, maxFrames);
+				totalProgress.label = "Preloaded frames: " + preloadedFramesCount + " from " + maxFrames + " frames";
 			}
 			
 			private function getViewData(forecast: String): WMSViewProperties
