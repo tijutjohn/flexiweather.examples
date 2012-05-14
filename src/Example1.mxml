@@ -89,7 +89,7 @@
 
 				var lc: WMSLayerConfiguration = new WMSLayerConfiguration(srv2, ["Surface"]);
 				lc.label = "Surface observations";
-				lc.mi_autoRefreshPeriod = 30;
+				lc.autoRefreshPeriod = 30;
 				m_layerSufraceObservations = new InteractiveLayerWMS(m_iw, lc);
 				m_iw.addLayer(m_layerSufraceObservations);
 				m_layerSufraceObservations.name = 'SurfaceObservations';
@@ -109,7 +109,7 @@
 				m_layerForegroundBorders.zOrder = -1;
 				m_layerForegroundBorders.refresh(true);
 
-				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+//				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 			}
@@ -117,6 +117,10 @@
 			private function onOpenStreetLayerProgress(event: InteractiveLayerProgressEvent): void
 			{
 				qttProgress.setProgress(event.loaded, event.total);
+			}
+			private function onSurfaceObservationsLayerViewPropertiesLoadingStarted(event: InteractiveLayerEvent): void
+			{
+				trace("surface observations current View Properties LOADING START");
 			}
 			private function onSurfaceObservationsLayerLoadingStarted(event: InteractiveLayerEvent): void
 			{
@@ -232,8 +236,8 @@
 	</s:HGroup>
 	<s:NavigatorContent width="100%" height="100%">
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" mouseMove="onMouseMove(event)" zoomLevelChanged="onZoomLevelChanged(event)">
-			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
-			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1" enabled="false"/>
+			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2" enabled="false"/>
 		</widgets:InteractiveWidget>
 	</s:NavigatorContent>
 </s:VGroup>
