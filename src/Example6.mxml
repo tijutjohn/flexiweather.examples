@@ -275,10 +275,13 @@
 			
 			private function createLayerConfiguration(srv: WMSServiceConfiguration, layerNames: Array): WMSLayerConfiguration
 			{
-				if (m_createTiledLayers)
-					return new WMSWithQTTLayerConfiguration(srv, layerNames);
-				else
+				if (m_createTiledLayers) {
+					var wmsWithQTTConfig: WMSWithQTTLayerConfiguration = new WMSWithQTTLayerConfiguration(srv, layerNames);
+					wmsWithQTTConfig.avoidTiling = !m_createTiledLayers;
+					return wmsWithQTTConfig;
+				} else {
 					return new WMSLayerConfiguration(srv, layerNames);
+				}
 				
 			}
 			

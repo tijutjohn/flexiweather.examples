@@ -22,6 +22,9 @@
 			<s:Button label="Pressure" click="addLayer('pressure')"/>
 			<s:Button label="Wind" click="addLayer('wind')"/>
 			<s:Button label="Borders" click="addLayer('foreground')"/>
+			
+			<s:ButtonBar id="bbLayerType" dataProvider="{layerTypes}" change="currentLabelTypeChanged(bbLayerType.selectedItem)"/>
+			<s:CheckBox label="Create tiled layers for WMS with QTT" selected="{createTiledLayers}" change="wmsWithQTTTilingChange(event.target as CheckBox)"/>
 		</s:HGroup>
 		
 		<s:TextArea id="output" width="100%" heightInLines="30" fontSize="13"/>
@@ -41,15 +44,28 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.events.InteractiveWidgetEvent;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
+			import com.iblsoft.flexiweather.ogc.LayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.QTTMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			import com.iblsoft.flexiweather.widgets.InteractiveLayer;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			
+			import mx.collections.ArrayCollection;
+			
+			[Bindable]
+			public var currentLabelType: String;
 			[Bindable]
 			public var labelWidth: int = 220;
+			[Bindable]
+			public var createTiledLayers: Boolean;
+			[Bindable]
+			public var layerTypes: ArrayCollection = new ArrayCollection(String("WMS,WMSWithQTT,QTTMS").split(","));
 			
 			private var scm: OGCServiceConfigurationManager;
 			private var serviceRIA: WMSServiceConfiguration;
@@ -105,6 +121,8 @@
 				
 				scm.update(scm.getAllServicesNames());
 				
+				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = createTiledLayers;
+				
 			}
 			
 			private function getWMSLayerConfiguration(type: String): WMSServiceConfiguration
@@ -122,24 +140,58 @@
 				return null;
 			}
 			
+			private function wmsWithQTTTilingChange(checkbox: CheckBox): void
+			{
+				createTiledLayers = checkbox.selected;	
+				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = !createTiledLayers
+			}
+			private function currentLabelTypeChanged(newType: String): void
+			{
+				currentLabelType = newType;
+			}
+			
+			private function createLayerConfiguration(srv: WMSServiceConfiguration, layerNames: Array): LayerConfiguration
+			{
+				switch(currentLabelType)
+				{
+					case "WMS":
+					default:
+					{
+						return new WMSLayerConfiguration(srv, layerNames);
+						break;
+					}
+					case "WMSWithQTT":
+					{
+						return new WMSWithQTTLayerConfiguration(srv, layerNames);
+						break;
+					}
+						
+					case "QTTMS":
+					{
+						return new QTTMSLayerConfiguration();
+						break;
+					}
+				}
+				
+				return new WMSLayerConfiguration(srv, layerNames);
+			}
 			private function addLayer(type: String): void
 			{
-				var lWMS: InteractiveLayerWMS;
+				var lWMS: InteractiveLayer;
 				var srv: WMSServiceConfiguration;
-				var lc: WMSLayerConfiguration;
+				var lc: LayerConfiguration;
 				
 				switch(type)
 				{
 					case 'dem':
 						srv = getWMSLayerConfiguration('ria');
 						
-						lc = new WMSLayerConfiguration(srv, ["background-dem"]);
+						lc = createLayerConfiguration(srv, ["background-dem"]);
 						lc.label = "Background";
 						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
 						m_iw.addLayer(lWMS);
 						lWMS.name = 'Background';
-//						m_layerForegroundBorders.zOrder = 10;
 						lWMS.refresh(true);
 						break;
 					
@@ -147,10 +199,10 @@
 						
 						srv = getWMSLayerConfiguration('gfs');
 						
-						lc = new WMSLayerConfiguration(srv, ["Temperature"]);
+						lc = createLayerConfiguration(srv, ["Temperature"]);
 						lc.label = "Temperature";
 						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
 						m_iw.addLayer(lWMS);
 						
 						lWMS.name = 'Temperature';
@@ -160,10 +212,10 @@
 					case 'pressure':
 						srv = getWMSLayerConfiguration('gfs');
 						
-						lc = new WMSLayerConfiguration(srv, ["Pressure"]);
+						lc = createLayerConfiguration(srv, ["Pressure"]);
 						lc.label = "Pressure";
 						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
 						m_iw.addLayer(lWMS);
 						
 						lWMS.name = 'Pressure';
@@ -174,10 +226,10 @@
 					case 'wind':
 						srv = getWMSLayerConfiguration('gfs');
 						
-						lc = new WMSLayerConfiguration(srv, ["Windbarbs"]);
+						lc = createLayerConfiguration(srv, ["Windbarbs"]);
 						lc.label = "Windbarbs";
 						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
 						m_iw.addLayer(lWMS);
 						
 						lWMS.name = 'Wind';
@@ -189,13 +241,13 @@
 						
 						srv = getWMSLayerConfiguration('ria');
 						
-						lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
+						lc = createLayerConfiguration(srv, ["foreground-lines"]);
 						lc.label = "Overlays/Border lines";
 						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
+						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayerWMS;
+//						lWMS = new InteractiveLayerWMSWithQTT(m_iw, lc);
 						m_iw.addLayer(lWMS);
 						lWMS.name = 'Borders';
-//						m_layerForegroundBorders.zOrder = 10;
 						lWMS.refresh(true);
 						
 						break;
