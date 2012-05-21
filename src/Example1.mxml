@@ -79,7 +79,7 @@
 				m_openStreetLayer = new InteractiveLayerQTTMS(m_iw, null,
 						'http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png',
 						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 1, 18);
-				m_openStreetLayer.tilesProvider = new QTTTilesProvider();
+//				m_openStreetLayer.tilesProvider = new QTTTilesProvider();
 				m_openStreetLayer.alpha = 1;
 				m_openStreetLayer.name = 'OpenStreetMap';
 				m_openStreetLayer.zOrder = -8;
