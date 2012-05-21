@@ -93,7 +93,7 @@
 			[Bindable]
 			public var labelWidth: int = 220;
 			
-			public var timerInterval: int = 20;
+			public var timerInterval: int = 100;
 			
 			// set this to true to use tiled temperature layer
 			[Bindable]
@@ -262,7 +262,15 @@
 				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
 				*/
 				
+				var lcqt: WMSWithQTTLayerConfiguration;
 				
+				lcqt = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
+				lcqt.label = "Overlays/Border lines";
+				m_layerForegroundBorders = new InteractiveLayerWMSWithQTT(m_iw, lcqt);
+				m_iw.addLayer(m_layerForegroundBorders);
+				m_layerForegroundBorders.name = 'Borders';
+				m_layerForegroundBorders.zOrder = 1000;
+				m_layerForegroundBorders.refresh(true);
 				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
