@@ -52,7 +52,7 @@
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
-			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
+				import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.SynchronisedVariableChangeEvent;
@@ -60,6 +60,7 @@
 			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.data.IViewProperties;
 			import com.iblsoft.flexiweather.ogc.data.WMSViewProperties;
 			import com.iblsoft.flexiweather.ogc.events.GetCapabilitiesEvent;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
@@ -78,6 +79,7 @@
 			import mx.controls.Alert;
 			import mx.events.SliderEvent;
 			
+			import spark.core.IViewport;
 			import spark.filters.GlowFilter;
 			public static const PRELOADINGFRAMESCOUNT_CHANGE_EVENT:String = "preloadingFramesCountChange";
 			public static const PRELOADEDFRAMESCOUNT_CHANGE_EVENT:String = "preloadedFramesCountChange";
@@ -88,15 +90,15 @@
 			[Bindable]
 			public var labelWidth: int = 220;
 			
-			public var timerInterval: int = 50;
+			public var timerInterval: int = 20;
 			
 			// set this to true to use tiled temperature layer
-			private var m_createTiledLayers: Boolean = false;
+			private var m_createTiledLayers: Boolean = true;
 			
 			/**
 			 * Temperature layer
 			 */
-			private var m_layerTemperature: InteractiveLayerWMS;
+			private var m_layerTemperature: InteractiveLayerMSBase;
 			
 			private var m_layerForegroundBorders: InteractiveLayerWMS;
 			
@@ -239,28 +241,17 @@
 				
 				var lc: WMSLayerConfiguration = createLayerConfiguration(srv2, ["Temperature"]);
 				lc.label = "Temperature";
-				m_layerTemperature = lc.createInteractiveLayer(m_iw) as InteractiveLayerWMS;
+				m_layerTemperature = lc.createInteractiveLayer(m_iw) as InteractiveLayerMSBase;
 				m_iw.addLayer(m_layerTemperature);
 				m_layerTemperature.name = 'Temperature';
 				m_layerTemperature.zOrder = 0;
-//				m_layerTemperature.alpha = 0.5;
 				m_layerTemperature.refresh(true);
-//				m_layerTemperature.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
-				
-				
-//				var lcqt: WMSLayerConfiguration = createLayerConfiguration(srv, ["foreground-lines"]);
-//				lcqt.label = "Overlays/Border lines";
-//				m_layerForegroundBorders = lcqt.createInteractiveLayer(m_iw) as InteractiveLayerWMS;
-//				m_iw.addLayer(m_layerForegroundBorders);
-//				m_layerForegroundBorders.name = 'Borders';
-//				m_layerForegroundBorders.refresh(true);
-				
 				
 				
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
-				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_STARTED, onTemperatureLayerPreLoadingStarted);
-				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreLoadingFinished);
+				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_STARTED, onTemperatureLayerPreloadingStarted);
+				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
 				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
 				scm.update(scm.getAllServicesNames());
@@ -357,8 +348,8 @@
 			{
 				if (preloadingData && preloadingData.length > frameNr)
 				{
-					var wmsViewProperties: WMSViewProperties = preloadingData.getItemAt(frameNr) as WMSViewProperties;
-					return m_layerTemperature.isPreloaded(wmsViewProperties);
+					var viewProperties: IViewProperties = preloadingData.getItemAt(frameNr) as IViewProperties;
+					return m_layerTemperature.isPreloaded(viewProperties);
 				} 
 				return false;
 			}
@@ -400,7 +391,7 @@
 				if (dimValues)
 				{
 					maxFrames = dimValues.length;
-					var currViewData: WMSViewProperties = m_layerTemperature.currentWMSViewProperties;
+					var currViewData: WMSViewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
 					var total: int = dimValues.length;
 					preloadingData = new ArrayCollection();
 					//0th item is currently loaded frame, so it will not be preloaded again
@@ -408,7 +399,7 @@
 					{
 						var dimValue: Object = dimValues[i] as Object;
 						//store viewProperties for each frame
-						var frameViewProperties: WMSViewProperties = getViewData(dimValue.value);
+						var frameViewProperties: WMSViewProperties = getViewData(dimValue.value) as WMSViewProperties;
 						preloadingData.addItem(frameViewProperties);
 						
 					}
@@ -429,8 +420,8 @@
 //					trace("Preload next: [" + preloading + " , " + totalForPreloading + "] After preload there will be left: " + leftForPreloading + " frames for preloading.");
 					for (var i: int = preloading ; i < totalForPreloading; i++)
 					{
-						var wmsViewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
-						preloadViewData(wmsViewProperties);
+						var viewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
+						preloadViewData(viewProperties);
 					}
 				}
 				
@@ -448,8 +439,8 @@
 					//0th item is currently loaded frame, so it will not be preloaded again
 					for (var i: int = 0; i < total; i++)
 					{
-						var wmsViewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
-						preloadViewData(wmsViewProperties);
+						var viewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
+						preloadViewData(viewProperties);
 					}
 				}
 			}
@@ -487,16 +478,19 @@
 				continueWithAutoPlayIfPossible();
 			}
 			
-			private function onTemperatureLayerPreLoadingStarted(event: InteractiveLayerEvent): void
+			private function onTemperatureLayerPreloadingStarted(event: InteractiveLayerEvent): void
 			{
 				trace("FRAMES PRELOADING HAS STARTED");
 				
 			}
 			
-			private function onTemperatureLayerPreLoadingFinished(event: InteractiveLayerEvent): void
+			private function onTemperatureLayerPreloadingFinished(event: InteractiveLayerEvent): void
 			{
 				//all frames are preloaded
 				trace("ALL FRAMES ARE PRELOADED");
+				
+				//we are finished, update to first frame
+				changeFrame(0);
 			}
 			
 			private function updateProgressAfterFrameLoadingFinished(): void
@@ -552,16 +546,23 @@
 				totalProgress.label = "Preloaded frames: " + preloadedFramesCount + " from " + maxFrames + " frames";
 			}
 			
-			private function getViewData(forecast: String): WMSViewProperties
+			private function getViewData(forecast: String): IViewProperties
 			{
-				var currViewData: WMSViewProperties = m_layerTemperature.currentWMSViewProperties;
+				var currViewData: WMSViewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
 				
-				//clone current view properties from temperature layer
-				var preloadingViewData: WMSViewProperties = currViewData.clone() as WMSViewProperties;
-				//and set FORECAST for this view properties
-				preloadingViewData.setWMSDimensionValue('FORECAST', forecast);
-
-				return preloadingViewData;
+				if (currViewData)
+				{
+					//clone current view properties from temperature layer
+					var preloadingViewData: IViewProperties = currViewData.clone() as IViewProperties;
+					
+					var wmsPreloadingViewData: WMSViewProperties = preloadingViewData as WMSViewProperties;
+					
+					//and set FORECAST for this view properties
+					wmsPreloadingViewData.setWMSDimensionValue('FORECAST', forecast);
+	
+					return wmsPreloadingViewData;
+				}
+				return null;
 			}
 			
 			private function preloadViewData(preloadingViewData: WMSViewProperties): void
@@ -580,15 +581,17 @@
 				
 				if (currPos >= 0 && currPos < preloadingData.length)
 				{
-					var preloadingViewData: WMSViewProperties = preloadingData.getItemAt(currPos) as WMSViewProperties;
-					var forecast: String = preloadingViewData.getWMSDimensionValue('FORECAST') as String;
+					var preloadingViewData: IViewProperties = preloadingData.getItemAt(currPos) as IViewProperties;
+					
+					var wmsPreloadingViewData: WMSViewProperties = preloadingViewData as WMSViewProperties;
+					var forecast: String = wmsPreloadingViewData.getWMSDimensionValue('FORECAST') as String;
 					
 					currentTime = forecast;// ISO8601Parser.dateToString( value as Date );
 					
-					var isPreloaded: Boolean = m_layerTemperature.isPreloaded(preloadingViewData);
+					var isPreloaded: Boolean = m_layerTemperature.isPreloaded(wmsPreloadingViewData);
 					if (!isPreloaded)
 					{
-						preloadViewData(preloadingViewData);
+						preloadViewData(wmsPreloadingViewData);
 						
 						if (autoPlayTimer && autoPlayTimer.running)
 						{
@@ -599,7 +602,7 @@
 							}
 						}
 					}
-					m_layerTemperature.setWMSDimensionValue('FORECAST', forecast);
+					m_layerTemperature.changeViewProperties(wmsPreloadingViewData);
 					
 					//there must be "false" value, otherwise it will not check cached bitmaps
 					m_layerTemperature.refresh(false);
@@ -624,8 +627,7 @@
 				if (nextFramePos >= preloadingData.length)
 					nextFramePos = 0;
 				
-				var preloadingViewData: WMSViewProperties = preloadingData.getItemAt(nextFramePos) as WMSViewProperties;
-				var forecast: String = preloadingViewData.getWMSDimensionValue('FORECAST') as String;
+				var preloadingViewData: IViewProperties = preloadingData.getItemAt(nextFramePos) as IViewProperties;
 				
 				var isPreloaded: Boolean = m_layerTemperature.isPreloaded(preloadingViewData);
 				return isPreloaded;
