@@ -50,7 +50,7 @@
 				m_layerDEMBackground = new InteractiveLayerQTTMS(m_iw, null, demPattern, 'CRS:84', new BBox(-180,-180,180, 180));
 				m_layerDEMBackground.addEventListener(InteractiveDataLayer.PROGRESS, onDEMProgress);
 				m_iw.addLayer(m_layerDEMBackground);
-				m_layerDEMBackground.tilesProvider = new QTTTilesProvider();
+//				m_layerDEMBackground.tilesProvider = new QTTTilesProvider();
 				m_layerDEMBackground.avoidTiling = false;
 				m_layerDEMBackground.name = 'DEMBackground';
 				m_layerDEMBackground.zOrder = -10;
