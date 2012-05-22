@@ -27,7 +27,7 @@
 			<s:CheckBox label="Create tiled layers for WMS with QTT" selected="{createTiledLayers}" change="wmsWithQTTTilingChange(event.target as CheckBox)"/>
 		</s:HGroup>
 		
-		<s:TextArea id="output" width="100%" heightInLines="30" fontSize="13"/>
+		<s:TextArea id="output" width="100%" heightInLines="10" fontSize="13"/>
 		
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" 
 								   allDataLayersLoaded="onAllLayersLoaded(event)"
