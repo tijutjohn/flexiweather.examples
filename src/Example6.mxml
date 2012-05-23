@@ -21,8 +21,8 @@
 		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
 			<s:Button label="Preload all frames" click="preloadAllFrames()" enabled="{!b_framesArePreloaded &amp;&amp; !b_framesArePreloading}"/>
 			<!--s:Button label="Preload next 4 frames" click="preloadFrames(4)"/-->
-			<s:Button label="Clear cache" click="clearCache()"/>
-			<s:ToggleButton label="Use tiled layer" click="useTiledLayer((event.currentTarget as ToggleButton).selected)" selected="{m_createTiledLayers}"/>
+			<s:Button label="Clear cache" click="clearCache()" enabled="{!b_framesArePreloading}"/>
+			<s:ToggleButton label="Use tiled layer" enabled="{!b_framesArePreloading}" click="useTiledLayer((event.currentTarget as ToggleButton).selected)" selected="{m_createTiledLayers}"/>
 							
 			<s:ToggleButton label="Auto play" click="autoPlay((event.currentTarget as ToggleButton).selected)" selected="{autoPlayEnabled}"/>
 			<!--s:Button label="Update progress" click="updateTotalProgress()"/-->
@@ -539,6 +539,9 @@
 			{
 				//all frames are preloaded
 				trace("ALL FRAMES ARE PRELOADED");
+				
+				b_framesArePreloading = false;
+				b_framesArePreloaded = true;
 				
 				//we are finished, update to first frame
 				changeFrame(0);
