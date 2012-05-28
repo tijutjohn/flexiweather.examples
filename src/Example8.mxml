@@ -19,9 +19,9 @@
 		</s:HGroup>
 		<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle">
 			<s:Label text="Projections:"/>
-			<s:ToggleButton label="LatLon"
-							selected="{m_iw.crs == 'EPSG:4326'}" 
-							click="m_iw.setCRS('EPSG:4326', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
+			<s:ToggleButton label="LatLon CRS:84"
+							selected="{m_iw.crs == 'CRS:84'}" 
+							click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
 			<s:ToggleButton label="Mercator"
 							selected="{m_iw.crs == 'EPSG:54004'}" 
 							click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-81520229.787327528,36962000.846247703,81520229.788384438);"/>
