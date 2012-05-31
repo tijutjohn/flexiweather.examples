@@ -25,23 +25,65 @@
 			
 			<s:ButtonBar id="bbLayerType" dataProvider="{layerTypes}" change="currentLabelTypeChanged(bbLayerType.selectedItem)"/>
 			<s:CheckBox label="Create tiled layers for WMS with QTT" selected="{createTiledLayers}" change="wmsWithQTTTilingChange(event.target as CheckBox)"/>
+			
+			<!-- uncomment this code if you want to check unloading InteractiveWidget and services -->
+			
+			<!--s:HGroup width="100%" horizontalAlign="right">
+				<s:Label text="Debug purposes for checking profiler after destroying InteractiveWidget and services"/>
+				<s:Button label="Destroy all" click="destroyAll()"/>
+			</s:HGroup-->
+			
 		</s:HGroup>
 		
-		<s:TextArea id="output" width="100%" heightInLines="10" fontSize="13"/>
-		
-		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" 
-								   allDataLayersLoaded="onAllLayersLoaded(event)"
-								   dataLayerLoadingStarted="dataLayerLoadingStarted(event)"
-								   dataLayerLoadingFinished="dataLayerLoadingFinished(event)"
-								   >
-			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
-			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
-		</widgets:InteractiveWidget>
-		
+		<s:HGroup width="100%" height="100%" verticalAlign="middle">
+			<s:List id="layerList" dataProvider="{layers}" height="100%" width="350">
+				<s:itemRenderer>
+					<fx:Component>
+						<s:ItemRenderer width="100%">
+							<fx:Script>
+								<![CDATA[
+									import com.iblsoft.flexiweather.widgets.InteractiveLayer;
+									
+									import mx.events.DynamicEvent;
+									
+									private function removeLayer(layer: InteractiveLayer): void
+									{
+										trace("remove layer: " + layer.name);
+										var de: DynamicEvent = new DynamicEvent("removeLayer", true);
+										de['layer'] = layer;
+										(this as ItemRenderer).dispatchEvent(de);
+									}
+								]]>
+							</fx:Script>
+							<s:HGroup width="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" verticalAlign="bottom">
+								<s:Label text="{(data as InteractiveLayer).name}" width="100%" fontWeight="bold"/>
+								<s:Button label="Remove" click="removeLayer(data as InteractiveLayer)"/>
+							</s:HGroup>
+						</s:ItemRenderer>
+					</fx:Component>
+				</s:itemRenderer>				
+			</s:List>
+			
+			<s:VGroup width="100%" height="100%">
+				
+				<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" 
+										   allDataLayersLoaded="onAllLayersLoaded(event)"
+										   dataLayerLoadingStarted="dataLayerLoadingStarted(event)"
+										   dataLayerLoadingFinished="dataLayerLoadingFinished(event)"
+										   >
+					<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+					<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+				</widgets:InteractiveWidget>
+				<s:Label text="Debug text area to see loading events information"/>
+				<s:TextArea id="output" width="100%" heightInLines="10" fontSize="13"/>
+			</s:VGroup>
+		</s:HGroup>
 	</s:VGroup>
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.core.InteractionMode;
+			import mx.events.DynamicEvent;
 			import com.iblsoft.flexiweather.events.InteractiveWidgetEvent;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.LayerConfiguration;
@@ -58,6 +100,8 @@
 			
 			import mx.collections.ArrayCollection;
 			
+			[Bindable]
+			public var layers: ArrayCollection;
 			[Bindable]
 			public var currentLabelType: String;
 			[Bindable]
@@ -90,6 +134,34 @@
 				
 			}
 			
+			private function destroyAll(): void
+			{
+				
+				scm.destroy();
+				serviceRIA = null;
+				serviceGFS = null;
+				
+				m_iw.removeLayer(m_ilp);
+				m_iw.removeLayer(m_ilz);
+				m_ilp.destroy();
+				m_ilz.destroy();
+				
+				m_iw.destroy();
+				
+			}
+			
+			private function onLayerRemove(event: DynamicEvent): void
+			{
+				var layer: InteractiveLayer = event['layer'] as InteractiveLayer;
+				var id: int = layers.getItemIndex(layer);
+				if (id > -1)
+				{
+					layers.removeItemAt(id);
+					m_iw.removeLayer(layer, true);
+				}
+				layer = null;
+			}
+			
 			/** 
 			 * Initialization of example. Temperature layer creation, call get capabilities
 			 */
@@ -101,6 +173,9 @@
 //					BackgroundJobManager.getInstance().createDefaultPreloader();
 //					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
 //				}
+				
+				layers = new ArrayCollection();
+				layerList.addEventListener('removeLayer', onLayerRemove);
 				
 				m_iw.setCRS('EPSG:900913', false);
 				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
@@ -252,6 +327,8 @@
 						
 						break;
 				}
+				
+				layers.addItem(lWMS);
 			}
 		]]>
 	</fx:Script>
