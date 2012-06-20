@@ -12,61 +12,69 @@
 	<fx:Declarations>
 	</fx:Declarations>
 	
-	<s:VGroup width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
+	<s:VGroup width="100%" height="100%" gap="2" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
 		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
-			<s:Label text="This example demonstrates displaying KML file in InteractiveWidget."/>
+			<s:Label text="This example demonstrates displaying KML files in InteractiveWidget." fontWeight="bold" fontSize="14" color="0xffffff"/>
 			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
 		</s:HGroup>
-		<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle">
-			<s:Label text="Projections:"/>
-			<s:ToggleButton label="LatLon CRS:84"
-							selected="{m_iw.crs == 'CRS:84'}" 
-							click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
-			<s:ToggleButton label="Mercator"
-							selected="{m_iw.crs == 'EPSG:54004'}" 
-							click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-81520229.787327528,36962000.846247703,81520229.788384438);"/>
-			<s:ToggleButton label="North Polar Stereo"
-							selected="{m_iw.crs == 'EPSG:102018'}" 
-							click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
-			<s:ToggleButton label="South Polar Stereo"
-							selected="{m_iw.crs == 'EPSG:102021'}" 
-							click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
-			<s:ToggleButton label="Google Maps"
-							selected="{m_iw.crs == 'EPSG:900913'}" 
-							click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
-			<!--s:Label text="anticollisionUpdateCount: {anticollisionUpdateCount}" fontWeight="bold" fontSize="16"/>
-			<s:Button label="update anti" click="m_iw.invalidateDisplayList()"/-->
-		</s:HGroup>
-		<!--s:HGroup width="100%" verticalAlign="middle">
-			<s:ToggleButton label="Show/Hide AnticollisionLayout" click="m_iw.labelLayout.visible = (event.currentTarget as ToggleButton).selected"/>
-		</s:HGroup-->
-		<s:HGroup width="100%" verticalAlign="middle">
-			<s:Label text="KML files:"/>
-			<s:DropDownList width="250" dataProvider="{kmlFiles}" change="showOrHideKMLLayer((event.target as DropDownList).selectedItem as String)"/>
-			<s:Label text="KMZ files:"/>
-			<s:DropDownList width="250" dataProvider="{kmzFiles}" change="showOrHideKMLLayer((event.target as DropDownList).selectedItem as String)"/>
-			<s:Button label="Browse for KML file" click="browseForKMLFile()"/>
-		</s:HGroup>
+		
+		<s:BorderContainer backgroundColor="0xaaaaaa" borderColor="0xcccccc" width="100%" minHeight="0">
+			<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change projection"/>
+				<s:ToggleButton label="LatLon CRS:84"
+								selected="{m_iw.crs == 'CRS:84'}" 
+								click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
+				<s:ToggleButton label="Mercator"
+								selected="{m_iw.crs == 'EPSG:54004'}" 
+								click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-81520229.787327528,36962000.846247703,81520229.788384438);"/>
+				<s:ToggleButton label="North Polar Stereo"
+								selected="{m_iw.crs == 'EPSG:102018'}" 
+								click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="South Polar Stereo"
+								selected="{m_iw.crs == 'EPSG:102021'}" 
+								click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="Google Maps"
+								selected="{m_iw.crs == 'EPSG:900913'}" 
+								click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		
+		<s:BorderContainer backgroundColor="0x999999" borderColor="0xbbbbbb" width="100%" minHeight="0">
+			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Choose from KML files"/>
+				<s:DropDownList width="250" dataProvider="{kmlFiles}" change="showOrHideKMLLayer((event.target as DropDownList).selectedItem as String)"/>
+				<s:Label text="or KMZ files:"/>
+				<s:DropDownList width="250" dataProvider="{kmzFiles}" change="showOrHideKMLLayer((event.target as DropDownList).selectedItem as String)"/>
+				
+				<s:Label text="or browse KML or KMZ files from your PC"/>
+				<s:Button label="Browse for KML file" click="browseForKMLFile()"/>
+				<s:Label text="or copy or write your own KML "/>
+				<s:Button label="Create KML from source" click="showPopupForDynamicKML()"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		
 		<s:HGroup width="100%" verticalAlign="middle">
 			<s:Label text="Please note, there is problem to load KML/KMZ assets with relative path. In Web browser there is no possibility to find out whole path of file, which was selected from dialog." fontSize="10"/>
 		</s:HGroup>
 		<s:HGroup width="100%" verticalAlign="middle">
-			<s:Button label="Debug KMLResourceManager" click="debugKRM()"/>
-		</s:HGroup>
-		<s:HGroup id="icons" width="100%" verticalAlign="middle">
+			<!--s:Button label="Debug KMLResourceManager" click="debugKRM()"/-->
+			<!--s:Button label="Show viewBBox" click="trace(m_iw.getViewBBox().toBBOXString())"/-->
 		</s:HGroup>
 		
 		<s:HGroup width="100%" height="100%">
 			
-			<s:VGroup width="250" height="100%">
-				
-				<s:List id="lstOpenedDocuments" dataProvider="{openedDocuments}" width="100%" itemRenderer="com.iblsoft.view.itemrenderers.KMLFileListItemRenderer"
-						change="changeKML((event.target as List).selectedItem as String)"/>
-				
-				<mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"
-						 itemRenderer="com.iblsoft.view.itemrenderers.KMLTreeItemRenderer"/>
-				
-			</s:VGroup>
+			<s:BorderContainer backgroundColor="0x999999" borderColor="0xbbbbbb" height="100%" minHeight="0">
+				<s:VGroup width="250" height="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+					<s:Label text="Opened KMLs" fontWeight="bold"/>
+					<s:List id="lstOpenedDocuments" dataProvider="{openedDocuments}" width="100%" itemRenderer="com.iblsoft.view.itemrenderers.KMLFileListItemRenderer"
+							change="changeKML((event.target as List).selectedItem as String)"/>
+							 
+					<s:Label text="KML Structure" fontWeight="bold"/>
+					<mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"
+							 itemRenderer="com.iblsoft.view.itemrenderers.KMLTreeItemRenderer"/>
+					
+				</s:VGroup>
+			</s:BorderContainer>
 			
 			<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" anticollisionUpdated="anticollisionUpdateCount++">
 				<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
@@ -86,6 +94,7 @@
 			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
 			import com.iblsoft.flexiweather.net.loaders.KMLLoader;
 			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.CRSWithBBox;
 			import com.iblsoft.flexiweather.ogc.FeatureBase;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
@@ -120,12 +129,15 @@
 			import com.iblsoft.utils.CustomDebugConsole;
 			import com.iblsoft.utils.Stats;
 			import com.iblsoft.view.itemrenderers.KMLFileListItemRenderer;
+			import com.iblsoft.view.popups.DynamicKMLPopup;
 			
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.FlexGlobals;
+			import mx.events.DynamicEvent;
+			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			
@@ -213,13 +225,22 @@
 				
 				
 				
-//				m_iw.labelLayout.drawAnnotationAnchor = false;
-				
 				this.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+				this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 				
 				initConsole();
 				
-				dConsoleParent.addChild( new Stats());
+				
+			}
+			
+			private function onAddedToStage(event: Event): void
+			{
+				this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
+				
+				// init debug stats
+				var stats: Stats =  new Stats();
+				stats.x = this.stage.width - stats.width;
+				dConsoleParent.addChild(stats);
 				
 			}
 			
@@ -292,39 +313,6 @@
 				{
 					_kmlLayerDictionary = new Dictionary();
 				}
-				
-				/*
-				if (fileReference.type == '.kmz')
-				{
-					kmlConfig.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
-					kmlConfig.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
-					kmlConfig.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
-					kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
-					kmlConfig.addEventListener(KMLLayerConfiguration.KMZ_FILE_LOADED, onKMZFileLoaded);
-					kmlConfig.addKMZByteArray(kmlURL, ba);
-					
-					//unzip .kmz file
-//					kmzFile = new KMZFile(kmlURL);
-//					kmzFile.addEventListener(KMZFile.KMZ_FILE_READY, onKMZFileReady);
-//					kmzFile.createFromByteArray(ba);
-					
-					_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kmz", configuration: kmlConfig};
-					
-				} else {
-				
-					kmlString = ba.readUTFBytes(ba.length);
-					
-					kmlConfig.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
-					kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
-					kmlConfig.addEventListener(KMLLayerConfiguration.KML_FILE_LOADED, onKMLFileLoaded);
-					kmlConfig.addKMLSource(kmlString, kmlURL, 'assets/');
-					
-					_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kml"};
-					
-					//and create KML layer now
-					createKMLLayerFromKMLConfiguration(kmlConfig, kmzFile);
-				}
-				*/
 			}
 			
 			private function onKMZFileReady(event: Event): void
@@ -536,6 +524,28 @@
 				kmlLoadingAndParsingFinished();
 			}
 			
+			/**
+			 * Add kml from dynamic popup. KML was not loaded, just user wrote or pasted kml source to popup
+			 **/
+			private function addDynamicKML(kmlSource: String, kmlPath: String): void
+			{
+				openedDocuments.addItem(kmlPath);
+				
+				if (!_kmlLayerDictionary)
+				{
+					_kmlLayerDictionary = new Dictionary();
+				}
+				
+				var kmlConfig: KMLLayerConfiguration = new KMLLayerConfiguration();
+				kmlConfig.kmlPath = kmlPath;
+				
+				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject( kmlPath, "kml", kmlConfig);
+				
+				kmlConfig.addKMLSource(kmlSource, kmlPath, '');
+				createKMLLayerFromKMLConfiguration(kmlConfig);
+				kmlLoadingAndParsingFinished();
+			}
+			
 			private function createKMLLayerFromKMLConfiguration(kmlConfig: KMLLayerConfiguration, kmzFile: KMZFile = null): void
 			{
 				var kmlLayer: InteractiveLayerKML = kmlConfig.createInteractiveLayer(m_iw) as InteractiveLayerKML;
@@ -659,6 +669,23 @@
 				var centerPoint: flash.geom.Point = feature.getCenter();
 				var coord: Coord = new Coord("CRS:84", centerPoint.x, centerPoint.y);
 				setCenter(coord);
+				
+				//change zoom
+				var extentWithCRS: CRSWithBBox = feature.getExtent();
+				if (extentWithCRS)
+				{
+					var extent: BBox;	
+					if (m_iw.crs != 'CRS:84')
+					{
+						extent = extentWithCRS.bboxInCRS(m_iw.crs);
+						trace("Set extent to " + extent.toBBOXString());
+					} else {
+						extent = extentWithCRS.bbox;
+					}
+					
+					m_iw.setViewBBox(extent, true);
+				}
+				
 //				if (feature is Placemark)
 //				{
 //					var placemark: Placemark = feature as Placemark;
@@ -735,7 +762,7 @@
 			
 			private function debugKRM(): void
 			{
-				icons.removeAllElements();
+//				icons.removeAllElements();
 				
 				for each (var obj: Object in _kmlLayerDictionary)
 				{
@@ -759,7 +786,7 @@
 							var sc: Number = 100 / biggerSize;
 							img.scaleX = img.scaleY = sc;
 						}
-						icons.addElement(img);
+//						icons.addElement(img);
 					}
 				}
 			}
@@ -770,6 +797,24 @@
 				{
 					debugConsole.print("Example8: " + txt,'Info','Example8');
 				}
+			}
+			
+			private function showPopupForDynamicKML(): void
+			{
+				var popup: DynamicKMLPopup = new DynamicKMLPopup();
+				popup.addEventListener('createKML', onCreateDynamicKML);
+				PopUpManager.addPopUp(popup, this, true);
+				PopUpManager.centerPopUp(popup);
+			}
+			
+			private var dynamicKMLUID: int = 0;
+			private function onCreateDynamicKML(event: DynamicEvent): void
+			{
+				var kml: String = event['kml'] as String;
+				trace("create kml: " + kml);
+				
+				dynamicKMLUID++;
+				addDynamicKML(kml, "dynamicKML"+dynamicKMLUID);
 			}
 		]]>
 	</fx:Script>
