@@ -668,22 +668,24 @@
 				
 				var centerPoint: flash.geom.Point = feature.getCenter();
 				var coord: Coord = new Coord("CRS:84", centerPoint.x, centerPoint.y);
-				setCenter(coord);
-				
-				//change zoom
-				var extentWithCRS: CRSWithBBox = feature.getExtent();
-				if (extentWithCRS)
+				if (setCenter(coord))
 				{
-					var extent: BBox;	
-					if (m_iw.crs != 'CRS:84')
+				
+					//change zoom
+					var extentWithCRS: CRSWithBBox = feature.getExtent();
+					if (extentWithCRS)
 					{
-						extent = extentWithCRS.bboxInCRS(m_iw.crs);
-						trace("Set extent to " + extent.toBBOXString());
-					} else {
-						extent = extentWithCRS.bbox;
+						var extent: BBox;	
+						if (m_iw.crs != 'CRS:84')
+						{
+							extent = extentWithCRS.bboxInCRS(m_iw.crs);
+							trace("Set extent to " + extent.toBBOXString());
+						} else {
+							extent = extentWithCRS.bbox;
+						}
+						
+						m_iw.setViewBBox(extent, true);
 					}
-					
-					m_iw.setViewBBox(extent, true);
 				}
 				
 //				if (feature is Placemark)
@@ -715,11 +717,16 @@
 //					setCenter('CRS:84', lat, lon);
 //				}
 			}
-			private function setCenter(c: Coord): void
+			private function setCenter(c: Coord): Boolean
 			{
 				trace("old bbox: " + m_iw.getViewBBox());
 				
-				m_iw.setCenter(c);
+				if (!isNaN(c.x) && !isNaN(c.y))
+				{
+					m_iw.setCenter(c);
+					return true;
+				}
+				return false;
 			}
 			
 			private var debugConsole: com.iblsoft.flexiweather.plugins.IConsole
