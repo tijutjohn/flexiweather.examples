@@ -47,7 +47,7 @@
 				lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
 				lc.label = "Overlays/Border lines";
 				l = new InteractiveLayerWMS(m_iw, lc);
-				m_iw.addLayer(l);
+				//m_iw.addLayer(l);
 				l.refresh(true);
 				
 				m_featureLayer = new InteractiveLayerWFSEditable(m_iw, new Version(1, 0, 0));
@@ -118,7 +118,7 @@
 		<mx:Button label="Show/hide editor" selected="{m_featureLayer.visible}" click="m_featureLayer.visible = !m_featureLayer.visible"/>
 	</mx:HBox>
 	<mx:VBox width="100%" height="100%">
-		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
+		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" backgroundChessBoard="true">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 		</widgets:InteractiveWidget>

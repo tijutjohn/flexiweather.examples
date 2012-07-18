@@ -5,7 +5,7 @@ package
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWFS;
 	import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableCurve;
 	import com.iblsoft.flexiweather.utils.AnnotationTextBox;
-	import com.iblsoft.flexiweather.utils.AnticollisionLayout;
+	import com.iblsoft.flexiweather.utils.anticollision.AnticollisionLayout;
 	import com.iblsoft.flexiweather.utils.geometry.ILineSegmentApproximableBounds;
 	import com.iblsoft.flexiweather.utils.geometry.LineSegment;
 	

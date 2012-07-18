@@ -7,17 +7,33 @@
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="generateKML"/>
+	</s:states>
 	<s:layout>
 		<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
 	</s:layout>
 	<s:TextArea width="100%" height="100%" id="taSource"/>
 	<s:Label text="Check https://kml-samples.googlecode.com/svn/trunk/interactive/index.html for examples" click="navigateToURL(new URLRequest('https://kml-samples.googlecode.com/svn/trunk/interactive/index.html'))"/>
 	<s:HGroup width="100%" horizontalAlign="right">
+		<s:Button label="Generate Placemark KML" click="currentState='generateKML'"/>
+		
+		<s:HGroup includeIn="generateKML">
+			<s:Label text="Placemarks:"/>
+			<s:NumericStepper id="totalPlacemarks" minimum="1" maximum="10000" stepSize="10"/>
+			<s:CheckBox id="chbLabels" label="with labels"/>
+			<s:Button label="Generate" click="generateKML(chbLabels.selected)"/>
+		</s:HGroup>
+		
 		<s:Button label="Create KML" click="createKML()"/>
 	</s:HGroup>
 	
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.utils.KMLGenerator;
+			
 			import flash.net.navigateToURL;
 			
 			import mx.events.DynamicEvent;
@@ -59,6 +75,13 @@
 				var de: DynamicEvent = new DynamicEvent('createKML');
 				de['kml'] = taSource.text;
 				dispatchEvent(de);
+			}
+			
+			private function generateKML(bWithLabels: Boolean): void
+			{
+				var str: String = KMLGenerator.generateKMLWithPlacemarks(totalPlacemarks.value, new BBox(-180, -90, 180, 90), bWithLabels);
+				taSource.text = str;
+				currentState = null;
 			}
 		]]>
 	</fx:Script>

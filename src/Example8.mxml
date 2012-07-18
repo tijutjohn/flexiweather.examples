@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009" 
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   creationComplete="onCreationComplete(event)"
 			   xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
+			   xmlns="*"
 			   minWidth="955" minHeight="600"
 			   frameRate="30"
 			   backgroundColor="0x888888"
@@ -11,6 +11,8 @@
 	
 	<fx:Declarations>
 	</fx:Declarations>
+	
+	<fx:Style source="css/fonts.css" />
 	
 	<s:VGroup width="100%" height="100%" gap="2" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
 		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
@@ -24,9 +26,6 @@
 				<s:ToggleButton label="LatLon CRS:84"
 								selected="{m_iw.crs == 'CRS:84'}" 
 								click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
-				<s:ToggleButton label="Mercator"
-								selected="{m_iw.crs == 'EPSG:54004'}" 
-								click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-81520229.787327528,36962000.846247703,81520229.788384438);"/>
 				<s:ToggleButton label="North Polar Stereo"
 								selected="{m_iw.crs == 'EPSG:102018'}" 
 								click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
@@ -59,6 +58,7 @@
 		<s:HGroup width="100%" verticalAlign="middle">
 			<!--s:Button label="Debug KMLResourceManager" click="debugKRM()"/-->
 			<!--s:Button label="Show viewBBox" click="trace(m_iw.getViewBBox().toBBOXString())"/-->
+			<s:Label text="Anticollision objects {anticollisionObjectsLength}"/>
 		</s:HGroup>
 		
 		<s:HGroup width="100%" height="100%">
@@ -70,8 +70,8 @@
 							change="changeKML((event.target as List).selectedItem as String)"/>
 							 
 					<s:Label text="KML Structure" fontWeight="bold"/>
-					<mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"
-							 itemRenderer="com.iblsoft.view.itemrenderers.KMLTreeItemRenderer"/>
+					<!--mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"
+							 itemRenderer="com.iblsoft.view.itemrenderers.KMLTreeItemRenderer"/-->
 					
 				</s:VGroup>
 			</s:BorderContainer>
@@ -105,6 +105,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.InteractiveLayerKML;
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLBitmapLoader;
+			import com.iblsoft.flexiweather.ogc.kml.controls.KMLLabel;
 			import com.iblsoft.flexiweather.ogc.kml.data.KMLLoaderObject;
 			import com.iblsoft.flexiweather.ogc.kml.data.KMZFile;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLEvent;
@@ -124,8 +125,10 @@
 			import com.iblsoft.flexiweather.plugins.IConsole;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
-			import com.iblsoft.flexiweather.utils.AnticollisionLayout;
 			import com.iblsoft.flexiweather.utils.DebugUtils;
+			import com.iblsoft.flexiweather.utils.anticollision.AnticollisionLayout;
+			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			import com.iblsoft.utils.CustomDebugConsole;
 			import com.iblsoft.utils.Stats;
 			import com.iblsoft.view.itemrenderers.KMLFileListItemRenderer;
@@ -143,10 +146,6 @@
 			
 			import spark.components.Image;
 			
-			private var scm: OGCServiceConfigurationManager;
-			private var serviceRIA: WMSServiceConfiguration;
-			private var serviceGFS: WMSServiceConfiguration;
-			
 			private var m_openStreetLayer: InteractiveLayerQTTMS;
 			
 			[Bindable]
@@ -158,6 +157,8 @@
 			
 			[Bindable]
 			public var anticollisionUpdateCount: int = 0;
+			[Bindable]
+			public var anticollisionObjectsLength: int = 0;
 			
 			[Bindable]
 			public var kmlDataProvider: ArrayCollection;
@@ -165,11 +166,25 @@
 			
 			private var _kmlLoaderManager: KMLLoaderManager;
 			
+			
 			/** 
 			 * Initialization of example. Temperature layer creation, call get capabilities
 			 */
-			private function onCreationComplete(event: Event): void
+			override protected function onCreationComplete(event: FlexEvent): void
 			{
+				super.onCreationComplete(event);
+				
+				if(Capabilities.playerType == "Desktop")
+					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
+				else {
+					BackgroundJobManager.getInstance().createDefaultPreloader();
+					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
+				}
+				
+				//change font of KML labels
+				//we do not support any font (need to be embedded)
+				KMLLabel.labelFont = 'defaultFontMX';
+				
 				_kmlLoaderManager = new KMLLoaderManager();
 				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
 				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
@@ -186,28 +201,17 @@
 				
 				lstOpenedDocuments.addEventListener('unload', onUnloadKMLFile);
 
-				var s_serverURL: String = 'http://ogcie.iblsoft.com';
-				
 				AbstractURLLoader.crossDomainProxyURLPattern = "http://wms.iblsoft.com/ria/proxy?u=${URL}";
 				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				
-				m_iw.setCRS('EPSG:900913', false);
-				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
+//				m_iw.setCRS('EPSG:900913', false);
+//				m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
+				m_iw.setCRS('CRS:84', false);
+				m_iw.setExtentBBOXRaw(-180, -90, 180, 90);
 				
-				scm = OGCServiceConfigurationManager.getInstance();
-				
-				serviceRIA = scm.getService(
-					"ria",
-					s_serverURL + "/ria", new Version(1, 3, 0),
-					WMSServiceConfiguration) as WMSServiceConfiguration;
-				
-				serviceGFS = scm.getService(
-					"gfs",
-					s_serverURL + "/gfs", new Version(1, 3, 0),
-					WMSServiceConfiguration) as WMSServiceConfiguration;
 				
 				addLayer('dem', 1);
 				
@@ -228,20 +232,24 @@
 				this.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 				this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 				
-				initConsole();
-				
-				
+//				initConsole();
 			}
 			
 			private function onAddedToStage(event: Event): void
 			{
 				this.removeEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 				
+				addEventListener(Event.ENTER_FRAME, onEnterFrame);
 				// init debug stats
-				var stats: Stats =  new Stats();
-				stats.x = this.stage.width - stats.width;
-				dConsoleParent.addChild(stats);
+//				var stats: Stats =  new Stats();
+//				stats.x = this.stage.width - stats.width;
+//				dConsoleParent.addChild(stats);
 				
+			}
+			
+			private function onEnterFrame(event: Event): void
+			{
+				anticollisionObjectsLength = m_iw.labelLayout.layoutObjectsLength;
 			}
 			
 			private function onKeyUp(event: KeyboardEvent): void
@@ -603,60 +611,7 @@
 				*/
 			}
 			
-			private function getWMSLayerConfiguration(type: String): WMSServiceConfiguration
-			{
-				var srv: WMSServiceConfiguration
-				switch(type)
-				{
-					case 'ria':
-						return serviceRIA;
-						break;
-					case 'gfs':
-						return serviceGFS;
-						break;
-				}
-				return null;
-			}
 			
-			private function addLayer(type: String, layerAlpha: Number = 1): void
-			{
-				var lWMS: InteractiveLayerWMS;
-				var srv: WMSServiceConfiguration;
-				var lc: WMSLayerConfiguration;
-				
-				switch(type)
-				{
-					case 'dem':
-						srv = getWMSLayerConfiguration('ria');
-						
-						lc = new WMSLayerConfiguration(srv, ["background-dem"]);
-						lc.label = "Background";
-						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
-						m_iw.addLayer(lWMS);
-						lWMS.name = 'Background';
-						//						m_layerForegroundBorders.zOrder = 10;
-						lWMS.alpha = layerAlpha;
-						lWMS.refresh(true);
-						break;
-					
-					case 'foreground':
-						
-						srv = getWMSLayerConfiguration('ria');
-						
-						lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
-						lc.label = "Overlays/Border lines";
-						
-						lWMS = new InteractiveLayerWMS(m_iw, lc);
-						m_iw.addLayer(lWMS);
-						lWMS.name = 'Borders';
-						lWMS.alpha = layerAlpha;
-						//						m_layerForegroundBorders.zOrder = 10;
-						lWMS.refresh(true);
-						
-						break;
-				}
-			}
 			
 			private function onKMLTreeItemClick(event: ListEvent): void
 			{
@@ -729,6 +684,7 @@
 				return false;
 			}
 			
+			/*
 			private var debugConsole: com.iblsoft.flexiweather.plugins.IConsole
 			private function initConsole(): void
 			{
@@ -751,6 +707,7 @@
 				dConsoleParent.addChild(consoleObject as DisplayObject);
 				
 			}
+			*/
 			
 			private var _layoutVisibilityBeforePanning: Boolean;
 			private function startPanning(): void
@@ -800,10 +757,10 @@
 			
 			private function debug(txt: String): void
 			{
-				if (debugConsole)
-				{
-					debugConsole.print("Example8: " + txt,'Info','Example8');
-				}
+//				if (debugConsole)
+//				{
+//					debugConsole.print("Example8: " + txt,'Info','Example8');
+//				}
 			}
 			
 			private function showPopupForDynamicKML(): void
@@ -825,4 +782,4 @@
 			}
 		]]>
 	</fx:Script>
-</s:Application>
+</FlexiWeatherTemplate>
