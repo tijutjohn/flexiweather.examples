@@ -549,7 +549,15 @@
 				
 				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject( kmlPath, "kml", kmlConfig);
 				
+				//need to wait for KML to be parsed (it can be parsed in more that one flash player frame, so we need to wait for proper event KMLEvent.PARSING_FINISHED
+				kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onDynamicKMLParsed);
 				kmlConfig.addKMLSource(kmlSource, kmlPath, '');
+				
+			}
+			
+			private function onDynamicKMLParsed(event: KMLEvent): void
+			{
+				var kmlConfig: KMLLayerConfiguration = event.target as KMLLayerConfiguration;
 				createKMLLayerFromKMLConfiguration(kmlConfig);
 				kmlLoadingAndParsingFinished();
 			}
