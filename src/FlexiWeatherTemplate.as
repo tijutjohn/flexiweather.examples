@@ -62,8 +62,15 @@ package
 			return null;
 		}
 		
-		protected function addLayer(type: String, layerAlpha: Number = 1): InteractiveLayerWMS
+		protected function addLayer(type: String, layerAlpha: Number = 1, iw: InteractiveWidget = null): InteractiveLayerWMS
 		{
+			
+			if (!iw)
+			{
+				iw = m_iw;
+			}
+			
+			trace("addLayer to iw: " + iw.name);
 			var lWMS: InteractiveLayerWMS;
 			var srv: WMSServiceConfiguration;
 			var lc: WMSLayerConfiguration;
@@ -76,10 +83,24 @@ package
 					lc = new WMSLayerConfiguration(srv, ["background-dem"]);
 					lc.label = "Background";
 					
-					lWMS = new InteractiveLayerWMS(m_iw, lc);
-					m_iw.addLayer(lWMS);
+					lWMS = new InteractiveLayerWMS(iw, lc);
+					iw.addLayer(lWMS);
 					lWMS.name = 'Background';
-					//						m_layerForegroundBorders.zOrder = 10;
+					lWMS.alpha = layerAlpha;
+					lWMS.refresh(true);
+					break;
+				
+				case 'temperature':
+					srv = getWMSLayerConfiguration('gfs');
+					
+					lc = new WMSLayerConfiguration(srv, ["Temperature"]);
+					lc.label = "Temperature";
+					lc.dimensionRunName = 'RUN';
+					lc.dimensionForecastName = 'FORECAST';
+					
+					lWMS = new InteractiveLayerWMS(iw, lc);
+					iw.addLayer(lWMS);
+					lWMS.name = 'Temperature';
 					lWMS.alpha = layerAlpha;
 					lWMS.refresh(true);
 					break;
@@ -91,11 +112,10 @@ package
 					lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
 					lc.label = "Overlays/Border lines";
 					
-					lWMS = new InteractiveLayerWMS(m_iw, lc);
-					m_iw.addLayer(lWMS);
+					lWMS = new InteractiveLayerWMS(iw, lc);
+					iw.addLayer(lWMS);
 					lWMS.name = 'Borders';
 					lWMS.alpha = layerAlpha;
-					//						m_layerForegroundBorders.zOrder = 10;
 					lWMS.refresh(true);
 					
 					break;
