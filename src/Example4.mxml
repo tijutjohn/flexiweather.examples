@@ -21,7 +21,7 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.events.InteractiveWidgetEvent;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.cache.WMSCache;

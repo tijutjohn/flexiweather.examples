@@ -1,7 +1,7 @@
 package
 {
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-	import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
+	import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 	import com.iblsoft.flexiweather.ogc.Version;
 	import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 	import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
