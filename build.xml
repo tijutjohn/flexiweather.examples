@@ -161,6 +161,20 @@
 			<library-path dir="${LIBDIR}" includes="DConsole2SWC.swc" append="true"/>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
+		<mxmlc file="src/FlyingRouteExample.mxml"
+				output="${DISTDIR}/FlyingRouteExample.swf"
+				keep-generated-actionscript="false">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<source-path path-element="${FLEX_HOME}/frameworks" />
+		</mxmlc>
+		<mxmlc file="src/ExampleMultiViewWithConfiguration.mxml"
+				output="${DISTDIR}/ExampleMultiViewWithConfiguration.swf"
+				keep-generated-actionscript="false">
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
+			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<source-path path-element="${FLEX_HOME}/frameworks" />
+		</mxmlc>
 		<echo message="Preparing assets"/>
 		<mkdir dir="${DISTDIR}/assets"/>
 		<mkdir dir="${DISTDIR}/assets/kml"/>
