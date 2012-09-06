@@ -12,23 +12,43 @@
 	<s:VGroup width="100%" height="100%" gap="2" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
 		
 		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
-			<s:Label text="This example demonstrates displaying KML files in InteractiveWidget." fontWeight="bold" fontSize="14" color="0xffffff"/>
+			<s:Label text="This example demonstrates displaying InteractiveLayerRoute in InteractiveWidget." fontWeight="bold" fontSize="14"/>
 			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
+			<s:Button label="Draw mode: Plain" click="changeDrawMode(InteractiveLayerRoute.DRAW_MODE_PLAIN)"/>
+			<s:Button label="Draw mode: Great Arc" click="changeDrawMode(InteractiveLayerRoute.DRAW_MODE_GREAT_ARC)"/>
 		</s:HGroup>
 		
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+			<!-- example with bigger placemarks and thick routes (e.g. for mobile) -->
+			<!--widgets:InteractiveLayerRoute width="100%" height="100%" zOrder="3"
+										   routeThickness="10" routeBorderThickness="3"
+										   routeBorderColor="0xff0000" routeFillColor="0xffcc00"
+										   placemarkBorderColor="0xff0000" placemarkFillColor="0xffcc00" placemarkHighlightFillColor="0xffffff"
+										   placemarkRadius="20" placemarkBorderThickness="3"/-->
+			<widgets:InteractiveLayerRoute id="route" width="100%" height="100%" zOrder="1"
+										   routeThickness="3" routeBorderThickness="1"
+										   routeBorderColor="0x004400" routeFillColor="0x00aa00"
+										   placemarkBorderColor="0x004400" placemarkFillColor="0x00aa00" placemarkHighlightFillColor="0xffffff"
+										   placemarkRadius="7" placemarkBorderThickness="1"
+										   drawMode="greatArc"
+										   />
 		</widgets:InteractiveWidget>
 	
 	</s:VGroup>
 	
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.widgets.InteractiveLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerRoute;
 			
 			import mx.events.FlexEvent;
 			
+			private function changeDrawMode(mode: String): void
+			{
+				route.changeDrawMode(mode);
+			}
 			/** 
 			 * Initialization of example. Temperature layer creation, call get capabilities
 			 */
@@ -42,15 +62,9 @@
 				
 				addLayer('dem', 1);
 				
-				//adding route interactive layer
-				var routeLayer: InteractiveLayerRoute = new InteractiveLayerRoute(m_iw);
-				m_iw.addLayer(routeLayer);
-				
 				
 				addLayer('foreground', 1);
 				scm.update(scm.getAllServicesNames());
-				
-				
 			}
 		]]>
 	</fx:Script>
