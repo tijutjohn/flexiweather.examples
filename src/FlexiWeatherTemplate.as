@@ -1,10 +1,12 @@
 package
 {
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-	import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 	import com.iblsoft.flexiweather.ogc.Version;
 	import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
 	import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+	import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
+	import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
+	import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 	import com.iblsoft.flexiweather.widgets.InteractiveWidget;
 	
 	import mx.events.FlexEvent;
@@ -47,6 +49,11 @@ package
 				WMSServiceConfiguration) as WMSServiceConfiguration;
 		}
 		
+		protected function getAllServicesCapabilities(): void
+		{
+			scm.update(scm.getAllServicesNames());
+		}
+		
 		protected function getWMSLayerConfiguration(type: String): WMSServiceConfiguration
 		{
 			var srv: WMSServiceConfiguration
@@ -71,19 +78,20 @@ package
 			}
 			
 			trace("addLayer to iw: " + iw.name);
-			var lWMS: InteractiveLayerWMS;
+			var lWMS: InteractiveLayerWMSWithQTT;
 			var srv: WMSServiceConfiguration;
-			var lc: WMSLayerConfiguration;
+			var lc: WMSWithQTTLayerConfiguration;
 			
 			switch(type)
 			{
 				case 'dem':
 					srv = getWMSLayerConfiguration('ria');
 					
-					lc = new WMSLayerConfiguration(srv, ["background-dem"]);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["background-dem"]);
 					lc.label = "Background";
 					
-					lWMS = new InteractiveLayerWMS(iw, lc);
+					
+					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					iw.addLayer(lWMS);
 					lWMS.name = 'Background';
 					lWMS.alpha = layerAlpha;
@@ -93,12 +101,12 @@ package
 				case 'temperature':
 					srv = getWMSLayerConfiguration('gfs');
 					
-					lc = new WMSLayerConfiguration(srv, ["Temperature"]);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["Temperature"]);
 					lc.label = "Temperature";
 					lc.dimensionRunName = 'RUN';
 					lc.dimensionForecastName = 'FORECAST';
 					
-					lWMS = new InteractiveLayerWMS(iw, lc);
+					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					iw.addLayer(lWMS);
 					lWMS.name = 'Temperature';
 					lWMS.alpha = layerAlpha;
@@ -109,10 +117,10 @@ package
 					
 					srv = getWMSLayerConfiguration('ria');
 					
-					lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
 					lc.label = "Overlays/Border lines";
 					
-					lWMS = new InteractiveLayerWMS(iw, lc);
+					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					iw.addLayer(lWMS);
 					lWMS.name = 'Borders';
 					lWMS.alpha = layerAlpha;
