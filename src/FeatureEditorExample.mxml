@@ -19,6 +19,7 @@
 			<s:Button label="Cold Front" click="changeTool('front', FrontType.COLD)" enabled.editing="false"/>
 			<s:Button label="Occluded Front" click="changeTool('front', FrontType.OCCLUDED)" enabled.editing="false"/>
 			<s:Button label="Pressure Centre" click="changeTool('pressure')" enabled.editing="false"/>
+			<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
 			<s:Button label="Done"  enabled.normal="false" click="done()"/>
 		</s:HGroup>
 		
@@ -33,6 +34,7 @@
 	</s:VGroup>
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.features.StarFeature;
 			import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
@@ -78,6 +80,16 @@
 				currentFeatureType = type;
 				currentFeatureSetting = setting;
 				currentState = 'editing';
+			}
+			private function addStar( pt: Point ): void
+			{
+				currentlyEditedFeature = new StarFeature("http://www.iblsfot.com/wfs", "Star", null);
+				currentlyEditedFeature.coordinates = [ m_iw.pointToCoord( pt.x, pt.y ) ];
+				wfsLayer.addFeature(currentlyEditedFeature);
+				
+				wfsLayer.highlightItem(currentlyEditedFeature);
+				wfsLayer.selectItem(currentlyEditedFeature);
+				
 			}
 			private function addNewPressureCentre( pt: Point ): void
 			{
@@ -142,6 +154,11 @@
 							case 'pressure':
 								addNewPressureCentre(pt);
 								//we have added point and Pressure has just 1 point, so we're done
+								done();
+								break;
+							case 'star':
+								addStar(pt);
+								//we have added point and Star has just 1 point, so we're done
 								done();
 								break;
 						}
