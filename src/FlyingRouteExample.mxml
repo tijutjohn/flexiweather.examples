@@ -61,10 +61,9 @@
 				
 				
 				addLayer('dem', 1);
-				
-				
 				addLayer('foreground', 1);
-				scm.update(scm.getAllServicesNames());
+				
+				getAllServicesCapabilities();
 			}
 		]]>
 	</fx:Script>

@@ -72,12 +72,10 @@
 
 				var x: Number = Math.random() * 340.0 - 170.0;
 				var y: Number = Math.random() * 160.0 - 80.0;
-				front.coordinates = [
-					new Coord(m_iw.getCRS(), x - 5, y - 10),
-					new Coord(m_iw.getCRS(), x + 5, y - 10),
-					new Coord(m_iw.getCRS(), x + 5, y + 10),
-					new Coord(m_iw.getCRS(), x - 5, y + 10),
-				];
+				front.addPoint( new Coord(m_iw.getCRS(), x - 5, y - 10) );
+				front.addPoint( new Coord(m_iw.getCRS(), x + 5, y - 10) );
+				front.addPoint( new Coord(m_iw.getCRS(), x + 5, y + 10) );
+				front.addPoint( new Coord(m_iw.getCRS(), x - 5, y + 10) );
 				
 				wfsLayer.addFeature(front);
 				
