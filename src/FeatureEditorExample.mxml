@@ -31,12 +31,17 @@
 				toolTip="Add points"
 				icon="@Embed(source='/assets/icons/common/edit-24.png')"/>
 			<s:Button 
-				width="32" height="32" 
+				height="32" 
 				id="buttonFeatureRemove"
 				click="removeSelectedFeature()"
-				toolTip="Remove selected feature"
+				label="Remove selected feature"
 				icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
-			<!--<s:Button label="Remove selected point"  click="removeSelectedPoint()"/>-->
+			<s:Button 
+				height="32" 
+				id="buttonPointRemove"
+				label="Remove selected point"  
+				icon="@Embed(source='/assets/icons/common/delete-24.png')"
+				click="removeSelectedPoint()"/>
 		</s:HGroup>
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" click="onMouseClick(event)">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
