@@ -41,12 +41,12 @@
 			</widgets:InteractiveWidget>
 			<s:VGroup width="250" height="100%">
 				<s:Label text="Distances"/>
-				<s:Label text="Total distance: {distanceFormatter.format(totalDistance / 1000)}km"/>
+				<s:Label text="Total distance: {distanceFormatter.format(totalDistance)}km"/>
 				<s:List dataProvider="{distances}" width="100%" height="100%">
 					<s:itemRenderer>
 						<fx:Component>
 							<s:ItemRenderer>
-								<s:Label text="{data.part}: Distance: {outerDocument.distanceFormatter.format(data.meters / 1000)}km"
+								<s:Label text="{data.part}: Distance: {outerDocument.distanceFormatter.format(data.kilometres)}km, {outerDocument.distanceFormatter.format(data.nauticalMiles)} NM"
 										 paddingBottom="3" paddingTop="3" paddingLeft="5" paddingRight="5"/>
 							</s:ItemRenderer>
 						</fx:Component>
@@ -132,11 +132,12 @@
 			
 			private function measureSegment(segment: Object): void
 			{
-				var distance: Number = segment.coord1.distanceTo(segment.coord2) * 1000;
+				var distance: Number = segment.coord1.distanceTo(segment.coord2);
 				
 				totalDistance += distance;
 				
-				segment.meters = distance;
+				segment.meters = distance * 1000;
+				segment.kilometres = distance;
 				segment.nauticalMiles = segment.meters * 0.000539956803;
 				segment.statuteMiles = segment.meters * 0.000621371192
 			}
