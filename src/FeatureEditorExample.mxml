@@ -20,14 +20,30 @@
 			<s:Button label="Occluded Front" click="changeTool('front', FrontType.OCCLUDED)" enabled.editing="false"/>
 			<s:Button label="Pressure Centre" click="changeTool('pressure')" enabled.editing="false"/>
 			<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
+			<s:Button label="Star with Label" click="changeTool('starWithLabel')" enabled.editing="false"/>
 			<s:Button label="Done"  enabled.normal="false" click="done()"/>
 		</s:HGroup>
-		
+		<s:HGroup width="100%">
+			<s:ToggleButton 
+				width="32" height="32" 
+				id="buttonCurveAddPoints"
+				click="addCurvePoints()"
+				toolTip="Add points"
+				icon="@Embed(source='/assets/icons/common/edit-24.png')"/>
+			<s:Button 
+				width="32" height="32" 
+				id="buttonFeatureRemove"
+				click="removeSelectedFeature()"
+				toolTip="Remove selected feature"
+				icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
+			<!--<s:Button label="Remove selected point"  click="removeSelectedPoint()"/>-->
+		</s:HGroup>
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%" click="onMouseClick(event)">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 			
-			<editable:InteractiveLayerWFSEditable id="wfsLayer" version="{new Version(1,0,0)}" zOrder="1000"/>
+			<editable:InteractiveLayerWFSEditable id="wfsLayer" version="{new Version(1,0,0)}" zOrder="1000"
+												  />
 			
 		</widgets:InteractiveWidget>
 		
@@ -35,16 +51,20 @@
 	<fx:Script>
 		<![CDATA[
 			import com.iblsoft.features.StarFeature;
+			import com.iblsoft.flexiweather.ogc.FeatureBase;
 			import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
+			import com.iblsoft.flexiweather.ogc.editable.MoveablePoint;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditable;
+			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableMode;
 			import com.iblsoft.flexiweather.ogc.editable.features.FrontType;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableFront;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
 			import com.iblsoft.flexiweather.proj.Coord;
 			
 			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
 			
 			private var currentFeatureType: String;
 			private var currentFeatureSetting: String;
@@ -65,6 +85,8 @@
 //				wfsLayer = createNewEditableWFSLayer();
 //				m_iw.addLayer(wfsLayer);
 				
+				wfsLayer.addEventListener(InteractiveLayerWFSEditable.SELECTION_CHANGE, onWFSLayerSelectionChange);
+				
 				getAllServicesCapabilities();
 			}
 			
@@ -80,6 +102,48 @@
 				currentFeatureType = type;
 				currentFeatureSetting = setting;
 				currentState = 'editing';
+			}
+			
+			private function addCurvePoints(): void
+			{
+				currentlyEditedFeature.editMode = (buttonCurveAddPoints.selected) ? WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS : WFSFeatureEditableMode.MOVE_POINTS;
+			}
+			
+			private function removeSelectedFeature(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					wfsLayer.removeFeature(currentlyEditedFeature);
+					reset();
+				}
+			}
+			private function removeSelectedPoint(): void
+			{
+				trace("removeSelectedPoint: ");
+				if (currentlyEditedFeature)
+				{
+					if (currentlyEditedFeature.selectedMoveablePointIndex > -1)
+					{
+						currentlyEditedFeature.removePoint(currentlyEditedFeature.selectedMoveablePointIndex);
+					}
+				}
+			}
+			
+			private function addStarWithLabel( pt: Point ): void
+			{
+				currentlyEditedFeature = new StarFeature("http://www.iblsfot.com/wfs", "Star", null);
+				
+				(currentlyEditedFeature as StarFeature).text = "Custom label for star";
+				(currentlyEditedFeature as StarFeature).bold = true;
+				(currentlyEditedFeature as StarFeature).color = 0xffffff;
+				(currentlyEditedFeature as StarFeature).fontSize = 18;
+				
+				currentlyEditedFeature.coordinates = [ m_iw.pointToCoord( pt.x, pt.y ) ];
+				wfsLayer.addFeature(currentlyEditedFeature);
+				
+				wfsLayer.highlightItem(currentlyEditedFeature);
+				wfsLayer.selectItem(currentlyEditedFeature);
+				
 			}
 			private function addStar( pt: Point ): void
 			{
@@ -109,10 +173,14 @@
 					(currentlyEditedFeature as WFSFeatureEditableFront).type = currentFeatureSetting;
 				
 				currentlyEditedFeature.coordinates = [ m_iw.pointToCoord( pt.x, pt.y ) ];
+				
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				
 				wfsLayer.addFeature(currentlyEditedFeature);
 				
 				wfsLayer.highlightItem(currentlyEditedFeature);
 				wfsLayer.selectItem(currentlyEditedFeature);
+				
 			}
 			
 			private function onNewObjectAdded(): void
@@ -120,6 +188,47 @@
 				reset();
 			}
 			
+			private function onWFSLayerSelectionChange(event: PropertyChangeEvent): void
+			{
+				trace("onSelectionChanged");
+				
+				currentlyEditedFeature = event.newValue as WFSFeatureEditable;
+				
+				if (currentlyEditedFeature)
+				{
+					if (isSinglePointFeature(currentlyEditedFeature))
+					{
+						if (currentlyEditedFeature.getPoints().length < 1)
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+						else
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
+					} else {
+						if (currentlyEditedFeature.getPoints().length < 2)
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+						else
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
+					}
+				} else {
+					//unselect
+					reset();
+				}
+				
+				if (currentlyEditedFeature){
+//					buttonCurveAddPoints.selected = (buttonCurveAddPoints.selected) && ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS) || (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
+					buttonCurveAddPoints.selected = ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS) || (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
+				}
+			}
+			
+			private function isSinglePointFeature(feature: WFSFeatureEditable): Boolean
+			{
+				if (feature is WFSFeatureEditablePressureCentre)
+					return true;
+				if (feature is StarFeature)
+					return true;
+				
+				return false;
+			}
+				
 			private function done(): void
 			{
 				reset();
@@ -138,11 +247,31 @@
 			private function onMouseClick(event: MouseEvent): void
 			{
 				var pt: Point = new Point( event.localX, event.localY );
+				
 				if (currentlyEditedFeature)
 				{
-					currentlyEditedFeature.addPoint( pt );
-					currentlyEditedFeature.update(new FeatureUpdateContext(FeatureUpdateContext.FULL_UPDATE));
-					wfsLayer.selectItem(currentlyEditedFeature);
+					//currently edited feature must be select to add new point
+					if (!currentlyEditedFeature.selected)
+					{
+						return;
+					}
+					
+					if (event.target is MoveablePoint)
+					{
+						//do not add new point, user clicks on MoveablePoint
+						return;
+					}
+					if (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS || 
+						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_ON_CURVE || 
+						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS)
+					{
+						currentlyEditedFeature.addPoint( pt );
+						currentlyEditedFeature.update(new FeatureUpdateContext(FeatureUpdateContext.FULL_UPDATE));
+						wfsLayer.selectItem(currentlyEditedFeature);
+					} else {
+						trace("do not add Point, user is just moving existing point");
+					}
+					
 				} else {
 					if (currentFeatureType)
 					{
@@ -158,6 +287,11 @@
 								break;
 							case 'star':
 								addStar(pt);
+								//we have added point and Star has just 1 point, so we're done
+								done();
+								break;
+							case 'starWithLabel':
+								addStarWithLabel(pt);
 								//we have added point and Star has just 1 point, so we're done
 								done();
 								break;
