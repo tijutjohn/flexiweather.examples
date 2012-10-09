@@ -11,19 +11,24 @@
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerQTTEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.CRSWithBBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
-			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
-			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
-			import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
-			import com.iblsoft.flexiweather.ogc.tiling.QTTTilesProvider;
+			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
+			import com.iblsoft.flexiweather.ogc.tiling.TiledTilingInfo;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
+			import com.iblsoft.flexiweather.widgets.InteractiveLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			
@@ -63,26 +68,33 @@
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 				srv2.updatePeriod = 5*60*1000;
 				
-				InteractiveLayerQTTMS.drawBorders = true;
-				InteractiveLayerQTTMS.drawDebugText = true;
+				InteractiveLayerTiled.drawBorders = true;
+				InteractiveLayerTiled.drawDebugText = true;
 				
 				var lcqt: WMSWithQTTLayerConfiguration;
 				lcqt = new WMSWithQTTLayerConfiguration(srv, ["background-dem"]);
 				lcqt.label = "Backgrounds/DEM";
 				m_layerDEMBackground = new InteractiveLayerWMSWithQTT(m_iw, lcqt);
 				m_layerDEMBackground.setWMSStyleName(0, "white-colours");
-				m_iw.addLayer(m_layerDEMBackground);
 				m_layerDEMBackground.name = 'DEMBackground';
 				m_layerDEMBackground.zOrder = -10;
-				m_layerDEMBackground.refresh(true);
+//				m_layerDEMBackground.addEventListener(InteractiveLayerEvent.LAYER_INITIALIZED, onLayerInitialized);
+				m_iw.addLayer(m_layerDEMBackground);
+//				m_layerDEMBackground.refresh(true);
 
-				m_openStreetLayer = new InteractiveLayerQTTMS(m_iw, null,
-						'http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png',
-						'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 1, 18);
+				var openStreetConfiguration: QTTMSLayerConfiguration = new QTTMSLayerConfiguration();
+				var openStreetTilingInfo: TiledTilingInfo = new TiledTilingInfo('http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png', new CRSWithBBox('EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34)));
+				openStreetTilingInfo.minimumZoomLevel = 1;
+				openStreetTilingInfo.maximumZoomLevel = 18;
+				
+				m_openStreetLayer = new InteractiveLayerQTTMS(m_iw, openStreetConfiguration);
+				
 //				m_openStreetLayer.tilesProvider = new QTTTilesProvider();
+				
 				m_openStreetLayer.alpha = 1;
 				m_openStreetLayer.name = 'OpenStreetMap';
 				m_openStreetLayer.zOrder = -8;
+//				m_openStreetLayer.addEventListener(InteractiveLayerEvent.LAYER_INITIALIZED, onLayerInitialized);
 				m_iw.addLayer(m_openStreetLayer);
 				
 				m_openStreetLayer.addEventListener(InteractiveDataLayer.PROGRESS, onOpenStreetLayerProgress);
@@ -93,12 +105,14 @@
 				lc.label = "Surface observations";
 				lc.autoRefreshPeriod = 30;
 				m_layerSufraceObservations = new InteractiveLayerWMS(m_iw, lc);
-				m_iw.addLayer(m_layerSufraceObservations);
 				m_layerSufraceObservations.name = 'SurfaceObservations';
 				m_layerSufraceObservations.zOrder = 0;
-				m_layerSufraceObservations.refresh(true);
 				m_layerSufraceObservations.filters = [ new spark.filters.GlowFilter(0x80ffffff) ];
 
+//				m_layerSufraceObservations.addEventListener(InteractiveLayerEvent.LAYER_INITIALIZED, onLayerInitialized);
+				m_iw.addLayer(m_layerSufraceObservations);
+//				m_layerSufraceObservations.refresh(true);
+				
 				m_layerSufraceObservations.addEventListener(InteractiveDataLayer.PROGRESS, onSurfaceObservationsLayerProgress);
 				m_layerSufraceObservations.addEventListener(InteractiveDataLayer.LOADING_STARTED, onSurfaceObservationsLayerLoadingStarted);
 				m_layerSufraceObservations.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onSurfaceObservationsLayerLoadingFinished);
@@ -106,11 +120,13 @@
 				lcqt = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
 				lcqt.label = "Overlays/Border lines";
 				m_layerForegroundBorders = new InteractiveLayerWMSWithQTT(m_iw, lcqt);
-				m_iw.addLayer(m_layerForegroundBorders);
 				m_layerForegroundBorders.name = 'Borders';
 				m_layerForegroundBorders.zOrder = -1;
-				m_layerForegroundBorders.refresh(true);
+//				m_layerForegroundBorders.addEventListener(InteractiveLayerEvent.LAYER_INITIALIZED, onLayerInitialized);
+				m_iw.addLayer(m_layerForegroundBorders);
+//				m_layerForegroundBorders.refresh(true);
 
+				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
@@ -119,6 +135,12 @@
 				
 			}
 			
+			private function onLayerInitialized(event: InteractiveLayerEvent): void
+			{
+				var layer: InteractiveLayer = event.target as InteractiveLayer;
+				m_iw.addLayer(layer);
+				layer.refresh(true);
+			}
 			private function onOpenStreetLayerProgress(event: InteractiveLayerProgressEvent): void
 			{
 				qttProgress.setProgress(event.loaded, event.total);

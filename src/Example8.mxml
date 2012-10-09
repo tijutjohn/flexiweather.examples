@@ -100,8 +100,6 @@
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
-			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
-			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.InteractiveLayerKML;
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLBitmapLoader;
@@ -121,7 +119,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLPopupManager;
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLResourceManager;
 			import com.iblsoft.flexiweather.ogc.kml.renderer.DefaultKMLRenderer;
-			import com.iblsoft.flexiweather.ogc.tiling.QTTTilesProvider;
+			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
 			import com.iblsoft.flexiweather.plugins.IConsole;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;

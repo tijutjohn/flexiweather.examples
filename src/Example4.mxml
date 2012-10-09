@@ -23,7 +23,6 @@
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
-			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.cache.WMSCache;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLLabel;
 			import com.iblsoft.flexiweather.proj.Coord;

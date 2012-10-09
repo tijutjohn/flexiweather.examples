@@ -2,9 +2,8 @@ package
 {
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 	import com.iblsoft.flexiweather.ogc.Version;
-	import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
-	import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
-	import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
+	import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
+	import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
 	import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 	import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 	import com.iblsoft.flexiweather.widgets.InteractiveWidget;
@@ -69,7 +68,7 @@ package
 			return null;
 		}
 		
-		protected function addLayer(type: String, layerAlpha: Number = 1, iw: InteractiveWidget = null): InteractiveLayerWMS
+		protected function addLayer(type: String, layerAlpha: Number = 1, iw: InteractiveWidget = null, tileSize: uint = 256): InteractiveLayerWMS
 		{
 			
 			if (!iw)
@@ -87,7 +86,7 @@ package
 				case 'dem':
 					srv = getWMSLayerConfiguration('ria');
 					
-					lc = new WMSWithQTTLayerConfiguration(srv, ["background-dem"]);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["background-dem"], tileSize);
 					lc.label = "Background";
 					
 					
@@ -95,13 +94,13 @@ package
 					iw.addLayer(lWMS);
 					lWMS.name = 'Background';
 					lWMS.alpha = layerAlpha;
-					lWMS.refresh(true);
+//					lWMS.refresh(true);
 					break;
 				
 				case 'temperature':
 					srv = getWMSLayerConfiguration('gfs');
 					
-					lc = new WMSWithQTTLayerConfiguration(srv, ["Temperature"]);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["Temperature"], tileSize);
 					lc.label = "Temperature";
 					lc.dimensionRunName = 'RUN';
 					lc.dimensionForecastName = 'FORECAST';
@@ -110,21 +109,21 @@ package
 					iw.addLayer(lWMS);
 					lWMS.name = 'Temperature';
 					lWMS.alpha = layerAlpha;
-					lWMS.refresh(true);
+//					lWMS.refresh(true);
 					break;
 				
 				case 'foreground':
 					
 					srv = getWMSLayerConfiguration('ria');
 					
-					lc = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"], tileSize);
 					lc.label = "Overlays/Border lines";
 					
 					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					iw.addLayer(lWMS);
 					lWMS.name = 'Borders';
 					lWMS.alpha = layerAlpha;
-					lWMS.refresh(true);
+//					lWMS.refresh(true);
 					
 					break;
 			}

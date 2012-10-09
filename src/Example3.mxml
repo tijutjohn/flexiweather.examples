@@ -6,13 +6,13 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWFS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
-			import com.iblsoft.flexiweather.ogc.wfs.WFSFeatureBase;
-			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
-			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableCurve;
+			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.wfs.WFSFeatureBase;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
@@ -48,7 +48,7 @@
 				lc.label = "Overlays/Border lines";
 				l = new InteractiveLayerWMS(m_iw, lc);
 				//m_iw.addLayer(l);
-				l.refresh(true);
+//				l.refresh(true);
 				
 				m_featureLayer = new InteractiveLayerWFSEditable(m_iw, new Version(1, 0, 0));
 				m_iw.addLayer(m_featureLayer);

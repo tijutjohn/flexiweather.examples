@@ -26,8 +26,12 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.CRSWithBBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
-			import com.iblsoft.flexiweather.ogc.tiling.QTTTilesProvider;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
+			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
+			import com.iblsoft.flexiweather.ogc.tiling.TiledTilingInfo;
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
 			
 			private var m_layerDEMBackground: InteractiveLayerQTTMS;
@@ -42,12 +46,22 @@
 				m_iw.setExtentBBOXRaw(-180,-90,180, 90);
 				var s_serverURL: String = 'http://ogcie.iblsoft.com';
 				
-				InteractiveLayerQTTMS.drawBorders = true;
-				InteractiveLayerQTTMS.drawDebugText = true;
+				InteractiveLayerTiled.drawBorders = true;
+				InteractiveLayerTiled.drawDebugText = true;
 				
 				var demPattern: String = s_serverURL+"/ria?SERVICE=WMS&FORMAT=image%2Fpng&REQUEST=GetGTile&LAYER=background%2Ddem&CRS=CRS%3A84&VERSION=1%2E3%2E0&TILEZOOM=%ZOOM%&TILECOL=%COL%&TILEROW=%ROW%";
 				
-				m_layerDEMBackground = new InteractiveLayerQTTMS(m_iw, null, demPattern, 'CRS:84', new BBox(-180,-180,180, 180));
+				
+				var demConfiguration: QTTMSLayerConfiguration = new QTTMSLayerConfiguration();
+				var demTilingInfo: TiledTilingInfo = new TiledTilingInfo(demPattern, new CRSWithBBox('CRS:84', new BBox(-180,-180,180, 180)));
+				demTilingInfo.minimumZoomLevel = 1;
+				demTilingInfo.maximumZoomLevel = 18;
+				
+				demConfiguration.addTiledTilingInfo(demTilingInfo);
+				
+//				m_layerDEMBackground = new InteractiveLayerQTTMS(m_iw, null, demPattern, 'CRS:84', new BBox(-180,-180,180, 180));
+				m_layerDEMBackground = new InteractiveLayerQTTMS(m_iw, demConfiguration);
+				
 				m_layerDEMBackground.addEventListener(InteractiveDataLayer.PROGRESS, onDEMProgress);
 				m_iw.addLayer(m_layerDEMBackground);
 //				m_layerDEMBackground.tilesProvider = new QTTTilesProvider();

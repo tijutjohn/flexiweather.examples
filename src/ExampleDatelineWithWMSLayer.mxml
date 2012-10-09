@@ -28,7 +28,7 @@
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-			import com.iblsoft.flexiweather.ogc.tiling.QTTTilesProvider;
+			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;

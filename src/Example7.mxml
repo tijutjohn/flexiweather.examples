@@ -82,17 +82,17 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.LayerConfiguration;
 			import mx.core.InteractionMode;
 			import mx.events.DynamicEvent;
 			import com.iblsoft.flexiweather.events.InteractiveWidgetEvent;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-			import com.iblsoft.flexiweather.ogc.LayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
-			import com.iblsoft.flexiweather.ogc.QTTMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.Version;
-			import com.iblsoft.flexiweather.ogc.WMSLayerConfiguration;
-			import com.iblsoft.flexiweather.ogc.WMSServiceConfiguration;
-			import com.iblsoft.flexiweather.ogc.WMSWithQTTLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayer;
