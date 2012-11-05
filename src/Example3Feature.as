@@ -8,15 +8,14 @@ package
 	import com.iblsoft.flexiweather.utils.anticollision.AnticollisionLayout;
 	import com.iblsoft.flexiweather.utils.geometry.ILineSegmentApproximableBounds;
 	import com.iblsoft.flexiweather.utils.geometry.LineSegment;
-	
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
-	
+
 	public class Example3Feature extends WFSFeatureEditableCurve implements ILineSegmentApproximableBounds
 	{
 		private var m_label: AnnotationTextBox = new AnnotationTextBox();
 		private var ms_type: String;
-		
+
 		public function Example3Feature(s_type: String)
 		{
 			super('http://www.iblsoft.com/wfs/test', 'Example3FeatureWithLabel', null);
@@ -33,20 +32,19 @@ package
 		public override function update(changeFlag: FeatureUpdateContext): void
 		{
 			super.update(changeFlag);
-			
 			graphics.clear();
-
 			var ptAvg: Point = new Point(0, 0);
 			var ptFirst: Point;
-
 			graphics.lineStyle(3, 0xff8040, 1);
-			if(/^filled-.*/.test(ms_type))
-				graphics.beginFill(0x0080c0, 0.5); 
+			if (/^filled-.*/.test(ms_type))
+				graphics.beginFill(0x0080c0, 0.5);
 			var ptPrev: Point = null;
-			for each(var pt: Point in getPoints()) {
+			for each (var pt: Point in getPoints())
+			{
 				ptAvg.x += pt.x;
 				ptAvg.y += pt.y;
-				if(ptPrev == null) {
+				if (ptPrev == null)
+				{
 					graphics.moveTo(pt.x, pt.y);
 					ptFirst = pt;
 				}
@@ -56,11 +54,10 @@ package
 			}
 			ptAvg.x /= getPoints().length;
 			ptAvg.y /= getPoints().length;
-			if(/.*polygon$/.test(ms_type) && ptFirst != null)
+			if (/.*polygon$/.test(ms_type) && ptFirst != null)
 				graphics.lineTo(ptFirst.x, ptFirst.y);
-			if(/^filled-.*/.test(ms_type))
+			if (/^filled-.*/.test(ms_type))
 				graphics.endFill();
-			
 			m_label.label.text = "Hello!\nI am a label and I try not to\ncover any feature if possible.";
 			m_label.update();
 			m_label.x = ptAvg.x - m_label.width / 2.0;
@@ -81,12 +78,13 @@ package
 			var a: Array = [];
 			var ptFirst: Point = null;
 			var ptPrev: Point = null;
-			for each(var pt: Point in getPoints()) {
-				if(ptPrev != null)
+			for each (var pt: Point in getPoints())
+			{
+				if (ptPrev != null)
 					a.push(new LineSegment(ptPrev.x, ptPrev.y, pt.x, pt.y));
 				ptPrev = pt;
 			}
-			if(/.*polygon$/.test(ms_type) && ptFirst != null)
+			if (/.*polygon$/.test(ms_type) && ptFirst != null)
 				a.push(new LineSegment(ptPrev.x, ptPrev.y, ptFirst.x, ptFirst.y));
 			return a;
 		}

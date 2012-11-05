@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
-				xmlns:s="library://ns.adobe.com/flex/spark" 
-				xmlns:mx="library://ns.adobe.com/flex/mx" 
-				autoDrawBackground="true">
-	
-	<s:HGroup width="100%" gap="2" verticalAlign="middle" paddingLeft="5" paddingRight="5" paddingBottom="1" paddingTop="1">
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
+		autoDrawBackground="true">
+	<s:HGroup width="100%" gap="2" verticalAlign="middle" paddingLeft="5" paddingRight="5"
+			paddingBottom="1" paddingTop="1">
 		<s:Button label="Unload" click="dispatchEvent(new Event('unload', true))"/>
 		<s:Label text="{data}" width="100%"/>
 	</s:HGroup>
-	
 </s:ItemRenderer>

@@ -1,17 +1,17 @@
 package com.iblsoft.utils
 {
+
 	public class ColorGradient
 	{
 		protected var ma_values: Array = null;
 		protected var ma_colors: Array = null;
-		
+
 		public function ColorGradient(a_values: Array, a_colors: Array)
 		{
-			
 			ma_values = a_values;
 			ma_colors = a_colors;
 		}
-		
+
 		private function getInterpolatedColorForValue(f_value: Number, a_values: Array, a_colors: Array): uint
 		{
 			var i_rangeIndex: int = 0;
@@ -19,19 +19,13 @@ package com.iblsoft.utils
 			{
 				var i: int = int(s_i);
 				if (f_value < a_values[i])
-				{
 					break;
-				}
 				i_rangeIndex = i + 1;
 			}
 			if (i_rangeIndex == 0)
-			{
 				return a_colors[0];
-			}
 			if (i_rangeIndex == a_values.length)
-			{
 				return a_colors[a_values.length - 1];
-			}
 			var f_min: Number = a_values[i_rangeIndex - 1];
 			var f_max: Number = a_values[i_rangeIndex];
 			var colorMin: uint = a_colors[i_rangeIndex - 1];
@@ -51,7 +45,7 @@ package com.iblsoft.utils
 			var b: uint = f_factor * (bMax - bMin) + bMin;
 			return b + (g << 8) + (r << 16) + (a << 24);
 		}
-		
+
 		public function getColorForValue(f_value: Number): uint
 		{
 			var i_rangeIndex: int = 0;
@@ -59,19 +53,13 @@ package com.iblsoft.utils
 			{
 				var i: int = int(s_i);
 				if (f_value < ma_values[i])
-				{
 					break;
-				}
 				i_rangeIndex = i + 1;
 			}
 			if (i_rangeIndex == 0)
-			{
 				return ma_colors[0];
-			}
 			if (i_rangeIndex == ma_values.length)
-			{
 				return ma_colors[ma_values.length - 1];
-			}
 			var f_min: Number = ma_values[i_rangeIndex - 1];
 			var f_max: Number = ma_values[i_rangeIndex];
 			var colorMin: uint = ma_colors[i_rangeIndex - 1];
@@ -91,11 +79,15 @@ package com.iblsoft.utils
 			var b: uint = f_factor * (bMax - bMin) + bMin;
 			return b + (g << 8) + (r << 16) + (a << 24);
 		}
-		
+
 		public function get minimumValue(): Number
-		{ return ma_values[0]; }
+		{
+			return ma_values[0];
+		}
 
 		public function get maximumValue(): Number
-		{ return ma_values[ma_values.length - 1]; }
+		{
+			return ma_values[ma_values.length - 1];
+		}
 	}
 }
