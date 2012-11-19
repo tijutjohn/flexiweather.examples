@@ -27,31 +27,52 @@
 			<s:Button label="Done" click="done()" enabled.normal="false"/>
 		</s:HGroup>
 		<s:HGroup width="100%">
-			<s:ToggleButton id="buttonCurveAddPoints" width="32" height="32"
-					click="addCurvePoints()"
-					icon="@Embed(source='/assets/icons/common/edit-24.png')" toolTip="Add points"/>
-			<s:Button id="buttonFeatureRemove" height="32" label="Remove selected feature"
-					click="removeSelectedFeature()"
-					icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
-			<s:Button id="buttonPointRemove" height="32" label="Remove selected point"
-					click="removeSelectedPoint()"
-					icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
+			<s:ToggleButton width="32" height="32" id="buttonCurveAddPoints"
+					click="addCurvePoints()" toolTip="Add points"
+					icon="@Embed(source='/assets/icons/common/edit-24.png')"/>
 		</s:HGroup>
+		<s:BorderContainer backgroundColor="0xaaaaaa" borderColor="0xcccccc" width="100%"
+				minHeight="0">
+			<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle" paddingBottom="5"
+					paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change projection"/>
+				<s:ToggleButton label="LatLon CRS:84" selected="{m_iw.crs == 'CRS:84'}"
+						click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
+				<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'EPSG:102018'}"
+						click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'EPSG:102021'}"
+						click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBOXRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
+						click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+			</s:HGroup>
+		</s:BorderContainer>
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%"
 				click="onMouseClick(event)">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 			<editable:InteractiveLayerWFSEditable id="wfsLayer" version="{new Version(1,0,0)}"
 					zOrder="1000"/>
-			<s:Button id="btnTest" visible="false" label="Test button" includeInLayout="false"/>
 		</widgets:InteractiveWidget>
-		<s:HGroup width="100%">
-			<s:Label text="Area:"/>
-			<s:Button label="World CRS:84" click="m_iw.setCRSExtentAndViewBBox('CRS:84');"/>
-			<s:Button label="World EPSG:900913"
-					click="m_iw.setCRSExtentAndViewBBox('EPSG:900913');"/>
-		</s:HGroup>
 	</s:VGroup>
+
+	<!-- Point tools dialog -->
+	<s:BorderContainer id="pointTools" visible="false" includeInLayout="false"
+			backgroundColor="0xaaaaaa" backgroundAlpha="0.6" borderColor="0x444444" width="200">
+		<s:VGroup width="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+			<s:Button height="32" width="100%" id="buttonFeatureRemove"
+					click="removeSelectedFeature()" label="Remove selected feature"
+					icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
+			<s:Button height="32" width="100%" id="buttonPointRemove"
+					label="Remove selected point"
+					icon="@Embed(source='/assets/icons/common/delete-24.png')"
+					click="removeSelectedPoint()"/>
+			<s:HGroup width="100%">
+				<s:Button label="Finish editing" enabled.normal="false"
+						click="done();hideTools()" width="100%"/>
+				<s:Button label="Hide" click="hideTools()"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:BorderContainer>
 	<fx:Script>
 		<![CDATA[
 			import com.iblsoft.features.StarFeature;
@@ -67,16 +88,22 @@
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
 			import com.iblsoft.flexiweather.ogc.events.MoveablePointEvent;
 			import com.iblsoft.flexiweather.proj.Coord;
+			import com.iblsoft.flexiweather.proj.Projection;
 			import mx.events.FlexEvent;
 			import mx.events.PropertyChangeEvent;
 			private var currentFeatureType: String;
 			private var currentFeatureSetting: String;
 			private var currentlyEditedFeature: WFSFeatureEditable;
+			private var currentlySelectedPoint: MoveablePoint;
 
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
 				super.onCreationComplete(event);
-				m_iw.setCRSExtentAndViewBBox('CRS:84');
+				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
+				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				m_iw.setCRS('CRS:84', false);
+				m_iw.setExtentBBOXRaw(-180, -90, 180, 90);
 				addLayer('dem', 1);
 				addLayer('foreground', 1);
 				wfsLayer.addEventListener(InteractiveLayerWFSEditable.SELECTION_CHANGE, onWFSLayerSelectionChange);
@@ -109,6 +136,7 @@
 					wfsLayer.removeFeature(currentlyEditedFeature);
 					reset();
 				}
+				updatePointToolsPosition();
 			}
 
 			private function removeSelectedPoint(): void
@@ -118,6 +146,7 @@
 					if (currentlyEditedFeature.selectedMoveablePointIndex > -1)
 						currentlyEditedFeature.removePoint(currentlyEditedFeature.selectedMoveablePointIndex);
 				}
+				updatePointToolsPosition();
 			}
 
 			private function addStarWithLabel(pt: Point): void
@@ -172,9 +201,9 @@
 			{
 				if (currentlyEditedFeature)
 				{
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_SELECTION_CHANGE, onCurrentlyEditedFeaturePointSelectionChange);
 					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_MOVE, onCurrentlyEditedFeatureMove);
-					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_DOWN, onCurrentlyEditedFeatureDown);
-					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_UP, onCurrentlyEditedFeatureUp);
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
 				}
 			}
 
@@ -182,34 +211,64 @@
 			{
 				if (currentlyEditedFeature)
 				{
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_SELECTION_CHANGE, onCurrentlyEditedFeaturePointSelectionChange);
 					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_MOVE, onCurrentlyEditedFeatureMove);
-					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_DOWN, onCurrentlyEditedFeatureDown);
-					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_UP, onCurrentlyEditedFeatureUp);
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
 				}
 			}
 
-			private function onCurrentlyEditedFeatureDown(event: MoveablePointEvent): void
+			private function hideTools(): void
 			{
-				btnTest.visible = true;
-				btnTest.includeInLayout = true;
-				btnTest.x = event.x;
-				btnTest.y = event.y;
+				changePointToolsVisibility(false);
 			}
 
-			private function onCurrentlyEditedFeatureUp(event: MoveablePointEvent): void
+			private function changePointToolsVisibility(visible: Boolean): void
 			{
-				//btnTest.visible = false;
-				//btnTest.includeInLayout = false;
+				pointTools.visible = visible;
+				pointTools.includeInLayout = visible;
+			}
+
+			private function deleteMarker(): void
+			{
+				removeSelectedPoint();
+			}
+
+			private function onCurrentlyEditedFeaturePointSelectionChange(event: MoveablePointEvent): void
+			{
+				currentlySelectedPoint = event.point;
+				changePointToolsVisibility(true);
+			}
+
+			private function onCurrentlyEditedFeatureClick(event: MoveablePointEvent): void
+			{
+				currentlySelectedPoint = event.point;
+				changePointToolsVisibility(true);
 			}
 
 			private function onCurrentlyEditedFeatureMove(event: MoveablePointEvent): void
 			{
-				btnTest.x = event.x;
-				btnTest.y = event.y;
+				currentlySelectedPoint = event.point;
+				updatePointToolsPosition();
+			}
+
+			private function updatePointToolsPosition(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					var p: Point = new Point(currentlySelectedPoint.x, currentlySelectedPoint.y);
+					currentlyEditedFeature.localToGlobal(p);
+					pointTools.x = p.x - pointTools.width / 2;
+					pointTools.y = p.y - 40;
+				}
+				else
+				{
+					hideTools();
+				}
 			}
 
 			private function onWFSLayerSelectionChange(event: PropertyChangeEvent): void
 			{
+				trace("onSelectionChanged");
 				removeMoveablePointsListeners();
 				currentlyEditedFeature = event.newValue as WFSFeatureEditable;
 				if (currentlyEditedFeature)
@@ -237,7 +296,7 @@
 				}
 				if (currentlyEditedFeature)
 				{
-					buttonCurveAddPoints.selected = ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS)
+					buttonCurveAddPoints.selected = ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS) 
 							|| (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
 				}
 			}
@@ -288,7 +347,7 @@
 						wfsLayer.selectItem(currentlyEditedFeature);
 					}
 					else
-						trace("Do not add new point, user is just moving existing point");
+						trace("do not add Point, user is just moving existing point");
 				}
 				else
 				{
