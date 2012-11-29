@@ -7,7 +7,11 @@ package
 	import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 	import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 	import com.iblsoft.flexiweather.widgets.InteractiveWidget;
+	
+	import flash.events.Event;
+	
 	import mx.events.FlexEvent;
+	
 	import spark.components.Application;
 
 	/** Base class with helper methods for all examples. */
@@ -38,8 +42,14 @@ package
 					"gfs",
 					s_serverURL + "/gfs", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
+			
+			scm.addEventListener(WMSServiceConfiguration.CAPABILITIES_UPDATED, onCapabilitiesUpdated);
 		}
 
+		protected function onCapabilitiesUpdated(event: Event): void
+		{
+			trace("FlexiWeatherTemplate onCapabilitiesUpdated");
+		}
 		protected function getAllServicesCapabilities(): void
 		{
 			scm.update(scm.getAllServicesNames());

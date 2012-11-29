@@ -24,6 +24,9 @@
 	</s:VGroup>
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.TiledLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
 			import com.iblsoft.flexiweather.ogc.tiling.TileMatrix;
@@ -31,14 +34,45 @@
 			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSet;
 			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSetLimits;
 			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSetLink;
+			import com.iblsoft.flexiweather.proj.Projection;
+			
 			import mx.containers.Tile;
 			import mx.events.FlexEvent;
 			private var _tms900913: TileMatrixSet;
 			private var _tiledLayer: InteractiveLayerTiled;
+			private var _qttLayer: InteractiveLayerQTTMS;
 
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
 				super.onCreationComplete(event);
+			
+				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				scm.update(scm.getAllServicesNames());
+				
+				m_iw.setCRSExtentAndViewBBox('EPSG:900913');
+				
+				createInteractiveLayerQTTMS();
+			}
+			
+			private function createInteractiveLayerQTTMS(): void
+			{
+				var qttConfig: QTTMSLayerConfiguration = new QTTMSLayerConfiguration();
+				qttConfig.label = 'openstreetmap';
+				
+				_qttLayer = qttConfig.createInteractiveLayer(m_iw) as InteractiveLayerQTTMS;
+				_qttLayer.addCRSWithTilingExtent('http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png', 'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 256, 0, 18);
+				
+				m_iw.interactiveLayerMap.addLayer(_qttLayer);
+				_qttLayer.refresh(true);
+			}
+			private function createInteractiveLayerTiled(): void
+			{
+				
+				_tiledLayer = new InteractiveLayerTiled();
+				
+				
 				//create 900913 tile matrix set
 				_tms900913 = new TileMatrixSet();
 				_tms900913.id = 'EPSG:900913';
@@ -50,12 +84,14 @@
 					matrix.id = 'EPSG:900913:' + i;
 					matrix.scaleDenominator = denominators[i];
 					matrix.topLeftCorner = new Point(20037508, 20037508.34);
-					matrix.tileWidth = matrix.tileHeight = 256;
+					matrix.tileWidth = 256; 
+					matrix.tileHeight = 256;
 					matrix.matrixWidth = matrix.matrixHeight = Math.pow(2, i);
 					_tms900913.addTileMatrix(matrix);
 				}
 				var tileMatrixSetLink: TileMatrixSetLink = new TileMatrixSetLink();
 				tileMatrixSetLink.tileMatrixSet = _tms900913;
+				
 				var tileMatrixSetLimitsArray: TileMatrixSetLimits = new TileMatrixSetLimits();
 				for (var l: int = 0; l <= 4; l++)
 				{
@@ -67,11 +103,15 @@
 					limit.maxTileColumn = limit.maxTileRow - 1;
 					tileMatrixSetLimitsArray.addTileMatrixLimits(limit);
 				}
+				
 				tileMatrixSetLink.tileMatrixSetLimitsArray = tileMatrixSetLimitsArray;
-				var tiledConfiguration: TiledLayerConfiguration = new TiledLayerConfiguration();
-				tiledConfiguration.label = 'test';
-				tiledConfiguration.tileMatrixSetLink = tileMatrixSetLink;
-				_tiledLayer = tiledConfiguration.createInteractiveLayer(m_iw) as InteractiveLayerTiled;
+				
+//				var tiledConfiguration: TiledLayerConfiguration = new TiledLayerConfiguration();
+//				tiledConfiguration.label = 'test';
+//				tiledConfiguration.tileMatrixSetLink = tileMatrixSetLink;
+				
+				_tiledLayer.addTileMatrixSetLink(tileMatrixSetLink);
+				
 				m_iw.interactiveLayerMap.addLayer(_tiledLayer);
 				_tiledLayer.refresh(true);
 			}
