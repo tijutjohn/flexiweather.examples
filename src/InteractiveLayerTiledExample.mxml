@@ -67,54 +67,7 @@
 				m_iw.interactiveLayerMap.addLayer(_qttLayer);
 				_qttLayer.refresh(true);
 			}
-			private function createInteractiveLayerTiled(): void
-			{
-				
-				_tiledLayer = new InteractiveLayerTiled();
-				
-				
-				//create 900913 tile matrix set
-				_tms900913 = new TileMatrixSet();
-				_tms900913.id = 'EPSG:900913';
-				_tms900913.supportedCRS = 'EPSG:900913';
-				var denominators: Array = [5.590822639508929E8, 2.7954113197544646E8, 1.3977056598772323E8];
-				for (var i: int = 0; i <= 30; i++)
-				{
-					var matrix: TileMatrix = new TileMatrix();
-					matrix.id = 'EPSG:900913:' + i;
-					matrix.scaleDenominator = denominators[i];
-					matrix.topLeftCorner = new Point(20037508, 20037508.34);
-					matrix.tileWidth = 256; 
-					matrix.tileHeight = 256;
-					matrix.matrixWidth = matrix.matrixHeight = Math.pow(2, i);
-					_tms900913.addTileMatrix(matrix);
-				}
-				var tileMatrixSetLink: TileMatrixSetLink = new TileMatrixSetLink();
-				tileMatrixSetLink.tileMatrixSet = _tms900913;
-				
-				var tileMatrixSetLimitsArray: TileMatrixSetLimits = new TileMatrixSetLimits();
-				for (var l: int = 0; l <= 4; l++)
-				{
-					var limit: TileMatrixLimits = new TileMatrixLimits();
-					limit.tileMatrix = 'EPSG:900913:' + l;
-					limit.minTileRow = 1;
-					limit.maxTileRow = Math.pow(2, l);
-					limit.minTileColumn = 0;
-					limit.maxTileColumn = limit.maxTileRow - 1;
-					tileMatrixSetLimitsArray.addTileMatrixLimits(limit);
-				}
-				
-				tileMatrixSetLink.tileMatrixSetLimitsArray = tileMatrixSetLimitsArray;
-				
-//				var tiledConfiguration: TiledLayerConfiguration = new TiledLayerConfiguration();
-//				tiledConfiguration.label = 'test';
-//				tiledConfiguration.tileMatrixSetLink = tileMatrixSetLink;
-				
-				_tiledLayer.addTileMatrixSetLink(tileMatrixSetLink);
-				
-				m_iw.interactiveLayerMap.addLayer(_tiledLayer);
-				_tiledLayer.refresh(true);
-			}
+			
 		]]>
 	</fx:Script>
 </FlexiWeatherTemplate>
