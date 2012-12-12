@@ -75,8 +75,11 @@
             *         layer initialized is true
             */
             private function onZoomChange(event:InteractiveLayerQTTEvent):void {
-                m_iw.removeLayer(_qttLayer);
-                m_iw.addLayer(_qttLayer);
+//                m_iw.removeLayer(_qttLayer);
+//                m_iw.addLayer(_qttLayer);
+				
+				m_iw.interactiveLayerMap.removeLayer(_qttLayer);
+				m_iw.interactiveLayerMap.addLayer(_qttLayer);
             }
             
             /**
