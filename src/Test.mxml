@@ -1,6 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
-		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns="*" minWidth="955" minHeight="600" xmlns:afwa="afwa.*">
-	<afwa:AfwaTest width="100%" height="100%"/>
-</FlexiWeatherTemplate>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				layout="absolute"
+				minWidth="955" minHeight="600"
+				width="562" height="444"
+				creationComplete="onCreationComplete(event)">
+
+	<mx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
+			import com.iblsoft.flexiweather.net.loaders.UniURLLoader;
+			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			
+			import mx.events.FlexEvent;
+			internal var loader: UniURLLoader = new UniURLLoader();
+				
+			protected function onGet(event: MouseEvent): void
+			{
+				var r: URLRequest = new URLRequest(inputURL.text);
+				r.data = new URLVariables();
+				r.data.SERVICE = "WMS";
+				r.data.REQUEST = "GetCapabilities";
+				loader.load(r, null, "Requesting " + inputURL.text); 
+			}
+
+			protected function onCreationComplete(event: FlexEvent): void
+			{
+				BackgroundJobManager.getInstance().createDefaultPreloader();
+				BackgroundJobManager.getInstance().setupIndicator(box);
+				loader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onDataLoaded);
+				loader.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onDataLoadFailed);
+				AbstractURLLoader.baseURL = "http://nb7:8008";
+				AbstractURLLoader.crossDomainProxyURLPattern = "${BASE_URL}/ria/proxy?u=${URL}";
+			}
+			
+			protected function onDataLoaded(event: UniURLLoaderEvent): void
+			{
+				area.text = String(event.result); 
+			}
+
+			protected function onDataLoadFailed(event: UniURLLoaderErrorEvent): void
+			{
+				area.text = "ERROR!\n" + event.toString(); 
+			}
+		]]>
+	</mx:Script>
+
+	<mx:HBox id="box" x="10" y="10" width="542" height="29">
+		<mx:Label text="URL:"/>
+		<!--mx:TextInput width="100%" text="http://www.random.org/integers/?num=1&amp;min=1&amp;max=10000&amp;col=1&amp;base=10&amp;format=plain&amp;rnd=new" id="inputURL"/-->
+		<mx:TextInput width="100%" text="http://129.206.229.158/cached/osm" id="inputURL"/>
+		<!--mx:TextInput width="100%" text="http://www.google.sk/" id="inputURL"/-->
+		<mx:Button x="460" y="10" label="Get" click="onGet(event)"/>
+	</mx:HBox>
+	<mx:TextArea id="area" x="10" y="47" width="542" height="387"/>
+
+</mx:Application>
