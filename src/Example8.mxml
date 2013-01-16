@@ -182,6 +182,7 @@
 //				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 				kmzFiles = new ArrayCollection(String("assets/kmz/balloon-image-rel.kmz,assets/kmz/usa-ca-sf.kmz,assets/kmz/continents.kmz").split(","));
 				lstOpenedDocuments.addEventListener('unload', onUnloadKMLFile);
+				lstOpenedDocuments.addEventListener('changeVisibility', onKMLFileChangeVisibility);
 				AbstractURLLoader.crossDomainProxyURLPattern = "http://wms.iblsoft.com/ria/proxy?u=${URL}";
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
@@ -362,6 +363,22 @@
 			*/
 			}
 
+			private function onKMLFileChangeVisibility(event: Event): void
+			{
+				trace("onKMLFileChangeVisibility");
+				var renderer: KMLFileListItemRenderer = event.target as KMLFileListItemRenderer;
+				var kmlURL: String = renderer.data as String;
+				if (_kmlLayerDictionary[kmlURL])
+				{
+					var kmlObject: Object = _kmlLayerDictionary[kmlURL];
+					var kmlLayer: InteractiveLayerKML = kmlObject.layer as InteractiveLayerKML;
+					if (kmlLayer)
+						kmlDataProvider = kmlLayer.kml.kmlDataProvider;
+					
+					kmlLayer.visible = !kmlLayer.visible;
+				}
+				
+			}
 			private function onUnloadKMLFile(event: Event): void
 			{
 				trace("unload");

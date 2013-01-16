@@ -5,6 +5,7 @@
 	<s:HGroup width="100%" gap="2" verticalAlign="middle" paddingLeft="5" paddingRight="5"
 			paddingBottom="1" paddingTop="1">
 		<s:Button label="Unload" click="dispatchEvent(new Event('unload', true))"/>
+		<s:Button label="Change visibility" click="dispatchEvent(new Event('changeVisibility', true))"/>
 		<s:Label text="{data}" width="100%"/>
 	</s:HGroup>
 </s:ItemRenderer>
