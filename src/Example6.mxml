@@ -78,14 +78,24 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
+			
 			import flash.utils.setInterval;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.SliderEvent;
+			
 			import spark.core.IViewport;
 			import spark.filters.GlowFilter;
+			
+			// you can limit maximum of loading (and preloading) frames
+			public static const MAX_FRAMES_ANIMATED: int = 8;
+			
 			public static const PRELOADINGFRAMESCOUNT_CHANGE_EVENT: String = "preloadingFramesCountChange";
 			public static const PRELOADEDFRAMESCOUNT_CHANGE_EVENT: String = "preloadedFramesCountChange";
+			
+			
+			
 			[Bindable]
 			public var maxFrames: int;
 			[Bindable]
@@ -373,13 +383,23 @@
 				}
 			}
 
+			private function filterFramesCount(arr: Array, total: int): Array
+			{
+				var result: Array = [];
+				var total: int = Math.min(arr.length, total);
+				for (var i: int = 0; i < total; i++)
+				{
+					result.push(arr[i]);
+				}
+				return result;
+			}
 			/**
 			 * Get all FORECAST value string from Temperature layer. It must be called after capabilities are receiverd and parsed
 			 */
 			private function getForecastValues(): void
 			{
-				var dimNames: Array = m_layerTemperature.getWMSDimensionsNames();
-				var dimValues: Array = m_layerTemperature.getWMSDimensionsValues('FORECAST');
+				var dimNames: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsNames(), MAX_FRAMES_ANIMATED);
+				var dimValues: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsValues('FORECAST'), MAX_FRAMES_ANIMATED);
 				if (dimValues)
 				{
 					maxFrames = dimValues.length;
