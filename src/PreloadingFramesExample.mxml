@@ -55,6 +55,7 @@
 			import com.iblsoft.flexiweather.ogc.data.viewProperties.IViewProperties;
 			import com.iblsoft.flexiweather.ogc.data.viewProperties.WMSViewProperties;
 			import com.iblsoft.flexiweather.ogc.events.GetCapabilitiesEvent;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.proj.Projection;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
@@ -64,11 +65,34 @@
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 			
+			public static const PRELOADINGFRAMESCOUNT_CHANGE_EVENT: String = "preloadingFramesCountChange";
+			public static const PRELOADEDFRAMESCOUNT_CHANGE_EVENT: String = "preloadedFramesCountChange";
+			
 			// you can limit maximum of loading (and preloading) frames
-			public static const MAX_FRAMES_ANIMATED: int = 8;
+			public static const MAX_FRAMES_ANIMATED: int = 2;
 			
 			[Bindable]
 			public var maxFrames: int;
+			
+			/**
+			 * how many frames are already preloaded
+			 */
+			private var _preloadedFramesCount: int = 0;
+			
+			[Bindable(event = "preloadedFramesCountChange")]
+			public function get preloadedFramesCount(): int
+			{
+				return _preloadedFramesCount;
+			}
+			
+			public function set preloadedFramesCount(value: int): void
+			{
+				if (_preloadedFramesCount != value)
+				{
+					_preloadedFramesCount = value;
+					dispatchEvent(new Event(PRELOADEDFRAMESCOUNT_CHANGE_EVENT));
+				}
+			}
 			
 			/**
 			 * array of forecast string values from capabilities request. We need it for slider to change FORECAST dimension of temperature layer
@@ -84,6 +108,9 @@
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
 				super.onCreationComplete(event);
+				
+				InteractiveLayerTiled.drawBorders = true;
+				InteractiveLayerTiled.drawDebugText = true;
 				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
@@ -107,7 +134,7 @@
 				
 
 				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
-//				setInterval(updateTotalProgress, 500);
+				setInterval(updateTotalProgress, 500);
 			}
 			
 			private function updateTotalProgress(): void
@@ -115,6 +142,26 @@
 				preloadedFramesCount = getCachedFramesCount();
 				totalProgress.setProgress(preloadedFramesCount, maxFrames);
 				totalProgress.label = "Preloaded frames: " + preloadedFramesCount + " from " + maxFrames + " frames";
+			}
+			
+			/**
+			 * Returns amount of already cached frames
+			 */
+			private function getCachedFramesCount(): int
+			{
+				var cachedCount: int = 0;
+				//				trace("getCachedFramesCount preloadingData: " + preloadingData.length)
+				for each (var wmsViewProperties: WMSViewProperties in preloadingData)
+				{
+					var isCached: Boolean = m_layerTemperature.isPreloaded(wmsViewProperties);
+					if (isCached)
+					{
+						//						trace("\t getCachedFramesCount cached: " + wmsViewProperties.getWMSDimensionValue('FORECAST'))
+						cachedCount++;
+					}
+				}
+				//				trace("\t getCachedFramesCount cachedCount: " + cachedCount)
+				return cachedCount;
 			}
 			
 			protected function onCapabilitiesReceived(event: Event): void
