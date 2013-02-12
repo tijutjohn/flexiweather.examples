@@ -21,14 +21,15 @@
 		</s:HGroup>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
 			<s:Button label="Preload all frames" click="preloadAllFrames()"
-					enabled="{!b_framesArePreloaded &amp;&amp; !b_framesArePreloading}"/>
+					enabled="{preloadAllFramesEnabled}"/>
 
 			<!--s:Button label="Preload next 4 frames" click="preloadFrames(4)"/-->
 			<s:Button label="Clear cache" click="clearCache()" enabled="{!b_framesArePreloading}"/>
+			<s:Button label="Cancel preloading" click="cancelPreloading()" enabled="{b_framesArePreloading}"/>
 			<s:ToggleButton label="Use tiled layer" enabled="{!b_framesArePreloading}"
 					click="useTiledLayer((event.currentTarget as ToggleButton).selected)"
 					selected="{m_createTiledLayers}"/>
-			<s:ToggleButton label="Auto play"
+			<s:ToggleButton label="Auto play" id="btnAutoPlay"
 					click="autoPlay((event.currentTarget as ToggleButton).selected)"
 					selected="{autoPlayEnabled}"/>
 
@@ -36,7 +37,7 @@
 		</mx:HBox>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label textAlign="right" fontWeight="bold" text="Frames:" width="{labelWidth}"/>
-			<mx:HSlider id="sliderFrame" width="500" minimum="0" maximum="{maxFrames}"
+			<mx:HSlider id="sliderFrame" width="500" minimum="1" maximum="{maxFrames}"
 					snapInterval="1" enabled="{!autoPlayEnabled}" liveDragging="true"
 					showDataTip="true" change="frameChangeHandler(event)"/>
 			<mx:Label textAlign="right" fontWeight="bold" text="Time: {currentTime}"/>
@@ -56,6 +57,7 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
+			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerMSBase;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
@@ -140,6 +142,14 @@
 			{
 				return _preloadedFramesCount;
 			}
+			
+			private var b_cancelled: Boolean;
+			
+			[Bindable(event = "preloadingChanged")]
+			public function get preloadAllFramesEnabled(): Boolean
+			{
+				return b_cancelled || (!b_framesArePreloaded && !b_framesArePreloading);
+			}
 
 			public function set preloadedFramesCount(value: int): void
 			{
@@ -189,6 +199,20 @@
 			private var autoPlayPaused: Boolean;
 			private var s_serverURL: String;
 
+			
+			private function cancelPreloading(): void
+			{
+				trace("cancelPreloading");
+					
+				if (m_layerTemperature)
+					m_layerTemperature.cancelPreload();
+					
+				b_cancelled = true;
+				b_framesArePreloading = false;
+				b_framesArePreloaded = true;
+				notifyPreloadingChange();
+			}
+			
 			/**
 			 * Clear whole cache
 			 */
@@ -201,6 +225,7 @@
 				sliderFrame.value = 0;
 				b_framesArePreloaded = false;
 				b_framesArePreloading = false;
+				notifyPreloadingChange();
 			}
 
 			/**
@@ -282,6 +307,11 @@
 
 			private function useTiledLayer(b_play: Boolean): void
 			{
+				//stop autoPlay
+				
+				btnAutoPlay.selected = false;
+				
+				autoPlay(false);
 				clearCache();
 				m_createTiledLayers = b_play;
 				//recreate new layer
@@ -366,6 +396,7 @@
 				if (b_getCapabilitiesReceived)
 				{
 					b_framesArePreloading = true;
+					notifyPreloadingChange();
 					preloadFramesAfterCapabilitiesReceived(count);
 				}
 			}
@@ -379,6 +410,7 @@
 				if (b_getCapabilitiesReceived)
 				{
 					b_framesArePreloading = true;
+					notifyPreloadingChange();
 					preloadAllFramesAfterCapabilitiesReceived();
 				}
 			}
@@ -442,6 +474,7 @@
 			{
 				if (preloadingData)
 				{
+					b_cancelled = false;
 					b_framesArePreloading = true;
 					var total: int = preloadingData.length;
 					//0th item is currently loaded frame, so it will not be preloaded again
@@ -502,6 +535,7 @@
 				trace("ALL FRAMES ARE PRELOADED");
 				b_framesArePreloading = false;
 				b_framesArePreloaded = true;
+				notifyPreloadingChange();
 				//we are finished, update to first frame
 				changeFrame(0);
 			}
@@ -526,6 +560,7 @@
 				{
 					b_framesArePreloading = false;
 					b_framesArePreloaded = true;
+					notifyPreloadingChange();
 				}
 				continueWithAutoPlayIfPossible();
 			}
@@ -592,6 +627,7 @@
 					var forecast: String = wmsPreloadingViewData.getWMSDimensionValue('FORECAST') as String;
 					currentTime = forecast; // ISO8601Parser.dateToString( value as Date );
 					var isPreloaded: Boolean = m_layerTemperature.isPreloaded(wmsPreloadingViewData);
+					trace("Example 6 changeFrame currentTime: " + currentTime + " isPreloaded: " + isPreloaded);
 					if (!isPreloaded)
 					{
 						preloadViewData(wmsPreloadingViewData);
@@ -615,7 +651,7 @@
 			 */
 			protected function frameChangeHandler(event: SliderEvent): void
 			{
-				var currPos: int = event.value;
+				var currPos: int = event.value - 1;
 				changeFrame(currPos);
 			}
 
@@ -638,6 +674,11 @@
 					autoPlayPaused = false;
 					startAutoPlay(true);
 				}
+			}
+			
+			private function notifyPreloadingChange(): void
+			{
+				dispatchEvent(new Event("preloadingChanged"));
 			}
 		]]>
 	</fx:Script>

@@ -9,6 +9,7 @@
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerQTTEvent;
+			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
 			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.CRSWithBBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
@@ -16,8 +17,8 @@
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSLayerConfiguration;
-			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
@@ -30,7 +31,9 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
+			
 			import mx.controls.Alert;
+			
 			import spark.filters.GlowFilter;
 			private var m_openStreetLayer: InteractiveLayerQTTMS;
 			private var m_layerDEMBackground: InteractiveLayerWMSWithQTT;
@@ -47,7 +50,10 @@
 					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
 				}
 				m_iw.setCRSExtentAndViewBBox('EPSG:900913');
+				
 				var s_serverURL: String = 'http://ogcie.iblsoft.com';
+				AbstractURLLoader.baseURL = s_serverURL;
+				
 				var scm: OGCServiceConfigurationManager =
 						OGCServiceConfigurationManager.getInstance();
 				var srv: WMSServiceConfiguration = scm.getService(
@@ -144,14 +150,14 @@
 
 			private function onSurfaceObservationsLayerLoadingFinished(event: InteractiveLayerEvent): void
 			{
-				trace("surface observations LOADING FINISHED");
+//				trace("surface observations LOADING FINISHED");
 				surfaceProgress.setProgress(1, 1);
 			}
 
 			private function onSurfaceObservationsLayerProgress(event: InteractiveLayerProgressEvent): void
 			{
 				surfaceProgress.setProgress(event.loaded, event.total);
-				trace("onSurfaceObservationsLayer PROGRESS: " + event.loaded + " / " + event.total + " percent: " + surfaceProgress.percentComplete);
+//				trace("onSurfaceObservationsLayer PROGRESS: " + event.loaded + " / " + event.total + " percent: " + surfaceProgress.percentComplete);
 			}
 
 			protected function onMouseMove(event: MouseEvent): void
