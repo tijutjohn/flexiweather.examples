@@ -19,7 +19,10 @@
 					text="This example demonstrates preloading of frames for WMS Temperature layer for smooth animation."/>
 			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
 		</s:HGroup>
-		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
+		<s:HGroup width="100%" verticalAlign="middle">
+			<s:Label text="Widget enabled = {m_iw.enabled} listening for changes {m_iw.listeningForChanges}"/>
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="left">
 			<s:Button label="Preload all frames" click="preloadAllFrames()"
 					enabled="{preloadAllFramesEnabled}"/>
 
@@ -34,20 +37,20 @@
 					selected="{autoPlayEnabled}"/>
 
 			<!--s:Button label="Update progress" click="updateTotalProgress()"/-->
-		</mx:HBox>
-		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label textAlign="right" fontWeight="bold" text="Frames:" width="{labelWidth}"/>
-			<mx:HSlider id="sliderFrame" width="500" minimum="1" maximum="{maxFrames}"
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="left">
+			<s:Label textAlign="right" fontWeight="bold" text="Frames:" width="{labelWidth}"/>
+			<s:HSlider id="sliderFrame" width="500" minimum="1" maximum="{maxFrames}"
 					snapInterval="1" enabled="{!autoPlayEnabled}" liveDragging="true"
 					showDataTip="true" change="frameChangeHandler(event)"/>
-			<mx:Label textAlign="right" fontWeight="bold" text="Time: {currentTime}"/>
-		</mx:HBox>
-		<mx:HBox width="100%" verticalAlign="middle" horizontalAlign="left">
-			<mx:Label textAlign="right" fontWeight="bold" text="Total Preloading progress:"
+			<s:Label textAlign="right" fontWeight="bold" text="Time: {currentTime}"/>
+		</s:HGroup>
+		<s:HGroup width="100%" verticalAlign="middle" horizontalAlign="left">
+			<s:Label textAlign="right" fontWeight="bold" text="Total Preloading progress:"
 					width="{labelWidth}"/>
 			<mx:ProgressBar id="totalProgress" width="500" height="20" mode="manual"
 					labelPlacement="center" label="Preloading frames"/>
-		</mx:HBox>
+		</s:HGroup>
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
@@ -85,7 +88,6 @@
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
-			import mx.events.SliderEvent;
 			
 			import spark.core.IViewport;
 			import spark.filters.GlowFilter;
@@ -233,6 +235,8 @@
 			 */
 			private function onCreationComplete(event: Event): void
 			{
+//				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = true;
+				
 				if (Capabilities.playerType == "Desktop")
 					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
 				else
@@ -651,9 +655,11 @@
 			/**
 			 * Function is called when slider is changed by user interaction
 			 */
-			protected function frameChangeHandler(event: SliderEvent): void
+			protected function frameChangeHandler(event: Event): void
 			{
-				var currPos: int = event.value - 1;
+				var slider: HSlider = event.target as HSlider;
+					
+				var currPos: int = slider.value - 1;
 				changeFrame(currPos);
 			}
 
