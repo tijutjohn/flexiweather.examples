@@ -10,6 +10,14 @@
 		<s:HGroup width="100%">
 			<s:Button label="Test MainPanel request" click="mainPanel()"/>
 			<s:Label text="Timeout: "/>
+			<s:ComboBox id="methodCB">
+				<s:dataProvider>
+					<mx:ArrayList>
+						<fx:String>POST</fx:String>
+						<fx:String>GET</fx:String>
+					</mx:ArrayList>
+				</s:dataProvider>
+			</s:ComboBox>
 			<s:NumericStepper minimum="1" maximum="200" value="60" stepSize="1" id="nsSize"/>
 			<s:Button label="Cancel it" click="cancelPost()"/>
 		</s:HGroup>
@@ -34,7 +42,7 @@
 				
 				var jsonString: String = '{"params":{"timeout":"'+nsSize.value+'s","roles":["Shared","LDDU","LDOS"],"notifications":{"id":"13|2013-03-04T12:29:21Z"},"validForecasts":{"id":"1362377575"},"alerts":{"id":"03072afa2bee98c883f9f9ce55c1a34b"},"regularTasks":{"id":"6189e109ed2155b3a82aabbe6169e5d4","timeFrom":"2013-03-04T07:00:00Z","timeTo":"2013-03-04T13:00:00Z"}},"jsonrpc":"2.0","id":1,"method":"listRegularTasksNotificationsValidForecastsAndAlerts"}';
 				_request = new URLRequest("http://murcikan:8010/ria/mainpanel");
-				_request.method = URLRequestMethod.POST;
+				_request.method = methodCB.selectedItem as String;
 				_request.data = jsonString;
 				_loader.load(_request);
 				
@@ -54,6 +62,7 @@
 			}
 			private function cancelPost(): void
 			{
+				log("CALL _loader.cancel");
 				_loader.cancel(_request);
 			}
 		]]>
