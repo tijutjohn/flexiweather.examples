@@ -16,9 +16,9 @@
 					fontWeight="bold" fontSize="14"/>
 			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
 			<s:Button label="Draw mode: Plain"
-					click="changeDrawMode(InteractiveLayerRoute.DRAW_MODE_PLAIN)"/>
+					click="changeDrawMode(DrawMode.PLAIN)"/>
 			<s:Button label="Draw mode: Great Arc"
-					click="changeDrawMode(InteractiveLayerRoute.DRAW_MODE_GREAT_ARC)"/>
+					click="changeDrawMode(DrawMode.GREAT_ARC)"/>
 			<s:Button label="Clear route" click="clearRoute()"/>
 		</s:HGroup>
 		<s:HGroup width="100%" height="100%">
@@ -61,8 +61,10 @@
 	<fx:Script>
 		<![CDATA[
 			import com.iblsoft.flexiweather.proj.Coord;
+			import com.iblsoft.flexiweather.utils.draw.DrawMode;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayer;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerRoute;
+			
 			import mx.collections.ArrayCollection;
 			import mx.events.FlexEvent;
 			[Bindable]
