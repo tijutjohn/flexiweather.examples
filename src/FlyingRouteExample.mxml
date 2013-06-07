@@ -116,7 +116,7 @@
 					var segment: Object = {part: i, coord1: coord1, coord2: coord2, index: i - 1, distance: 0};
 					measureSegment(segment);
 					distances.addItem(segment);
-					trace("find segment : " + i);
+//					trace("find segment : " + i);
 				}
 			}
 
