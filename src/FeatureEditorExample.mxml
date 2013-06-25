@@ -144,7 +144,7 @@
 				if (currentlyEditedFeature)
 				{
 					if (currentlyEditedFeature.selectedMoveablePointIndex > -1)
-						currentlyEditedFeature.removePoint(currentlyEditedFeature.selectedMoveablePointIndex);
+						currentlyEditedFeature.removePointAt(currentlyEditedFeature.selectedMoveablePointIndex);
 				}
 				updatePointToolsPosition();
 			}
