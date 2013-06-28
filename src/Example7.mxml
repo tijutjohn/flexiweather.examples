@@ -43,6 +43,7 @@
 							<fx:Script>
 								<![CDATA[
 									import com.iblsoft.flexiweather.widgets.InteractiveLayer;
+									
 									import mx.events.DynamicEvent;
 
 									private function removeLayer(layer: InteractiveLayer): void
@@ -79,6 +80,7 @@
 	</s:VGroup>
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
@@ -167,10 +169,16 @@
 				layers = new ArrayCollection();
 				layerList.addEventListener('removeLayer', onLayerRemove);
 				m_iw.setCRSExtentAndViewBBox('EPSG:900913');
+				
 				var s_serverURL: String = 'http://ogcie.iblsoft.com';
+				
 				scm = OGCServiceConfigurationManager.getInstance();
 				serviceRIA = scm.getService("ria", s_serverURL + "/ria", new Version(1, 3, 0), WMSServiceConfiguration) as WMSServiceConfiguration;
-				serviceGFS = scm.getService("gfs", s_serverURL + "/gfs", new Version(1, 3, 0), WMSServiceConfiguration) as WMSServiceConfiguration;
+				serviceGFS = scm.getService("gfs", s_serverURL + "/ncep/gfs", new Version(1, 3, 0), WMSServiceConfiguration) as WMSServiceConfiguration;
+				
+				var map: InteractiveLayerMap = new InteractiveLayerMap();
+				m_iw.addLayer(map);
+				
 				scm.update(scm.getAllServicesNames());
 				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = createTiledLayers;
 			}
@@ -227,45 +235,45 @@
 						lc = createLayerConfiguration(srv, ["background-dem"]);
 						lc.label = "Background";
 						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
-						m_iw.addLayer(lWMS);
+						m_iw.interactiveLayerMap.addLayer(lWMS);
 						lWMS.name = 'Background';
-						lWMS.refresh(true);
+//						lWMS.refresh(true);
 						break;
 					}
 					case 'temperature':
 					{
 						srv = getWMSLayerConfiguration('gfs');
-						lc = createLayerConfiguration(srv, ["Temperature"]);
+						lc = createLayerConfiguration(srv, ["temperature"]);
 						lc.label = "Temperature";
 						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
-						m_iw.addLayer(lWMS);
+						m_iw.interactiveLayerMap.addLayer(lWMS);
 						lWMS.name = 'Temperature';
 						lWMS.zOrder = 0;
-						lWMS.refresh(true);
+//						lWMS.refresh(true);
 						break;
 					}
 					case 'pressure':
 					{
 						srv = getWMSLayerConfiguration('gfs');
-						lc = createLayerConfiguration(srv, ["Pressure"]);
+						lc = createLayerConfiguration(srv, ["msl-pressure"]);
 						lc.label = "Pressure";
 						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
-						m_iw.addLayer(lWMS);
+						m_iw.interactiveLayerMap.addLayer(lWMS);
 						lWMS.name = 'Pressure';
 						lWMS.zOrder = 0;
-						lWMS.refresh(true);
+//						lWMS.refresh(true);
 						break;
 					}
 					case 'wind':
 					{
 						srv = getWMSLayerConfiguration('gfs');
-						lc = createLayerConfiguration(srv, ["Windbarbs"]);
+						lc = createLayerConfiguration(srv, ["wind"]);
 						lc.label = "Windbarbs";
 						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayer;
-						m_iw.addLayer(lWMS);
+						m_iw.interactiveLayerMap.addLayer(lWMS);
 						lWMS.name = 'Wind';
 						lWMS.zOrder = 0;
-						lWMS.refresh(true);
+//						lWMS.refresh(true);
 						break;
 					}
 					case 'foreground':
@@ -274,10 +282,9 @@
 						lc = createLayerConfiguration(srv, ["foreground-lines"]);
 						lc.label = "Overlays/Border lines";
 						lWMS = lc.createInteractiveLayer(m_iw) as InteractiveLayerWMS;
-//						lWMS = new InteractiveLayerWMSWithQTT(m_iw, lc);
-						m_iw.addLayer(lWMS);
+						m_iw.interactiveLayerMap.addLayer(lWMS);
 						lWMS.name = 'Borders';
-						lWMS.refresh(true);
+//						lWMS.refresh(true);
 						break;
 					}
 				}

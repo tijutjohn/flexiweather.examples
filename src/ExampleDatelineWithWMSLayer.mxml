@@ -45,12 +45,13 @@
 					BackgroundJobManager.getInstance().createDefaultPreloader();
 					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
 				}
+				
 				m_iw.setCRSExtentAndViewBBox('CRS:84');
 				var s_serverURL: String = 'http://ogcie.iblsoft.com';
 				m_layerDEMBackground = addLayer('dem');
 				m_layerDEMBackground.name = 'DEMBackground';
 				m_layerDEMBackground.zOrder = -10;
-				m_layerDEMBackground.refresh(true);
+//				m_layerDEMBackground.refresh(true);
 				scm.update(scm.getAllServicesNames());
 			}
 		]]>

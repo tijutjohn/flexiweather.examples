@@ -16,6 +16,7 @@
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
+			import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerPan;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			[Bindable]
@@ -33,19 +34,18 @@
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 				var lc: WMSLayerConfiguration;
 				var l: InteractiveLayerWMS;
-				/*lc = new WMSLayerConfiguration(srv, ["background-dem"]);
-				lc.label = "Backgrounds/DEM";
-				l = new InteractiveLayerWMS(m_iw, lc);
-				l.setWMSStyleName(0, "white-colours");
-				m_iw.addLayer(l);
-				l.refresh(true);*/
+
+				var map: InteractiveLayerMap = new InteractiveLayerMap();
+				m_iw.addLayer(map);
+				
 				lc = new WMSLayerConfiguration(srv, ["foreground-lines"]);
 				lc.label = "Overlays/Border lines";
 				l = new InteractiveLayerWMS(m_iw, lc);
-				//m_iw.addLayer(l);
+				m_iw.interactiveLayerMap.addLayer(l);
+				
 //				l.refresh(true);
 				m_featureLayer = new InteractiveLayerWFSEditable(m_iw, new Version(1, 0, 0));
-				m_iw.addLayer(m_featureLayer);
+				m_iw.interactiveLayerMap.addLayer(m_featureLayer);
 				onAddNewFeature("filled-polygon");
 				//this have to be called to load capabilities, otherwise layers will not be drawed (this is new feature)
 				scm.update(scm.getAllServicesNames());

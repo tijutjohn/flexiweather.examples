@@ -33,6 +33,7 @@
 			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
 			import com.iblsoft.flexiweather.ogc.tiling.TiledTilingInfo;
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
+			import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
 			private var m_layerDEMBackground: InteractiveLayerQTTMS;
 			[Bindable]
 			public var delay: int = 50;
@@ -49,15 +50,20 @@
 				demTilingInfo.minimumZoomLevel = 1;
 				demTilingInfo.maximumZoomLevel = 18;
 				demConfiguration.addTiledTilingInfo(demTilingInfo);
+				
+				
+				var map: InteractiveLayerMap = new InteractiveLayerMap();
+				m_iw.addLayer(map);
+				
 //				m_layerDEMBackground = new InteractiveLayerQTTMS(m_iw, null, demPattern, 'CRS:84', new BBox(-180,-180,180, 180));
 				m_layerDEMBackground = new InteractiveLayerQTTMS(m_iw, demConfiguration);
 				m_layerDEMBackground.addEventListener(InteractiveDataLayer.PROGRESS, onDEMProgress);
-				m_iw.addLayer(m_layerDEMBackground);
+				m_iw.interactiveLayerMap.addLayer(m_layerDEMBackground);
 //				m_layerDEMBackground.tilesProvider = new QTTTilesProvider();
 				m_layerDEMBackground.avoidTiling = false;
 				m_layerDEMBackground.name = 'DEMBackground';
 				m_layerDEMBackground.zOrder = -10;
-				m_layerDEMBackground.refresh(true);
+//				m_layerDEMBackground.refresh(true);
 			}
 
 			private function onDEMProgress(event: InteractiveLayerProgressEvent): void

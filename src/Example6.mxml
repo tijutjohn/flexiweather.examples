@@ -81,6 +81,7 @@
 			import com.iblsoft.flexiweather.utils.ISO8601Parser;
 			import com.iblsoft.flexiweather.widgets.BackgroundJobManager;
 			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
+			import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerZoom;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			
@@ -251,18 +252,27 @@
 						"ria",
 						s_serverURL + "/ria", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
+				
+				var map: InteractiveLayerMap = new InteractiveLayerMap();
+				m_iw.addLayer(map);
+				
+				
 				createTemperatureLayer();
+				
+				
 				var lcqt: WMSWithQTTLayerConfiguration;
 				lcqt = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"]);
 				lcqt.label = "Overlays/Border lines";
 				m_layerForegroundBorders = new InteractiveLayerWMSWithQTT(m_iw, lcqt);
-				m_iw.addLayer(m_layerForegroundBorders);
+				m_iw.interactiveLayerMap.addLayer(m_layerForegroundBorders);
 				m_layerForegroundBorders.name = 'Borders';
 				m_layerForegroundBorders.zOrder = 1000;
-				m_layerForegroundBorders.refresh(true);
+//				m_layerForegroundBorders.refresh(true);
+				
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				
 				setInterval(updateTotalProgress, 500);
 			}
 
@@ -282,13 +292,13 @@
 				}
 				var srv2: WMSServiceConfiguration = scm.getService(
 						"gfs",
-						s_serverURL + "/gfs", new Version(1, 3, 0),
+						s_serverURL + "/ncep/gfs", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
-				var lc: WMSLayerConfiguration = createLayerConfiguration(srv2, ["Temperature"]);
+				var lc: WMSLayerConfiguration = createLayerConfiguration(srv2, ["temperature"]);
 				lc.label = "Temperature";
 				m_layerTemperature = lc.createInteractiveLayer(m_iw) as InteractiveLayerMSBase;
-				m_iw.addLayer(m_layerTemperature);
-				m_layerTemperature.refresh(true);
+				m_iw.interactiveLayerMap.addLayer(m_layerTemperature);
+//				m_layerTemperature.refresh(true);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED_FROM_CACHE, onTemperatureLayerLoadingFinished);

@@ -61,7 +61,6 @@
 				//InteractiveLayerQTTMS.drawDebugText = true;
 				
 				var bkgLayer: InteractiveLayer = addLayer('dem', 1) as InteractiveLayer;
-//				bkgLayer.refresh(true);
 				
 				var openStreetLayerCfg: QTTMSLayerConfiguration = new QTTMSLayerConfiguration();
 				
@@ -71,11 +70,9 @@
 				m_openStreetLayer.zOrder = 10;
 				
 				m_openStreetLayer.addCRSWithTilingExtent('http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png', 'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 256, 0, 18);
-				m_openStreetLayer.refresh(true);
 				
 				
 				var frgLayer: InteractiveLayer = addLayer('foreground', 1) as InteractiveLayer;
-//				frgLayer.refresh(true);
 				
 				getAllServicesCapabilities();
 			}

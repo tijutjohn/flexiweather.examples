@@ -65,7 +65,7 @@
 				_qttLayer.addCRSWithTilingExtent('http://b.tile.openstreetmap.org/%ZOOM%/%COL%/%ROW%.png', 'EPSG:900913', new BBox(-20037508.34, -20037508.34, 20037508.34, 20037508.34), 256, 0, 18);
 				
 				m_iw.interactiveLayerMap.addLayer(_qttLayer);
-				_qttLayer.refresh(true);
+//				_qttLayer.refresh(true);
 			}
 			
 		]]>
