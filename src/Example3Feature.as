@@ -25,8 +25,8 @@ package
 		public override function setMaster(master: InteractiveLayerFeatureBase): void
 		{
 			super.setMaster(master);
-			master.container.labelLayout.addObstacle(this);
-			master.container.labelLayout.addObject(m_label, [this]);
+			master.container.labelLayout.addObstacle(this, master);
+			master.container.labelLayout.addObject(m_label, master, [this]);
 		}
 
 		public override function update(changeFlag: FeatureUpdateContext): void
