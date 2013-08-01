@@ -35,7 +35,7 @@
             private function onCreationComplete(event: Event): void
             {
                 m_iw.setCRS('EPSG:900913', false);
-                m_iw.setExtentBBOXRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
+                m_iw.setExtentBBoxRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);
                 
                 var s_serverURL: String = 'http://wms.iblsoft.com';
                 scm = OGCServiceConfigurationManager.getInstance();
