@@ -15,9 +15,6 @@
 		<![CDATA[
 			import mx.events.FlexEvent;
 
-			/**
-			 * Initialization of example. Temperature layer creation, call get capabilities
-			 */
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
 				super.onCreationComplete(event);

@@ -6,6 +6,7 @@
 		paddingRight="2" paddingLeft="2">
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerProgressEvent;
 			import com.iblsoft.flexiweather.events.InteractiveLayerQTTEvent;
@@ -125,10 +126,14 @@
 //				m_layerForegroundBorders.addEventListener(InteractiveLayerEvent.LAYER_INITIALIZED, onLayerInitialized);
 				m_iw.interactiveLayerMap.addLayer(m_layerForegroundBorders);
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
-				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+//				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("PROJ4:proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m", "+proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:4326", "+title=WGS 84 +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs", new BBox(-180, -90, 180, 90), true);
-				scm.update(scm.getAllServicesNames());
+				
+				if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+					scm.update(scm.getAllServicesNames());
 			}
 
 			private function onLayerInitialized(event: InteractiveLayerEvent): void
@@ -238,6 +243,10 @@
 				click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBoxRaw(0,-13000000,36000000,13000000);"/>
 		<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'EPSG:102018'}"
 				click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+		
+		<s:ToggleButton label="Proj4:45 North Polar Stereo" selected="{m_iw.crs == 'PROJ4:proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m'}"
+				click="m_iw.setCRS('PROJ4:proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+		
 		<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'EPSG:102021'}"
 				click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
 		<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"

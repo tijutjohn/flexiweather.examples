@@ -24,33 +24,39 @@
     </s:VGroup>
     <fx:Script>
         <![CDATA[
-            import com.iblsoft.flexiweather.events.InteractiveLayerQTTEvent;
-            import com.iblsoft.flexiweather.ogc.BBox;
-            import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
-            import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
-            import com.iblsoft.flexiweather.ogc.configuration.layers.TiledLayerConfiguration;
-            import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
-            import com.iblsoft.flexiweather.ogc.tiling.TileMatrix;
-            import com.iblsoft.flexiweather.ogc.tiling.TileMatrixLimits;
-            import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSet;
-            import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSetLimits;
-            import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSetLink;
-            import com.iblsoft.flexiweather.proj.Projection;
-            
-            import mx.containers.Tile;
-            import mx.events.FlexEvent;
+			import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
+			import com.iblsoft.flexiweather.events.InteractiveLayerQTTEvent;
+			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.QTTMSLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.TiledLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
+			import com.iblsoft.flexiweather.ogc.tiling.TileMatrix;
+			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixLimits;
+			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSet;
+			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSetLimits;
+			import com.iblsoft.flexiweather.ogc.tiling.TileMatrixSetLink;
+			import com.iblsoft.flexiweather.proj.Projection;
+			
+			import mx.containers.Tile;
+			import mx.events.FlexEvent;
             private var _tms900913: TileMatrixSet;
             private var _tiledLayer: InteractiveLayerTiled;
             private var _qttLayer: InteractiveLayerQTTMS;
             
             override protected function onCreationComplete(event: FlexEvent): void
             {
+				// this will prevent FlexiWeather from loading GetCapabilities request and its up to developer to correct set parsed data to all layers
+				FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES = false;
+				
                 super.onCreationComplete(event);
                 
                 Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
                 Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
                 Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
-                scm.update(scm.getAllServicesNames());
+				
+				if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+                	scm.update(scm.getAllServicesNames());
                 
                 m_iw.setCRSExtentAndViewBBox('EPSG:900913');
                 

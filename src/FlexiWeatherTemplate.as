@@ -1,9 +1,11 @@
 package
 {
+	import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 	import com.iblsoft.flexiweather.ogc.Version;
 	import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
 	import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
+	import com.iblsoft.flexiweather.ogc.events.ServiceCapabilitiesEvent;
 	import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 	import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 	import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
@@ -44,7 +46,8 @@ package
 					s_serverURL + "/ncep/gfs", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
 			
-			scm.addEventListener(WMSServiceConfiguration.CAPABILITIES_UPDATED, onCapabilitiesUpdated);
+			if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+				scm.addEventListener(ServiceCapabilitiesEvent.CAPABILITIES_UPDATED, onCapabilitiesUpdated);
 			
 			var map: InteractiveLayerMap = new InteractiveLayerMap();
 			m_iw.addLayer(map);
@@ -56,7 +59,8 @@ package
 		}
 		protected function getAllServicesCapabilities(): void
 		{
-			scm.update(scm.getAllServicesNames());
+			if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+				scm.update(scm.getAllServicesNames());
 		}
 
 		protected function getWMSLayerConfiguration(type: String): WMSServiceConfiguration
@@ -101,7 +105,8 @@ package
 				case 'temperature':
 				{
 					srv = getWMSLayerConfiguration('gfs');
-					lc = new WMSWithQTTLayerConfiguration(srv, ["Temperature"], tileSize);
+					lc = new WMSWithQTTLayerConfiguration(srv, ["temperature"], tileSize);
+					lc.avoidTiling = true;
 					lc.label = "Temperature";
 					lc.dimensionRunName = 'RUN';
 					lc.dimensionForecastName = 'FORECAST';

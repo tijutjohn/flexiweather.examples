@@ -49,6 +49,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
@@ -109,6 +110,7 @@
 			{
 				super.onCreationComplete(event);
 				
+				preloadingData = new ArrayCollection();
 				InteractiveLayerTiled.drawBorders = true;
 				InteractiveLayerTiled.drawDebugText = true;
 				
@@ -121,6 +123,7 @@
 //				addLayer('dem', 1);
 				m_layerTemperature = addLayer('temperature', 1) as InteractiveLayerWMSWithQTT;
 //				addLayer('foreground', 1);
+				
 				getAllServicesCapabilities();
 				
 				
@@ -133,7 +136,11 @@
 				}
 				
 
-				m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
+				if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+					m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
+				else
+					onCapabilitiesReceived();
+				
 				setInterval(updateTotalProgress, 500);
 			}
 			
@@ -164,7 +171,7 @@
 				return cachedCount;
 			}
 			
-			protected function onCapabilitiesReceived(event: Event): void
+			protected function onCapabilitiesReceived(event: Event = null): void
 			{
 				trace("FlexiWeatherTemplate onCapabilitiesUpdated");
 				
@@ -208,16 +215,18 @@
 					maxFrames = dimValues.length;
 					var currViewData: WMSViewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
 					var total: int = dimValues.length;
-					var preloadingData: Array = new Array();
+//					var preloadingData: Array = new Array();
+					preloadingData.removeAll();
 					//0th item is currently loaded frame, so it will not be preloaded again
 					for (var i: int = 0; i < total; i++)
 					{
 						var dimValue: Object = dimValues[i] as Object;
 						//store viewProperties for each frame
 						var frameViewProperties: WMSViewProperties = getViewData(dimValue.value) as WMSViewProperties;
-						preloadingData.push(frameViewProperties);
+//						preloadingData.push(frameViewProperties);
+						preloadingData.addItem(frameViewProperties);
 					}
-					return preloadingData;					
+					return preloadingData.source;					
 				}
 				return null;
 			}
