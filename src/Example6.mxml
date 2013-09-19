@@ -35,6 +35,7 @@
 			<s:ToggleButton label="Auto play" id="btnAutoPlay"
 					click="autoPlay((event.currentTarget as ToggleButton).selected)"
 					selected="{autoPlayEnabled}"/>
+			<s:Button label="Remove Layer" click="removeLayer()"/>
 
 			<!--s:Button label="Update progress" click="updateTotalProgress()"/-->
 		</s:HGroup>
@@ -92,6 +93,13 @@
 			
 			import spark.core.IViewport;
 			import spark.filters.GlowFilter;
+			
+			/**
+			 * - set this to "true" if you want preload all frames at once and use buffer, PROGRESS event and 1 PRELOADING_FINISHED event
+			 * - set this to "false" if you want preload just one frame, wait for PRELOADING_FINISHED event and then preload next frame
+			 */
+			public static const USE_PROGRESS_EVENT: Boolean = false;
+			
 			
 			// you can limit maximum of loading (and preloading) frames
 			public static const MAX_FRAMES_ANIMATED: int = 8;
@@ -202,6 +210,11 @@
 			private var autoPlayPaused: Boolean;
 			private var s_serverURL: String;
 
+			
+			private function removeLayer(): void
+			{
+				m_iw.interactiveLayerMap.removeLayer(m_layerTemperature);
+			}
 			
 			private function cancelPreloading(): void
 			{
@@ -465,6 +478,8 @@
 				}
 			}
 
+			private var _currentPreloadingPosition: int;
+			
 			private function preloadFramesAfterCapabilitiesReceived(count: int): void
 			{
 				if (preloadingData)
@@ -475,12 +490,26 @@
 					var totalForPreloading: int = Math.min(total, preloading + count);
 					var leftForPreloading: int = total - totalForPreloading;
 //					trace("Preload next: [" + preloading + " , " + totalForPreloading + "] After preload there will be left: " + leftForPreloading + " frames for preloading.");
-					for (var i: int = preloading; i < totalForPreloading; i++)
+					
+					if (USE_PROGRESS_EVENT)
 					{
-						var viewProperties: WMSViewProperties = preloadingData.getItemAt(i) as WMSViewProperties;
-						preloadViewData(viewProperties);
+						for (var i: int = preloading; i < totalForPreloading; i++)
+						{
+							preloadDataAtPosition(i);
+						}
+					} else {
+						
+						//just preload first frame
+						_currentPreloadingPosition = 0;
+						preloadDataAtPosition(_currentPreloadingPosition);
 					}
 				}
+			}
+			
+			private function preloadDataAtPosition(position: int): void
+			{
+				var viewProperties: WMSViewProperties = preloadingData.getItemAt(position) as WMSViewProperties;
+				preloadViewData(viewProperties);
 			}
 
 			/**
@@ -547,13 +576,42 @@
 
 			private function onTemperatureLayerPreloadingFinished(event: InteractiveLayerEvent): void
 			{
-				//all frames are preloaded
-				trace("ALL FRAMES ARE PRELOADED");
-				b_framesArePreloading = false;
-				b_framesArePreloaded = true;
-				notifyPreloadingChange();
-				//we are finished, update to first frame
-				changeFrame(0);
+				//check if preloading is done
+				var allFramesArePreloaded: Boolean = false;
+				
+				if (USE_PROGRESS_EVENT)
+				{
+					//we are in mode of preloading all 8 frames at once 
+					allFramesArePreloaded = true;
+				} else {
+					if (_currentPreloadingPosition == (preloadingData.length - 1))
+					{
+						//all frames was preloadd in this mode, so preloading of all frames are finished
+						allFramesArePreloaded = true;
+					}
+				}
+				
+				if (allFramesArePreloaded)
+				{
+					//all frames are preloaded
+					trace("ALL FRAMES ARE PRELOADED");
+					b_framesArePreloading = false;
+					b_framesArePreloaded = true;
+					notifyPreloadingChange();
+					//we are finished, update to first frame
+					changeFrame(0);
+				} else {
+					
+					//check if data is preloaded
+					m_layerTemperature.isPreloaded(preloadingData.getItemAt(_currentPreloadingPosition) as IViewProperties);
+					
+					//do the same if progress event would be dispatched
+					onTemperatureLayerProgress();
+					
+					//and preload next frame
+					_currentPreloadingPosition++;
+					preloadDataAtPosition(_currentPreloadingPosition);
+				}
 			}
 
 			private function updateProgressAfterFrameLoadingFinished(): void
@@ -569,7 +627,7 @@
 			/**
 			 * display preloading of temperature layer progress (frames already preloaded / all preloading frames)
 			 */
-			private function onTemperatureLayerProgress(event: InteractiveLayerProgressEvent): void
+			private function onTemperatureLayerProgress(event: InteractiveLayerProgressEvent = null): void
 			{
 				updateTotalProgress();
 				if (preloadedFramesCount >= maxFrames)
