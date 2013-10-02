@@ -97,7 +97,6 @@
 			import com.iblsoft.flexiweather.ogc.FeatureBase;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
-			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.kml.InteractiveLayerKML;
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
@@ -107,6 +106,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.data.KMZFile;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLEvent;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLFeatureEvent;
+			import com.iblsoft.flexiweather.ogc.kml.events.KMLParsingStatusEvent;
 			import com.iblsoft.flexiweather.ogc.kml.features.GroundOverlay;
 			import com.iblsoft.flexiweather.ogc.kml.features.KML;
 			import com.iblsoft.flexiweather.ogc.kml.features.KMLFeature;
@@ -118,6 +118,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLPopupManager;
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLResourceManager;
 			import com.iblsoft.flexiweather.ogc.kml.renderer.DefaultKMLRenderer;
+			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
 			import com.iblsoft.flexiweather.plugins.IConsole;
 			import com.iblsoft.flexiweather.proj.Coord;
@@ -130,6 +131,7 @@
 			import com.iblsoft.utils.Stats;
 			import com.iblsoft.view.itemrenderers.KMLFileListItemRenderer;
 			import com.iblsoft.view.popups.DynamicKMLPopup;
+			
 			import mx.binding.utils.BindingUtils;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.collections.ArrayCollection;
@@ -139,6 +141,7 @@
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
+			
 			import spark.components.Image;
 			private var m_openStreetLayer: InteractiveLayerQTTMS;
 			[Bindable]
@@ -330,6 +333,11 @@
 				//start kml loadind and parsing => suspend anticollision layout updating for now
 				kmlLoadingAndParsingStarted();
 				openedDocuments.addItem(kmlURL);
+				
+				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
+				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
+				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+				
 				_kmlLoaderManager.addKMLLink(kmlURL, null, true);
 			/*
 			var extension: String;
@@ -439,6 +447,11 @@
 			private function onKMZFileLoaded(event: KMLEvent): void
 			{
 				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
+				
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+				
 				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
 				/**
 				 * we don't need to call kmlConfig.addKMLSource, because it was called, when kml was loaded.
@@ -470,6 +483,11 @@
 			private function onKMLFileLoaded(event: KMLEvent): void
 			{
 				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
+				
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+				
 				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
 				/**
 				 * we don't need to call kmlConfig.addKMLSource, because it was called, when kml was loaded.
@@ -492,9 +510,16 @@
 				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject(kmlPath, "kml", kmlConfig);
 				//need to wait for KML to be parsed (it can be parsed in more that one flash player frame, so we need to wait for proper event KMLEvent.PARSING_FINISHED
 				kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onDynamicKMLParsed);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
+				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
 				kmlConfig.addKMLSource(kmlSource, kmlPath, '');
 			}
 
+			private function onKMLParsingStatus(event: KMLParsingStatusEvent): void
+			{
+				Alert.show('KML parsing status: ' + event.type, 'KML Parsing Status', Alert.OK);
+			}
 			private function onDynamicKMLParsed(event: KMLEvent): void
 			{
 				var kmlConfig: KMLLayerConfiguration = event.target as KMLLayerConfiguration;
