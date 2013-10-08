@@ -110,6 +110,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.features.GroundOverlay;
 			import com.iblsoft.flexiweather.ogc.kml.features.KML;
 			import com.iblsoft.flexiweather.ogc.kml.features.KMLFeature;
+			import com.iblsoft.flexiweather.ogc.kml.features.KmlObject;
 			import com.iblsoft.flexiweather.ogc.kml.features.LatLonBox;
 			import com.iblsoft.flexiweather.ogc.kml.features.MultiGeometry;
 			import com.iblsoft.flexiweather.ogc.kml.features.Placemark;
@@ -174,11 +175,18 @@
 				KMLLabel.labelFont = 'defaultFontMX';
 				_kmlLoaderManager = new KMLLoaderManager();
 				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
+				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_PROGRESS, onKMZUnpackingProgress);
 				_kmlLoaderManager.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
 				_kmlLoaderManager.addEventListener(KMLEvent.PARSING_STARTED, onKMLParsingStarted);
+				_kmlLoaderManager.addEventListener(KMLEvent.PARSING_PROGRESS, onKMLParsingProgress);
 				_kmlLoaderManager.addEventListener(KMLEvent.PARSING_FINISHED, onKMLParsingFinished);
 				_kmlLoaderManager.addEventListener(KMLEvent.KML_FILE_LOADED, onKMLFileLoaded);
 				_kmlLoaderManager.addEventListener(KMLEvent.KMZ_FILE_LOADED, onKMZFileLoaded);
+				
+				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
+				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
+				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+				
 				openedDocuments = new ArrayCollection();
 				kmlFiles = new ArrayCollection(String("assets/kml/placemark.kml,assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
 //				kmzFiles = new ArrayCollection(String("assets/kml/time-stamp-point.kml,assets/kml/balloon-image-rel.kml,assets/kml/usa-ca-sf.kml,assets/kml/continents.kml").split(","));
@@ -229,12 +237,28 @@
 					trace("do not write");
 			}
 			private var _loadingPopup: Alert;
+			private var _progressPopup: Alert;
 
 			private function hideLoadingPopup(): void
 			{
 				PopUpManager.removePopUp(_loadingPopup);
 			}
 
+			private function hideProgressPopup(): void
+			{
+				if  (_progressPopup)
+				{
+					PopUpManager.removePopUp(_progressPopup);
+					_progressPopup = null;
+				}
+			}
+			private function showProgressPopup(text: String): void
+			{
+				if (!_progressPopup)
+					_progressPopup = Alert.show(text, "Parsing progress", Alert.OK);
+				else
+					_progressPopup.text = text;
+			}
 			private function showLoadingPopup(text: String): void
 			{
 				_loadingPopup = Alert.show(text, "Wait please", Alert.OK);
@@ -272,14 +296,17 @@
 				trace("onFileBrowseFileLoaded");
 				var fileReference: FileReference = event.currentTarget as FileReference;
 				var ba: ByteArray = fileReference.data;
-				var kmlConfig: KMLLayerConfiguration = new KMLLayerConfiguration();
 				var kmlString: String;
 				var kmlURL: String = fileReference.name;
 				var kmzFile: KMZFile;
 				//start kml loadind and parsing => suspend anticollision layout updating for now
 				kmlLoadingAndParsingStarted();
+				
 				_kmlLoaderManager.addKMLLink(kmlURL, ba, true);
-				openedDocuments.addItem(kmlURL);
+
+				var kmlConfig: KMLLayerConfiguration = _kmlLoaderManager.getKMLLayerConfigurationForURL(kmlURL);
+				
+				addKMLDocumentToAllDocumentsList(kmlURL, kmlConfig);
 				if (!_kmlLayerDictionary)
 					_kmlLayerDictionary = new Dictionary();
 			}
@@ -332,13 +359,11 @@
 			{
 				//start kml loadind and parsing => suspend anticollision layout updating for now
 				kmlLoadingAndParsingStarted();
-				openedDocuments.addItem(kmlURL);
-				
-				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
-				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
-				_kmlLoaderManager.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
 				
 				_kmlLoaderManager.addKMLLink(kmlURL, null, true);
+				var kmlConfig: KMLLayerConfiguration = _kmlLoaderManager.getKMLLayerConfigurationForURL(kmlURL);
+				
+				addKMLDocumentToAllDocumentsList(kmlURL, kmlConfig);
 			/*
 			var extension: String;
 			var urlArr: Array = kmlURL.split('.');
@@ -420,37 +445,65 @@
 			private function unloadLayer(kmlURL: String): void
 			{
 				//remove KML layer
-				var layerObject: Object = _kmlLayerDictionary[kmlURL];
-				var kmlLayer: InteractiveLayerKML = layerObject.layer as InteractiveLayerKML;
-				var watcher: ChangeWatcher = layerObject.dataProviderWatcher as ChangeWatcher;
-				if (watcher)
-					watcher.unwatch();
-				if (kmlLayer)
+				var layerObject: KMLLoaderObject = _kmlLayerDictionary[kmlURL] as KMLLoaderObject;
+				if (layerObject)
 				{
-					var features: ArrayCollection = kmlLayer.features;
-					for each (var feature: KMLFeature in features)
+					var kmlLayer: InteractiveLayerKML = layerObject.layer as InteractiveLayerKML;
+					var watcher: ChangeWatcher = layerObject.dataProviderWatcher as ChangeWatcher;
+					if (watcher)
+						watcher.unwatch();
+					if (kmlLayer)
 					{
-						if (feature)
-							feature.removeEventListener(KMLFeatureEvent.KML_FEATURE_CLICK, onFeatureClick);
+						var features: ArrayCollection = kmlLayer.features;
+						for each (var feature: KMLFeature in features)
+						{
+							if (feature)
+								feature.removeEventListener(KMLFeatureEvent.KML_FEATURE_CLICK, onFeatureClick);
+						}
+						kmlLayer.removeEventListener(KMLFeatureEvent.KML_FEATURE_CLICK, onFeatureClick);
+						kmlLayer.removeEventListener(KMLFeatureEvent.KML_FEATURE_ROLL_OVER, onFeatureRollOver);
+						kmlLayer.removeEventListener(KMLFeatureEvent.KML_FEATURE_ROLL_OUT, onFeatureRollOut);
+						m_iw.removeLayer(kmlLayer, true);
+						kmlLayer.destroy();
+						
+						var kmlLayerConfiguration: KMLLayerConfiguration = (_kmlLayerDictionary[kmlURL] as KMLLoaderObject).configuration;
+						removeKMLLayerConfigurationEventListeners(kmlLayerConfiguration);
+						
+						delete _kmlLayerDictionary[kmlURL];
 					}
-					kmlLayer.removeEventListener(KMLFeatureEvent.KML_FEATURE_CLICK, onFeatureClick);
-					kmlLayer.removeEventListener(KMLFeatureEvent.KML_FEATURE_ROLL_OVER, onFeatureRollOver);
-					kmlLayer.removeEventListener(KMLFeatureEvent.KML_FEATURE_ROLL_OUT, onFeatureRollOut);
-					m_iw.removeLayer(kmlLayer, true);
-					kmlLayer.destroy();
-					delete _kmlLayerDictionary[kmlURL];
+					else
+						debug("unloadLayer: cannot find layer in dictionary");
+				} else {
+					debug("unloadLayer: cannot find KMLLoaderObject");
 				}
-				else
-					debug("unloadLayer: cannot find layer in dictionary");
 			}
 
-			private function onKMZFileLoaded(event: KMLEvent): void
+			private function adKMLLayerConfigurationEventListeners(kmlConfig: KMLLayerConfiguration): void
 			{
-				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
+				kmlConfig.addEventListener(KMLEvent.PARSING_PROGRESS, onKMLParsingProgress);
+				kmlConfig.addEventListener(KMLEvent.UNPACKING_PROGRESS, onKMLUnpackingProgress);
+				kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onDynamicKMLParsed);
 				
 				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
 				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
 				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+			}
+			private function removeKMLLayerConfigurationEventListeners(kmlConfig: KMLLayerConfiguration): void
+			{
+				kmlConfig.removeEventListener(KMLEvent.PARSING_PROGRESS, onKMLParsingProgress);
+				kmlConfig.removeEventListener(KMLEvent.UNPACKING_PROGRESS, onKMLUnpackingProgress);
+				kmlConfig.removeEventListener(KMLEvent.PARSING_FINISHED, onDynamicKMLParsed);
+				
+				kmlConfig.removeEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
+				kmlConfig.removeEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
+				kmlConfig.removeEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+			}
+			
+			private function onKMZFileLoaded(event: KMLEvent): void
+			{
+				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
+				
+				adKMLLayerConfigurationEventListeners(kmlConfig);
 				
 				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
 				/**
@@ -462,7 +515,11 @@
 
 			private function onKMZUnpackingStarted(event: KMLEvent): void
 			{
-				showLoadingPopup("KMZ unpacking started");
+//				showLoadingPopup("KMZ unpacking started");
+			}
+			private function onKMZUnpackingProgress(event: KMLEvent): void
+			{
+//				onKMLUnpackingProgress(event);
 			}
 
 			private function onKMZUnpackingFinished(event: KMLEvent): void
@@ -475,18 +532,25 @@
 				showLoadingPopup("KML parsing started");
 			}
 
+			private function onKMLUnpackingProgress(event: KMLEvent): void
+			{
+//				showProgressPopup("KML unpacking: " + event.progress + "%");
+			}
+			private function onKMLParsingProgress(event: KMLEvent): void
+			{
+				showProgressPopup("KML Parsing: " + event.progress + "%");
+			}
 			private function onKMLParsingFinished(event: KMLEvent): void
 			{
 				hideLoadingPopup();
+				hideProgressPopup();
 			}
 
 			private function onKMLFileLoaded(event: KMLEvent): void
 			{
 				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
 				
-				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
-				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
-				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+				adKMLLayerConfigurationEventListeners(kmlConfig);
 				
 				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
 				/**
@@ -502,18 +566,23 @@
 			 **/
 			private function addDynamicKML(kmlSource: String, kmlPath: String): void
 			{
-				openedDocuments.addItem(kmlPath);
 				if (!_kmlLayerDictionary)
 					_kmlLayerDictionary = new Dictionary();
 				var kmlConfig: KMLLayerConfiguration = new KMLLayerConfiguration();
 				kmlConfig.kmlPath = kmlPath;
+				
+				addKMLDocumentToAllDocumentsList(kmlPath, kmlConfig);
 				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject(kmlPath, "kml", kmlConfig);
+				
 				//need to wait for KML to be parsed (it can be parsed in more that one flash player frame, so we need to wait for proper event KMLEvent.PARSING_FINISHED
-				kmlConfig.addEventListener(KMLEvent.PARSING_FINISHED, onDynamicKMLParsed);
-				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_FAILED, onKMLParsingStatus);
-				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_PARTIALLY_SUCCESFULL, onKMLParsingStatus);
-				kmlConfig.addEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
+				adKMLLayerConfigurationEventListeners(kmlConfig);
+				
 				kmlConfig.addKMLSource(kmlSource, kmlPath, '');
+			}
+			
+			private function addKMLDocumentToAllDocumentsList(kmlPath: String, kmlConfig: KMLLayerConfiguration): void
+			{
+				openedDocuments.addItem({path: kmlPath, configuration: kmlConfig});	
 			}
 
 			private function onKMLParsingStatus(event: KMLParsingStatusEvent): void
