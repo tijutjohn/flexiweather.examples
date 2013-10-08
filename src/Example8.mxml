@@ -69,7 +69,7 @@
 					<s:Label text="Opened KMLs" fontWeight="bold"/>
 					<s:List id="lstOpenedDocuments" dataProvider="{openedDocuments}" width="100%"
 							itemRenderer="com.iblsoft.view.itemrenderers.KMLFileListItemRenderer"
-							change="changeKML((event.target as List).selectedItem as String)"/>
+							change="changeKML((event.target as List).selectedItem.path as String)"/>
 					<s:Label text="KML Structure" fontWeight="bold"/>
 
 					<!--mx:Tree height="100%" width="100%" dataProvider="{kmlDataProvider}" itemClick="onKMLTreeItemClick(event);"
@@ -400,7 +400,7 @@
 			{
 				trace("onKMLFileChangeVisibility");
 				var renderer: KMLFileListItemRenderer = event.target as KMLFileListItemRenderer;
-				var kmlURL: String = renderer.data as String;
+				var kmlURL: String = renderer.path as String;
 				if (_kmlLayerDictionary[kmlURL])
 				{
 					var kmlObject: Object = _kmlLayerDictionary[kmlURL];
@@ -416,7 +416,7 @@
 			{
 				trace("unload");
 				var renderer: KMLFileListItemRenderer = event.target as KMLFileListItemRenderer;
-				var kmlURL: String = renderer.data as String;
+				var kmlURL: String = renderer.path as String;
 				unloadLayer(kmlURL);
 				if (displayedKmlURL == kmlURL)
 				{
@@ -426,7 +426,7 @@
 				var total: int = openedDocuments.length;
 				for (var i: int = 0; i < total; i++)
 				{
-					var url: String = openedDocuments.getItemAt(i) as String;
+					var url: String = openedDocuments.getItemAt(i).path as String;
 					if (url == kmlURL)
 					{
 						openedDocuments.removeItemAt(i);
@@ -499,13 +499,18 @@
 				kmlConfig.removeEventListener(KMLParsingStatusEvent.PARSING_SUCCESFULL, onKMLParsingStatus);
 			}
 			
+			private function addToLayerDictionary(path: String, data: Object): void
+			{
+				_kmlLayerDictionary[path] = data;
+			}
 			private function onKMZFileLoaded(event: KMLEvent): void
 			{
 				var kmlConfig: KMLLayerConfiguration = event.kmlLayerConfiguration;
 				
 				adKMLLayerConfigurationEventListeners(kmlConfig);
 				
-				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
+//				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
+				addToLayerDictionary(kmlConfig.kmlPath, event.data);
 				/**
 				 * we don't need to call kmlConfig.addKMLSource, because it was called, when kml was loaded.
 				 * But if you load KML by yourself, you need to call addKMLSource function add KML source to KMLLayerConfiguration);
@@ -529,7 +534,7 @@
 
 			private function onKMLParsingStarted(event: KMLEvent): void
 			{
-				showLoadingPopup("KML parsing started");
+//				showLoadingPopup("KML parsing started");
 			}
 
 			private function onKMLUnpackingProgress(event: KMLEvent): void
@@ -538,7 +543,7 @@
 			}
 			private function onKMLParsingProgress(event: KMLEvent): void
 			{
-				showProgressPopup("KML Parsing: " + event.progress + "%");
+//				showProgressPopup("KML Parsing: " + event.progress + "%");
 			}
 			private function onKMLParsingFinished(event: KMLEvent): void
 			{
@@ -552,7 +557,9 @@
 				
 				adKMLLayerConfigurationEventListeners(kmlConfig);
 				
-				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
+//				_kmlLayerDictionary[kmlConfig.kmlPath] = event.data;
+				addToLayerDictionary(kmlConfig.kmlPath, event.data);
+				
 				/**
 				 * we don't need to call kmlConfig.addKMLSource, because it was called, when kml was loaded.
 				 * But if you load KML by yourself, you need to call addKMLSource function add KML source to KMLLayerConfiguration);
@@ -572,7 +579,8 @@
 				kmlConfig.kmlPath = kmlPath;
 				
 				addKMLDocumentToAllDocumentsList(kmlPath, kmlConfig);
-				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject(kmlPath, "kml", kmlConfig);
+//				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject(kmlPath, "kml", kmlConfig);
+				addToLayerDictionary(kmlConfig.kmlPath, new KMLLoaderObject(kmlPath, "kml", kmlConfig));
 				
 				//need to wait for KML to be parsed (it can be parsed in more that one flash player frame, so we need to wait for proper event KMLEvent.PARSING_FINISHED
 				adKMLLayerConfigurationEventListeners(kmlConfig);
@@ -591,9 +599,9 @@
 			}
 			private function onDynamicKMLParsed(event: KMLEvent): void
 			{
-				var kmlConfig: KMLLayerConfiguration = event.target as KMLLayerConfiguration;
-				createKMLLayerFromKMLConfiguration(kmlConfig);
-				kmlLoadingAndParsingFinished();
+//				var kmlConfig: KMLLayerConfiguration = event.target as KMLLayerConfiguration;
+//				createKMLLayerFromKMLConfiguration(kmlConfig);
+//				kmlLoadingAndParsingFinished();
 			}
 
 			private function createKMLLayerFromKMLConfiguration(kmlConfig: KMLLayerConfiguration, kmzFile: KMZFile = null): void
