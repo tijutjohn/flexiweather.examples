@@ -31,8 +31,11 @@
 	<fx:Script>
 		<![CDATA[
 			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.ogc.kml.data.KMLType;
 			import com.iblsoft.utils.KMLGenerator;
+			
 			import flash.net.navigateToURL;
+			
 			import mx.events.DynamicEvent;
 			import mx.managers.PopUpManager;
 
@@ -69,7 +72,7 @@
 			{
 				close();
 				var de: DynamicEvent = new DynamicEvent('createKML');
-				de['kml'] = taSource.text;
+				de[KMLType.KML] = taSource.text;
 				dispatchEvent(de);
 			}
 

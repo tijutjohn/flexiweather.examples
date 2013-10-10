@@ -103,6 +103,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLBitmapLoader;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLLabel;
 			import com.iblsoft.flexiweather.ogc.kml.data.KMLLoaderObject;
+			import com.iblsoft.flexiweather.ogc.kml.data.KMLType;
 			import com.iblsoft.flexiweather.ogc.kml.data.KMZFile;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLEvent;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLFeatureEvent;
@@ -372,9 +373,9 @@
 //				toggleButton.enabled = false;
 			var kmlConfig: KMLLayerConfiguration = new KMLLayerConfiguration();
 
-			if (extension == 'kml')
+			if (extension == KMLType.KML)
 			{
-				_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kml"};
+				_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: KMLType.KML};
 
 
 				//kml layer does not exist yet create it
@@ -383,8 +384,8 @@
 				kmlConfig.addEventListener(KMLLayerConfiguration.KML_FILE_LOADED, onKMLFileLoaded);
 				kmlConfig.loadKML(kmlURL, 'assets/');
 
-			} else if (extension == 'kmz') {
-				_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: "kmz"};
+			} else if (extension == KMLType.KMZ) {
+				_kmlLayerDictionary[kmlURL] = {url: kmlURL, type: KMLType.KMZ};
 
 				kmlConfig.addEventListener(KMLEvent.UNPACKING_STARTED, onKMZUnpackingStarted);
 				kmlConfig.addEventListener(KMLEvent.UNPACKING_FINISHED, onKMZUnpackingFinished);
@@ -579,8 +580,8 @@
 				kmlConfig.kmlPath = kmlPath;
 				
 				addKMLDocumentToAllDocumentsList(kmlPath, kmlConfig);
-//				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject(kmlPath, "kml", kmlConfig);
-				addToLayerDictionary(kmlConfig.kmlPath, new KMLLoaderObject(kmlPath, "kml", kmlConfig));
+//				_kmlLayerDictionary[kmlConfig.kmlPath] = new KMLLoaderObject(kmlPath, KMLType.KML, kmlConfig);
+				addToLayerDictionary(kmlConfig.kmlPath, new KMLLoaderObject(kmlPath, KMLType.KML, kmlConfig));
 				
 				//need to wait for KML to be parsed (it can be parsed in more that one flash player frame, so we need to wait for proper event KMLEvent.PARSING_FINISHED
 				adKMLLayerConfigurationEventListeners(kmlConfig);
@@ -803,7 +804,7 @@
 
 			private function onCreateDynamicKML(event: DynamicEvent): void
 			{
-				var kml: String = event['kml'] as String;
+				var kml: String = event[KMLType.KML] as String;
 				trace("create kml: " + kml);
 				dynamicKMLUID++;
 				addDynamicKML(kml, "dynamicKML" + dynamicKMLUID);

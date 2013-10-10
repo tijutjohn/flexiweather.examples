@@ -20,7 +20,9 @@ package
 	/** Base class with helper methods for all examples. */
 	public class FlexiWeatherTemplate extends Application
 	{
+		[Bindable]
 		public var m_iw: InteractiveWidget;
+		
 		protected var s_serverURL: String
 		protected var scm: OGCServiceConfigurationManager;
 		protected var serviceRIA: WMSServiceConfiguration;
@@ -47,12 +49,19 @@ package
 					WMSServiceConfiguration) as WMSServiceConfiguration;
 			
 			if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+			{
+				scm.addEventListener(ServiceCapabilitiesEvent.ALL_CAPABILITIES_UPDATED, onAllCapabilitiesUpdated);
 				scm.addEventListener(ServiceCapabilitiesEvent.CAPABILITIES_UPDATED, onCapabilitiesUpdated);
+			}
 			
 			var map: InteractiveLayerMap = new InteractiveLayerMap();
 			m_iw.addLayer(map);
 		}
 
+		protected function onAllCapabilitiesUpdated(event: Event): void
+		{
+			trace("FlexiWeatherTemplate onAllCapabilitiesUpdated");
+		}
 		protected function onCapabilitiesUpdated(event: Event): void
 		{
 			trace("FlexiWeatherTemplate onCapabilitiesUpdated");
