@@ -25,7 +25,9 @@ package
 		
 		protected var s_serverURL: String
 		protected var scm: OGCServiceConfigurationManager;
+		[Bindable]
 		protected var serviceRIA: WMSServiceConfiguration;
+		[Bindable]
 		protected var serviceGFS: WMSServiceConfiguration;
 
 		public function FlexiWeatherTemplate()
