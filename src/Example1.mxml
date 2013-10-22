@@ -159,6 +159,8 @@
 			
 			private function onCreationComplete(event: Event): void
 			{
+				WMSServiceConfiguration.PARSE_GET_CAPABILITIES = false;
+				
 				if (Capabilities.playerType == "Desktop")
 					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
 				else

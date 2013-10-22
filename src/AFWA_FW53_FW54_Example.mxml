@@ -40,6 +40,8 @@
 			
 			import mx.containers.Tile;
 			import mx.events.FlexEvent;
+			
+			import tiled.LargeTiledLayer;
             private var _tms900913: TileMatrixSet;
             private var _tiledLayer: InteractiveLayerTiled;
             private var _qttLayer: InteractiveLayerQTTMS;
@@ -60,8 +62,19 @@
                 
                 m_iw.setCRSExtentAndViewBBox('EPSG:900913');
                 
-                createInteractiveLayerQTTMS();
+//                createInteractiveLayerQTTMS();
+                createLargeTileLayer();
             }
+			
+			private function createLargeTileLayer(): void
+			{
+				var config: TiledLayerConfiguration = new TiledLayerConfiguration();
+				
+				var largeLayer: LargeTiledLayer = new LargeTiledLayer();
+				m_iw.interactiveLayerMap.addLayer(largeLayer);
+				largeLayer.refresh(true);
+			}
+			
             
             private function createInteractiveLayerQTTMS(): void
             {
