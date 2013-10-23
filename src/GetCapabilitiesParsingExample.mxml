@@ -14,8 +14,8 @@
 			<s:CheckBox label="Parse GetCapabilities" change="updateParseGetCapabilities((event.target as CheckBox).selected)"/>
 		</s:HGroup>
 		<s:HGroup width="100%">
+			<s:Button label="Populate GFS GetCapabilities with Dimensions Inheritance" click="popuplateGFSGetCapabilities()"/>
 			<s:Button label="Populate AFWA GetCapabilities" click="popuplateAFWAGetCapabilities()"/>
-			<s:Button label="toJSON" click="convertToJSON()"/>
 		</s:HGroup>
 		<s:HGroup width="100%">
 			<s:Button label="Add Background Layer" click="addNewLayer('dem')"/>
@@ -47,9 +47,11 @@
 			
 			[Embed (source="/assets/afwaCapabilities.xml", mimeType="application/octet-stream")]
 			public var afwaGCClass: Class;
+			[Embed (source="/assets/gfs.xml", mimeType="application/octet-stream")]
+			public var gfsXMLClass: Class;
 			
+			public var gfsXML:XML;
 			public var afwaXML:XML;
-			public var afwaJSON: JSON;
 			
 			override protected function onCreationComplete(event:FlexEvent):void
 			{
@@ -57,19 +59,24 @@
 				super.onCreationComplete(event);
 				
 				
-				var byteArray1: * = new afwaGCClass();
-				var byteArray:ByteArray = new afwaGCClass() as ByteArray;
-				afwaXML = new XML(byteArray.readUTFBytes(byteArray.length));
+				var byteArray1:ByteArray = new afwaGCClass() as ByteArray;
+				afwaXML = new XML(byteArray1.readUTFBytes(byteArray1.length));
 				
+				var byteArray2:ByteArray = new gfsXMLClass() as ByteArray;
+				gfsXML = new XML(byteArray2.readUTFBytes(byteArray2.length));
+				
+				WMSServiceConfiguration.EXPERIMENTAL_LAYERS_INITIALIZING = true;
 				WMSServiceConfiguration.PARSE_GET_CAPABILITIES = false;
 				WMSServiceConfiguration.USE_ASYNCHRONOUS_PARSING = false;
 				
-				getAllServicesCapabilities();
+//				getAllServicesCapabilities();
 			}
 			
-			private function convertToJSON(): void
+			private function popuplateGFSGetCapabilities(): void
 			{
-//				afwaJSON = (afwaXML as XML).toJSON();
+				var time: Number = getTimer();
+				serviceGFS.populateGetCapabilities(gfsXML);
+				trace("popuplateGFSGetCapabilities: " + (getTimer() - time)+"ms");
 			}
 			private function popuplateAFWAGetCapabilities(): void
 			{
@@ -93,8 +100,8 @@
 				getAllServicesCapabilities();
 			}
 			
-			override protected function onCapabilitiesLoaded(event: ServiceCapabilitiesEvent):void
-			{
+//			override protected function onCapabilitiesLoaded(event: ServiceCapabilitiesEvent):void
+//			{
 //				var xml: XML = event.xml;
 //				
 //				var s_version: String = xml.@version;
@@ -111,11 +118,11 @@
 //						(event.service as WMSServiceConfiguration).populateLayerCapabilities(layerXML);
 //					}
 //				}
-			}
-			override protected function onCapabilitiesUpdated(event:ServiceCapabilitiesEvent):void
-			{
-				super.onCapabilitiesUpdated(event);
-			}
+//			}/
+//			override protected function onCapabilitiesUpdated(event:ServiceCapabilitiesEvent):void
+//			{
+//				super.onCapabilitiesUpdated(event);
+//			}
 			
 			private function getDimension(dim: String): void
 			{
