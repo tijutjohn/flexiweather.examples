@@ -8,6 +8,7 @@ package
 	import com.iblsoft.flexiweather.utils.anticollision.AnticollisionLayout;
 	import com.iblsoft.flexiweather.utils.geometry.ILineSegmentApproximableBounds;
 	import com.iblsoft.flexiweather.utils.geometry.LineSegment;
+	
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
 
@@ -39,7 +40,11 @@ package
 			if (/^filled-.*/.test(ms_type))
 				graphics.beginFill(0x0080c0, 0.5);
 			var ptPrev: Point = null;
-			for each (var pt: Point in getPoints())
+			
+			var points: Array = getPoints();
+			var pointsLength: int = points.length;
+			
+			for each (var pt: Point in points)
 			{
 				ptAvg.x += pt.x;
 				ptAvg.y += pt.y;
@@ -52,8 +57,8 @@ package
 					graphics.lineTo(pt.x, pt.y);
 				ptPrev = pt;
 			}
-			ptAvg.x /= getPoints().length;
-			ptAvg.y /= getPoints().length;
+			ptAvg.x /= pointsLength;
+			ptAvg.y /= pointsLength;
 			if (/.*polygon$/.test(ms_type) && ptFirst != null)
 				graphics.lineTo(ptFirst.x, ptFirst.y);
 			if (/^filled-.*/.test(ms_type))

@@ -98,6 +98,7 @@
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerQTTMS;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.Version;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.InteractiveLayerKML;
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
@@ -122,6 +123,7 @@
 			import com.iblsoft.flexiweather.ogc.kml.managers.KMLResourceManager;
 			import com.iblsoft.flexiweather.ogc.kml.renderer.DefaultKMLRenderer;
 			import com.iblsoft.flexiweather.ogc.managers.OGCServiceConfigurationManager;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.ogc.tiling.TiledTilesProvider;
 			import com.iblsoft.flexiweather.plugins.IConsole;
 			import com.iblsoft.flexiweather.proj.Coord;
@@ -166,7 +168,7 @@
 			{
 				super.onCreationComplete(event);
 				
-				WMSServiceConfiguration.PARSE_GET_CAPABILITIES = false;
+				WMSServiceConfiguration.PARSE_GET_CAPABILITIES = true;
 				
 				if (Capabilities.playerType == "Desktop")
 					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
@@ -204,7 +206,12 @@
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 
+				Projection.AVOID_HORIZONTAL_WRAPPING = true;
+				
 				m_iw.setCRSExtentAndViewBBox('CRS:84');
+				
+//				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = false;
+				
 				addLayer('dem', 1);
 				addLayer('foreground', 1);
 				
@@ -748,12 +755,26 @@
 				m_iw.suspendAnticollisionProcessing = true;
 				_layoutVisibilityBeforePanning = m_iw.labelLayout.visible;
 				m_iw.labelLayout.visible = false;
+				
+				for each (var obj: Object in _kmlLayerDictionary)
+				{
+					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
+					if (layer)
+						layer.suspendUpdating = true;
+				}
 			}
 
 			private function stopPanning(): void
 			{
 				m_iw.suspendAnticollisionProcessing = false;
 				m_iw.labelLayout.visible = _layoutVisibilityBeforePanning;
+				
+				for each (var obj: Object in _kmlLayerDictionary)
+				{
+					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
+					if (layer)
+						layer.suspendUpdating = false;
+				}
 			}
 
 			private function debugKRM(): void
