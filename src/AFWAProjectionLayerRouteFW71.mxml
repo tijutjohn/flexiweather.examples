@@ -206,7 +206,7 @@
 
         private function measureDistances(): void
         {
-            var routeCoords: ArrayCollection = route.coords;
+            var routeCoords: Array = route.coords;
             var totalCoords: int = routeCoords.length;
             totalDistance = 0;
             distances.removeAll();
