@@ -85,6 +85,7 @@
 		</s:HGroup>
 	</s:VGroup>
 	<mx:UIComponent id="dConsoleParent" width="100%" height="100%"/>
+	
 	<fx:Script>
 		<![CDATA[
 			import com.furusystems.dconsole2.DConsole;
@@ -169,6 +170,7 @@
 				super.onCreationComplete(event);
 				
 				WMSServiceConfiguration.PARSE_GET_CAPABILITIES = true;
+				Projection.AVOID_HORIZONTAL_WRAPPING = false;
 				
 				if (Capabilities.playerType == "Desktop")
 					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
@@ -206,8 +208,6 @@
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 
-				Projection.AVOID_HORIZONTAL_WRAPPING = true;
-				
 				m_iw.setCRSExtentAndViewBBox('CRS:84');
 				
 //				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = false;
@@ -750,6 +750,15 @@
 			*/
 			private var _layoutVisibilityBeforePanning: Boolean;
 
+			private function onRealPan(event: DynamicEvent): void
+			{
+				for each (var obj: Object in _kmlLayerDictionary)
+				{
+					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
+					if (layer)
+						layer.testPan(event);
+				}
+			}
 			private function startPanning(): void
 			{
 				m_iw.suspendAnticollisionProcessing = true;
