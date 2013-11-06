@@ -37,41 +37,89 @@
 			
 			[Embed (source="/assets/TemperatureGCXMLNode.xml", mimeType="application/octet-stream")]
 			public var temperatureLayerXMLClass: Class;
+			[Embed (source="/assets/fullGFS.xml", mimeType="application/octet-stream")]
+			public var fullGFSXMLClass: Class;
 			
 			private var _temperatureLayer: InteractiveLayerWMSWithQTT;
 			
 			override protected function onCreationComplete(event:FlexEvent):void
 			{
 				FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES = false;
+//				FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES = true;
 				
 				super.onCreationComplete(event);
 				
-				var byteArray1: * = new temperatureLayerXMLClass();
+				if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+					scm.updateAllServices();
+				else
+					createLayers();
+				
+			}
+			
+			private function createLayers(): void
+			{
 				var byteArray:ByteArray = new temperatureLayerXMLClass() as ByteArray;
 				var temperatureLayerNode:XML = new XML(byteArray.readUTFBytes(byteArray.length));
 				
+				var byteArray2:ByteArray = new fullGFSXMLClass() as ByteArray;
+				var fullGFS:XML = new XML(byteArray2.readUTFBytes(byteArray2.length));
 				
 				var srv: WMSServiceConfiguration;
 				var lc: WMSWithQTTLayerConfiguration;
 				var tileSize: uint = 256;
 				
+				
 				srv = getWMSLayerConfiguration('gfs');
+				
+				
+//				srv.populateGetCapabilities(fullGFS);
+				
+				
 				lc = new WMSWithQTTLayerConfiguration(srv, ["temperature"], tileSize);
 				lc.avoidTiling = true;
 				lc.label = "Temperature";
 				lc.dimensionRunName = 'RUN';
 				lc.dimensionForecastName = 'FORECAST';
+				
+					
 
 				/**
 				 * parse  just temperature layer node from GetCapabilities
 				 */
-				lc.populateLayerCapabilities(temperatureLayerNode)
+//				lc.populateLayerCapabilities(temperatureLayerNode)
+//				
+//				_temperatureLayer = new InteractiveLayerWMSWithQTT(m_iw, lc);
+//				_temperatureLayer.name = 'Temperature';
+//				
+//				_temperatureLayer.alpha = 0.5;
+//				m_iw.interactiveLayerMap.addLayer(_temperatureLayer);
 				
-				_temperatureLayer = new InteractiveLayerWMSWithQTT(m_iw, lc);
-				_temperatureLayer.name = 'Temperature';
+				var layers: Array = ['temperature', 'wet-bulb-potential-temperature', 'precipitation-6h', 'msl-pressure', 'wind'];
 				
-				m_iw.interactiveLayerMap.addLayer(_temperatureLayer);
+				for each  (var layerType: String in layers)
+				{
+					var layerWMSWithQTTConfig: WMSWithQTTLayerConfiguration = new WMSWithQTTLayerConfiguration(srv, [layerType], tileSize);
+					layerWMSWithQTTConfig.avoidTiling = false;
+					layerWMSWithQTTConfig.label = layerType;
+					layerWMSWithQTTConfig.dimensionRunName = 'RUN';
+					layerWMSWithQTTConfig.dimensionForecastName = 'FORECAST';
+					
+					layerWMSWithQTTConfig.populateLayerCapabilities(temperatureLayerNode);
+					
+					var layerWMSWithQTT: InteractiveLayerWMSWithQTT = new InteractiveLayerWMSWithQTT(m_iw, layerWMSWithQTTConfig);
+					layerWMSWithQTT.name = layerType;
+					layerWMSWithQTT.alpha =  0.5
+					
+					m_iw.interactiveLayerMap.addLayer(layerWMSWithQTT);
+					
+					layerWMSWithQTT.refresh(true);
+				}
 				
+			}
+			
+			override protected function onAllCapabilitiesUpdated(event: Event): void
+			{
+				createLayers();	
 			}
 			
 			
