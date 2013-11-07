@@ -117,8 +117,9 @@
 				
 			}
 			
-			override protected function onAllCapabilitiesUpdated(event: Event): void
+			override protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 			{
+				super.onAllCapabilitiesUpdated(event);
 				createLayers();	
 			}
 			

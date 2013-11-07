@@ -44,6 +44,7 @@ package
 		{
 			removeEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
 			s_serverURL = 'http://ogcie.iblsoft.com';
+
 			scm = OGCServiceConfigurationManager.getInstance();
 //			serviceWMS = scm.getService(
 //					"wms",
@@ -68,17 +69,27 @@ package
 			{
 				scm.addEventListener(ServiceCapabilitiesEvent.ALL_CAPABILITIES_UPDATED, onAllCapabilitiesUpdated);
 				scm.addEventListener(ServiceCapabilitiesEvent.CAPABILITIES_UPDATED, onCapabilitiesUpdated);
+				scm.addEventListener(ServiceCapabilitiesEvent.CAPABILITIES_LOADED, onCapabilitiesLoaded);
 			}
 			
 			var map: InteractiveLayerMap = new InteractiveLayerMap();
 			m_iw.addLayer(map);
 		}
 
-		protected function onAllCapabilitiesUpdated(event: Event): void
+		protected function onCapabilitiesNodeParsed(event: ServiceCapabilitiesEvent): void
+		{
+			trace("FlexiWeatherTemplate onCapabilitiesNodeParsed");
+		}
+		
+		protected function onCapabilitiesLoaded(event: ServiceCapabilitiesEvent): void
+		{
+			trace("FlexiWeatherTemplate onCapabilitiesLoaded");
+		}
+		protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 		{
 			trace("FlexiWeatherTemplate onAllCapabilitiesUpdated");
 		}
-		protected function onCapabilitiesUpdated(event: Event): void
+		protected function onCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 		{
 			trace("FlexiWeatherTemplate onCapabilitiesUpdated");
 		}
