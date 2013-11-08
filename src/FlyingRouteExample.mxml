@@ -105,8 +105,8 @@
 				//need to check new segments
 				for (var i: int = 1; i < (totalCoords); i++)
 				{
-					var coord1: Coord = routeCoords.getItemAt(i - 1) as Coord;
-					var coord2: Coord = routeCoords.getItemAt(i) as Coord;
+					var coord1: Coord = routeCoords[i - 1] as Coord;
+					var coord2: Coord = routeCoords[i] as Coord;
 					//need to convert coord to LatLon
 					coord1 = coord1.toLaLoCoord();
 					coord2 = coord2.toLaLoCoord();
