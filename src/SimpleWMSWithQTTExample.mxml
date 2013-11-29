@@ -33,6 +33,7 @@
 	<fx:Script>
 		<![CDATA[
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.events.ServiceCapabilitiesEvent;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.proj.Projection;
 			
@@ -46,7 +47,7 @@
 				getAllServicesCapabilities();
 			}
 			
-			override protected function onAllCapabilitiesUpdated(event: Event): void
+			override protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 			{
 //				addBackground();
 			}
@@ -70,7 +71,7 @@
 //				layerBackground.refresh(true);
 				*/
 			}
-			override protected function onCapabilitiesUpdated(event: Event): void
+			override protected function onCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 			{
 				trace("FlexiWeatherTemplate onCapabilitiesUpdated");
 			}

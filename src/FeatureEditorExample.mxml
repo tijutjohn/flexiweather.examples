@@ -38,10 +38,10 @@
 				<s:Label text="Change projection"/>
 				<s:ToggleButton label="LatLon CRS:84" selected="{m_iw.crs == 'CRS:84'}"
 						click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBoxRaw(-180,-90,180,90);"/>
-				<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'EPSG:102018'}"
-						click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
-				<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'EPSG:102021'}"
-						click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'ESRI:102018'}"
+						click="m_iw.setCRS('ESRI:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'ESRI:102021'}"
+						click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
 				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
 						click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBoxRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
 			</s:HGroup>
@@ -99,9 +99,9 @@
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
 				super.onCreationComplete(event);
-				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
-				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
-				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("ESRI:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
+				Projection.addCRSByProj4("ESRI:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("ESRI:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				m_iw.setCRS('CRS:84', false);
 				m_iw.setExtentBBoxRaw(-180, -90, 180, 90);
 				addLayer('dem', 1);

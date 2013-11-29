@@ -47,18 +47,10 @@
 				m_iw.setExtentBBoxRaw(-20037508.34 * 3, -20037508.34, 20037508.34 * 2, 20037508.34, false);
 				m_iw.setViewBBoxRaw(-20037508.34, -20037508.34, 20037508.34, 20037508.34, true);
 				
-//				m_iw.setCRS('CRS:84', false);
-//				m_iw.setExtentBBOXRaw(-360, -90, 360, 90, false);
-//				m_iw.setViewBBoxRaw(-180, -90, 180, 90, true);
-				
-
 				Projection.addCRSByProj4(
-					"EPSG:54004",
+					"ESRI:54004",
 					"+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m",
 					new BBox(0, -NaN, 2 * 20037508.34, NaN), true);
-				
-				//InteractiveLayerQTTMS.drawBorders = true;
-				//InteractiveLayerQTTMS.drawDebugText = true;
 				
 				var bkgLayer: InteractiveLayer = addLayer('dem', 1) as InteractiveLayer;
 				
@@ -117,8 +109,8 @@
 			<s:Label text="Projections:"/>
 			<s:ToggleButton label="LatLon" selected="{m_iw.crs == 'CRS:84'}"
 					click="m_iw.setCRSExtentAndViewBBox('CRS:84');"/>
-			<s:ToggleButton label="Mercator" selected="{m_iw.crs == 'EPSG:54004'}"
-					click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBoxRaw(0, -13000000, 36000000, 13000000);"/>
+			<s:ToggleButton label="Mercator" selected="{m_iw.crs == 'ESRI:54004'}"
+					click="m_iw.setCRS('ESRI:54004', false); m_iw.setExtentBBoxRaw(0, -13000000, 36000000, 13000000);"/>
 			<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
 					click="m_iw.setCRSExtentAndViewBBox('EPSG:900913');"/>
 		</s:HGroup>

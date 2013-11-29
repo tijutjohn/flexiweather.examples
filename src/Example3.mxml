@@ -86,12 +86,12 @@
 		<mx:Label text="Projections:"/>
 		<mx:Button label="LatLon" selected="{m_iw.crs == 'EPSG:4326'}"
 				click="m_iw.setCRSExtentAndViewBBox('EPSG:4326');"/>
-		<mx:Button label="Mercator" selected="{m_iw.crs == 'EPSG:54004'}"
-				click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBoxRaw(0,-13000000,36000000,13000000);"/>
-		<mx:Button label="North Polar Stereo" selected="{m_iw.crs == 'EPSG:102018'}"
-				click="m_iw.setCRS('EPSG:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
-		<mx:Button label="South Polar Stereo" selected="{m_iw.crs == 'EPSG:102021'}"
-				click="m_iw.setCRS('EPSG:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+		<mx:Button label="Mercator" selected="{m_iw.crs == 'ESRI:54004'}"
+				click="m_iw.setCRS('ESRI:54004', false); m_iw.setExtentBBoxRaw(0,-13000000,36000000,13000000);"/>
+		<mx:Button label="North Polar Stereo" selected="{m_iw.crs == 'ESRI:102018'}"
+				click="m_iw.setCRS('ESRI:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+		<mx:Button label="South Polar Stereo" selected="{m_iw.crs == 'ESRI:102021'}"
+				click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
 	</mx:HBox>
 	<mx:HBox id="hboxMenu2" width="100%">
 		<mx:Label text="Editing:"/>

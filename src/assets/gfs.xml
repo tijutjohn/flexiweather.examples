@@ -93,8 +93,8 @@
       <Layer>
         <Title>Geospatial</Title>
         <CRS>EPSG:900913</CRS>
-        <CRS>EPSG:102018</CRS>
-        <CRS>EPSG:102021</CRS>
+        <CRS>ESRI:102018</CRS>
+        <CRS>ESRI:102021</CRS>
         <CRS>EPSG:27700</CRS>
         <EX_GeographicBoundingBox>
           <westBoundLongitude>-180</westBoundLongitude>
@@ -109,8 +109,8 @@
           <Name>temperature</Name>
           <Title>Temperature</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -141,8 +141,8 @@
           <Name>msl-pressure</Name>
           <Title>MSL Pressure</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>

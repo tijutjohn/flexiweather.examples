@@ -4,8 +4,8 @@
         <Name>thickness</Name>
         <Title>Thickness between 1000hPa and Specified Level</Title>
         <CRS>EPSG:900913</CRS>
-        <CRS>EPSG:102018</CRS>
-        <CRS>EPSG:102021</CRS>
+        <CRS>ESRI:102018</CRS>
+        <CRS>ESRI:102021</CRS>
         <CRS>EPSG:27700</CRS>
         <CRS>CRS:84</CRS>
         <CRS>EPSG:4326</CRS>

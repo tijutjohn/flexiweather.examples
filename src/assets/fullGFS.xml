@@ -92,8 +92,8 @@
       <Layer>
         <Title>Geospatial</Title>
         <CRS>EPSG:900913</CRS>
-        <CRS>EPSG:102018</CRS>
-        <CRS>EPSG:102021</CRS>
+        <CRS>ESRI:102018</CRS>
+        <CRS>ESRI:102021</CRS>
         <CRS>EPSG:27700</CRS>
         <EX_GeographicBoundingBox>
           <westBoundLongitude>-180</westBoundLongitude>
@@ -106,8 +106,8 @@
           <Name>temperature</Name>
           <Title>Temperature</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -140,8 +140,8 @@
           <Name>relative-humidity</Name>
           <Title>Relative Humidity</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -170,8 +170,8 @@
           <Name>geopotential-height</Name>
           <Title>Geopotential Height</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -200,8 +200,8 @@
           <Name>wet-bulb-potential-temperature</Name>
           <Title>Wet Bulb Potential Temperature</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -230,8 +230,8 @@
           <Name>thickness</Name>
           <Title>Thickness between 1000hPa and Specified Level</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -252,8 +252,8 @@
           <Name>precipitation-6h</Name>
           <Title>Precipitation 6 Hours Accumulation</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -293,8 +293,8 @@
           <Name>msl-pressure</Name>
           <Title>MSL Pressure</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>
@@ -338,8 +338,8 @@
           <Name>wind</Name>
           <Title>Wind</Title>
           <CRS>EPSG:900913</CRS>
-          <CRS>EPSG:102018</CRS>
-          <CRS>EPSG:102021</CRS>
+          <CRS>ESRI:102018</CRS>
+          <CRS>ESRI:102021</CRS>
           <CRS>EPSG:27700</CRS>
           <CRS>CRS:84</CRS>
           <CRS>EPSG:4326</CRS>

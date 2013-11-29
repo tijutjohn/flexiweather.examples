@@ -23,7 +23,7 @@
 			{
 				super.onCreationComplete(event);
 				
-				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("ESRI:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=-45 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				for (var i: int = -180; i <= 180; i+=5)
 					Projection.addCRSByProj4("PROJ4:proj=stere +lat_0=90 +lon_0="+i+" +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m", "+proj=stere +lat_0=90 +lon_0="+i+" +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				
