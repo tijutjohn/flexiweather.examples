@@ -107,7 +107,7 @@
 			private var ma_gridPointValues: ArrayCollection = new ArrayCollection;
 			[Bindable]
 			private var ms_requests: String = "";
-			private var ms_coverageName: String = "precipitation";
+			private var ms_coverageName: String = "total-precipitation";
 			private const REQUEST_PROBABILITY_AREA_METHOD1: String = "probability-area-method1";
 			private const REQUEST_PROBABILITY_AREA_METHOD2: String = "probability-area-method2";
 			private const REQUEST_PROBABILITY_GRID: String = "probability-grid";
@@ -124,7 +124,8 @@
 					"4) The results of both method are displayed inside the polygons. Note that you can display " +
 					"probability values in all grid points, as well, to check result of the second method.";
 			//private const WCS_URL: String = "http://palo:8008/test";
-			private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
+			//private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
+			private const WCS_URL: String = "http://ogcie.iblsoft.com/ncep/gefs";
 
 			/**
 			 * Initialization of example.

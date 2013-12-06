@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns="*">
+		xmlns="*"
+		applicationComplete="onCreationComplete(event)">
 	<fx:Declarations>
 
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -66,15 +67,15 @@
 					"4) All SIGMETs for the specified place which validity intersects the specified range will " +
 					"be displayed in the area below the button (if no ICAO code is specified, SIGMETs for all places " +
 					"will be displayed).<br/>";
-			//private const WCS_URL: String = "http://palo:8008/obs";
-			private const WCS_URL: String = "http://wms.iblsoft.com/obs";
+			//private const WCS_URL: String = "http://palo:8009/observations";
+			private const WCS_URL: String = "http://wms.iblsoft.com/observations";
+			//private const WCS_URL: String = "http://ogcie.iblsoft.com/observations";
 
 			/**
 			 * Initialization of example.
 			 */
-			override protected function onCreationComplete(event: FlexEvent): void
+			protected function onCreationComplete(event: FlexEvent): void
 			{
-				super.onCreationComplete(event);
 				m_validityTo = new Date();
 				m_validityTo.milliseconds = 0;
 				m_validityTo.seconds = 0;
@@ -176,4 +177,4 @@
 			}
 		]]>
 	</fx:Script>
-</FlexiWeatherTemplate>
+</s:Application>
