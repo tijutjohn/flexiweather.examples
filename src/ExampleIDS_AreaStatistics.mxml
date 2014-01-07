@@ -123,7 +123,7 @@
 			private var ma_gridPointValues: ArrayCollection = new ArrayCollection;
 			[Bindable]
 			private var ms_requests: String = "";
-			private var ms_coverageName: String = "total-precipitation-acc36h";
+			private var ms_coverageName: String = "precipitation-acc36h";
 			private const REQUEST_AREA_VALUE: String = "area-value";
 			private const REQUEST_GRID_VALUE: String = "grid-value";
 			private const LEGEND: String = "This example demonstrates capability of WCS to calculate " +
@@ -146,8 +146,7 @@
 					"5) The result of the statistics is displayed inside the polygons. Note that you can display " +
 					"values in all grid points, as well, to check result of the statistics.";
 			//private const WCS_URL: String = "http://palo:8008/test";
-			//private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
-			private const WCS_URL: String = "http://ogcie.iblsoft.com/ncep/gefs";
+			private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
 
 			/**
 			 * Initialization of example.
