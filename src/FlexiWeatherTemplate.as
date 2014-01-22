@@ -46,14 +46,16 @@ package
 			s_serverURL = 'http://ogcie.iblsoft.com';
 
 			scm = OGCServiceConfigurationManager.getInstance();
-//			serviceWMS = scm.getService(
-//					"wms",
-//					s_serverURL + "/ria/wms", new Version(1, 3, 0),
-//					WMSServiceConfiguration) as WMSServiceConfiguration;
-			serviceAFWA = scm.getService(
-					"afwa",
-					s_serverURL + "/ow/afwa/afwaGC.xml", new Version(1, 3, 0),
+			
+			serviceWMS = scm.getService(
+					"wms",
+					s_serverURL + "/ria/wms", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
+			
+//			serviceAFWA = scm.getService(
+//					"afwa",
+//					s_serverURL + "/ow/afwa/afwaGC.xml", new Version(1, 3, 0),
+//					WMSServiceConfiguration) as WMSServiceConfiguration;
 			
 			serviceRIA = scm.getService(
 					"ria",
@@ -83,7 +85,7 @@ package
 		
 		protected function onCapabilitiesLoaded(event: ServiceCapabilitiesEvent): void
 		{
-			trace("FlexiWeatherTemplate onCapabilitiesLoaded");
+			trace("FlexiWeatherTemplate onCapabilitiesLoaded service: " + event.service.label);
 		}
 		protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 		{
@@ -91,7 +93,7 @@ package
 		}
 		protected function onCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 		{
-			trace("FlexiWeatherTemplate onCapabilitiesUpdated");
+			trace("FlexiWeatherTemplate onCapabilitiesUpdated service: " + event.service.label);
 		}
 		protected function getAllServicesCapabilities(): void
 		{
@@ -152,7 +154,7 @@ package
 				{
 					srv = getWMSLayerConfiguration('gfs');
 					lc = new WMSWithQTTLayerConfiguration(srv, ["temperature"], tileSize);
-					lc.avoidTiling = true;
+					lc.avoidTiling = false;
 					lc.label = "Temperature";
 					lc.dimensionRunName = 'RUN';
 					lc.dimensionForecastName = 'FORECAST';

@@ -56,6 +56,7 @@
 			import com.iblsoft.flexiweather.ogc.data.viewProperties.IViewProperties;
 			import com.iblsoft.flexiweather.ogc.data.viewProperties.WMSViewProperties;
 			import com.iblsoft.flexiweather.ogc.events.GetCapabilitiesEvent;
+			import com.iblsoft.flexiweather.ogc.events.ServiceCapabilitiesEvent;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerTiled;
 			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
 			import com.iblsoft.flexiweather.proj.Projection;
@@ -70,7 +71,7 @@
 			public static const PRELOADEDFRAMESCOUNT_CHANGE_EVENT: String = "preloadedFramesCountChange";
 			
 			// you can limit maximum of loading (and preloading) frames
-			public static const MAX_FRAMES_ANIMATED: int = 2;
+			public static const MAX_FRAMES_ANIMATED: int = 4;
 			
 			[Bindable]
 			public var maxFrames: int;
@@ -114,11 +115,14 @@
 				InteractiveLayerTiled.drawBorders = true;
 				InteractiveLayerTiled.drawDebugText = true;
 				
+				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = false;
+				
 				Projection.addCRSByProj4("ESRI:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("ESRI:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("ESRI:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				
-				m_iw.setCRSExtentAndViewBBox('EPSG:900913');
+//				m_iw.setCRSExtentAndViewBBox('EPSG:900913');
+				m_iw.setCRSExtentAndViewBBox(Projection.CRS_GEOGRAPHIC);
 				
 //				addLayer('dem', 1);
 				m_layerTemperature = addLayer('temperature', 1) as InteractiveLayerWMSWithQTT;
@@ -134,12 +138,6 @@
 					BackgroundJobManager.getInstance().createDefaultPreloader();
 					BackgroundJobManager.getInstance().setupIndicator(hboxCaption);
 				}
-				
-
-				if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
-					m_layerTemperature.addEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
-				else
-					onCapabilitiesReceived();
 				
 				setInterval(updateTotalProgress, 500);
 			}
@@ -171,10 +169,9 @@
 				return cachedCount;
 			}
 			
-			protected function onCapabilitiesReceived(event: Event = null): void
+			override protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 			{
-				trace("FlexiWeatherTemplate onCapabilitiesUpdated");
-				
+				super.onAllCapabilitiesUpdated(event)
 				var service: WMSServiceConfiguration = getWMSLayerConfiguration('gfs');
 				preloadAllFrames();
 			}
@@ -209,9 +206,10 @@
 				
 				
 				var dimNames: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsNames(), MAX_FRAMES_ANIMATED);
-				var dimValues: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsValues('FORECAST'), MAX_FRAMES_ANIMATED);
+				var dimValues: Array = m_layerTemperature.getWMSDimensionsValues('FORECAST');
 				if (dimValues)
 				{
+					dimValues = filterFramesCount(dimValues, MAX_FRAMES_ANIMATED);
 					maxFrames = dimValues.length;
 					var currViewData: WMSViewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
 					var total: int = dimValues.length;
