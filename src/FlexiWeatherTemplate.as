@@ -32,18 +32,21 @@ package
 		[Bindable]
 		protected var serviceAFWA: WMSServiceConfiguration;
 		[Bindable]
+		protected var serviceForecasts: WMSServiceConfiguration;
+		[Bindable]
 		protected var serviceGFS: WMSServiceConfiguration;
 
 		public function FlexiWeatherTemplate()
 		{
 			super();
+
 			addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
+			s_serverURL = 'http://ogcie.iblsoft.com';
 		}
 
 		protected function onCreationComplete(event: FlexEvent): void
 		{
 			removeEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
-			s_serverURL = 'http://ogcie.iblsoft.com';
 
 			scm = OGCServiceConfigurationManager.getInstance();
 			
@@ -65,6 +68,10 @@ package
 			serviceGFS = scm.getService(
 					"gfs",
 					s_serverURL + "/ncep/gfs", new Version(1, 3, 0),
+					WMSServiceConfiguration) as WMSServiceConfiguration;
+			serviceForecasts = scm.getService(
+					"forecasts",
+					s_serverURL + "/forecasts", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
 			
 			if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
@@ -121,6 +128,11 @@ package
 					return serviceAFWA;
 					break;
 				}
+				case 'forecasts':
+				{
+					return serviceForecasts;
+					break;
+				}
 				case 'gfs':
 				{
 					return serviceGFS;
@@ -130,7 +142,7 @@ package
 			return null;
 		}
 
-		protected function addLayer(type: String, layerAlpha: Number = 1, iw: InteractiveWidget = null, tileSize: uint = 256): InteractiveLayerWMS
+		protected function addLayer(type: String, layerAlpha: Number = 1, iw: InteractiveWidget = null, tileSize: uint = 256, bUseTiling: Boolean = true ): InteractiveLayerWMS
 		{
 			if (!iw)
 				iw = m_iw;
@@ -144,6 +156,7 @@ package
 					srv = getWMSLayerConfiguration('ria');
 					lc = new WMSWithQTTLayerConfiguration(srv, ["background-dem"], tileSize);
 					lc.label = "Background";
+					lc.avoidTiling = !bUseTiling;
 					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					lWMS.name = 'Background';
 					lWMS.alpha = layerAlpha;
@@ -154,7 +167,7 @@ package
 				{
 					srv = getWMSLayerConfiguration('gfs');
 					lc = new WMSWithQTTLayerConfiguration(srv, ["temperature"], tileSize);
-					lc.avoidTiling = false;
+					lc.avoidTiling = !bUseTiling;
 					lc.label = "Temperature";
 					lc.dimensionRunName = 'RUN';
 					lc.dimensionForecastName = 'FORECAST';
@@ -164,11 +177,25 @@ package
 					iw.interactiveLayerMap.addLayer(lWMS);
 					break;
 				}
+				case 'taf':
+				{
+					srv = getWMSLayerConfiguration('forecasts');
+					lc = new WMSWithQTTLayerConfiguration(srv, ["taf"], tileSize);
+					lc.avoidTiling = !bUseTiling;
+					lc.label = "TAF Airport Forecasts";
+					lc.dimensionTimeName = 'TIME';
+					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
+					lWMS.name = 'TAF Airport Forecasts';
+					lWMS.alpha = layerAlpha;
+					iw.interactiveLayerMap.addLayer(lWMS);
+					break;
+				}
 				case 'foreground':
 				{
 					srv = getWMSLayerConfiguration('ria');
 					lc = new WMSWithQTTLayerConfiguration(srv, ["foreground-lines"], tileSize);
 					lc.label = "Overlays/Border lines";
+					lc.avoidTiling = !bUseTiling;
 					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					lWMS.name = 'Borders';
 					lWMS.alpha = layerAlpha;
