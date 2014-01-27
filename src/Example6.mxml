@@ -118,7 +118,7 @@
 			public var timerInterval: int = 100;
 			// set this to true to use tiled temperature layer
 			[Bindable]
-			private var m_createTiledLayers: Boolean = true;
+			private var m_createTiledLayers: Boolean = false;
 			/**
 			 * Temperature layer
 			 */
@@ -279,14 +279,14 @@
 			{
 				super.onAllCapabilitiesUpdated(event);
 
-				createTemperatureLayer();
+				createTemperatureLayer(m_createTiledLayers);
 				setInterval(updateTotalProgress, 500);
 				
 				m_iw.setViewBBox(new BBox(-20037508, -20037508, 20037508, 20037508.34), true);
 			}
 				
 
-			private function createTemperatureLayer(): void
+			private function createTemperatureLayer(bUseTiling: Boolean): void
 			{
 				if (m_layerTemperature)
 				{
@@ -301,7 +301,7 @@
 					m_iw.removeLayer(m_layerTemperature, true);
 				}
 				
-				m_layerTemperature = addLayer('temperature', 1, null, 256, true);
+				m_layerTemperature = addLayer('temperature', 1, null, 256, bUseTiling);
 				
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
@@ -334,7 +334,7 @@
 				clearCache();
 				m_createTiledLayers = b_play;
 				//recreate new layer
-				createTemperatureLayer();
+				createTemperatureLayer(b_play);
 			}
 
 			/**
