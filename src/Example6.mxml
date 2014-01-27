@@ -293,7 +293,7 @@
 					//remove old listeners
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
-					m_layerTemperature.removeEventListener(InteractiveDataLayer.LOADING_FINISHED_FROM_CACHE, onTemperatureLayerLoadingFinished);
+					m_layerTemperature.removeEventListener(InteractiveDataLayer.LOADING_FINISHED_FROM_CACHE, onTemperatureLayerLoadingFinishedFromCache);
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PRELOADING_STARTED, onTemperatureLayerPreloadingStarted);
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
@@ -306,6 +306,7 @@
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED, onTemperatureLayerLoadingFinished);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED_FROM_CACHE, onTemperatureLayerLoadingFinished);
+				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_FINISHED_FROM_CACHE, onTemperatureLayerLoadingFinishedFromCache);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_STARTED, onTemperatureLayerPreloadingStarted);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
 				m_layerTemperature.addEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
@@ -548,10 +549,14 @@
 				trace("\nonTemperatureLayerLoadingStarted autoPlayPaused: " + autoPlayPaused + " preloadingFramesCount: " + preloadingFramesCount);
 			}
 
+			private function onTemperatureLayerLoadingFinishedFromCache(event: InteractiveLayerEvent): void
+			{
+				onTemperatureLayerLoadingFinished(event);
+			}
 			private function onTemperatureLayerLoadingFinished(event: InteractiveLayerEvent): void
 			{
 				m_temperatureLayerLoaded = true;
-				if (b_getCapabilitiesReceived)
+				if (b_getCapabilitiesReceived && !allFramesAreaPreloaded)
 					preloadAllFramesAfterCapabilitiesReceived();
 				/// need to update frames on next frame (frame wil be cached in cache)
 				callLater(updateProgressAfterFrameLoadingFinished);
@@ -564,24 +569,29 @@
 				trace("FRAMES PRELOADING HAS STARTED");
 			}
 
+			private function get allFramesAreaPreloaded(): Boolean
+			{
+				if (preloadingData && preloadingData.length > 0)
+				{
+					return _currentPreloadingPosition == (preloadingData.length - 1)
+				}
+				return false;
+			}
 			private function onTemperatureLayerPreloadingFinished(event: InteractiveLayerEvent): void
 			{
 				//check if preloading is done
-				var allFramesArePreloaded: Boolean = false;
+				var _allFramesArePreloaded: Boolean = false;
 				
 				if (USE_PROGRESS_EVENT)
 				{
 					//we are in mode of preloading all 8 frames at once 
-					allFramesArePreloaded = true;
+					_allFramesArePreloaded = true;
 				} else {
-					if (_currentPreloadingPosition == (preloadingData.length - 1))
-					{
-						//all frames was preloadd in this mode, so preloading of all frames are finished
-						allFramesArePreloaded = true;
-					}
+					//all frames was preloadd in this mode, so preloading of all frames are finished
+					_allFramesArePreloaded = allFramesAreaPreloaded;
 				}
 				
-				if (allFramesArePreloaded)
+				if (_allFramesArePreloaded)
 				{
 					//all frames are preloaded
 					trace("ALL FRAMES ARE PRELOADED");
