@@ -216,6 +216,13 @@
 				m_iw.interactiveLayerMap.removeLayer(m_layerTemperature);
 			}
 			
+			private function initPreloading(): void
+			{
+				_currentPreloadingPosition = 0;
+				preloadingFramesCount = 0;
+				if (preloadingData)
+					preloadingData.removeAll();
+			}
 			private function cancelPreloading(): void
 			{
 				trace("cancelPreloading");
@@ -298,9 +305,15 @@
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
 					m_layerTemperature.removeEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
-					m_iw.removeLayer(m_layerTemperature, true);
+//					m_iw.removeLayer(m_layerTemperature, true);
+					m_iw.interactiveLayerMap.removeLayer(m_layerTemperature);
+					
+					m_layerTemperature.destroy();
+					m_layerTemperature = null;
+					
 				}
 				
+				initPreloading();
 				m_layerTemperature = addLayer('temperature', 1, null, 256, bUseTiling);
 				
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
@@ -331,9 +344,11 @@
 				
 				btnAutoPlay.selected = false;
 				
-				autoPlay(false);
+//				autoPlay(false);
+				cancelPreloading();
 				clearCache();
 				m_createTiledLayers = b_play;
+				
 				//recreate new layer
 				createTemperatureLayer(b_play);
 			}
@@ -545,7 +560,7 @@
 			private function onTemperatureLayerLoadingStarted(event: InteractiveLayerEvent): void
 			{
 				m_temperatureLayerLoaded = false;
-//				preloadingFramesCount++;
+				preloadingFramesCount++;
 				trace("\nonTemperatureLayerLoadingStarted autoPlayPaused: " + autoPlayPaused + " preloadingFramesCount: " + preloadingFramesCount);
 			}
 
@@ -573,7 +588,7 @@
 			{
 				if (preloadingData && preloadingData.length > 0)
 				{
-					return _currentPreloadingPosition == (preloadingData.length - 1)
+					return preloadedFramesCount == (preloadingData.length);
 				}
 				return false;
 			}
