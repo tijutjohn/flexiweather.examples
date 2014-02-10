@@ -216,6 +216,12 @@
 				m_iw.interactiveLayerMap.removeLayer(m_layerTemperature);
 			}
 			
+			private function initPreloading(): void
+			{
+				preloadingFramesCount = 0;
+				if (preloadingData)
+					preloadingData.removeAll();
+			}
 			private function cancelPreloading(): void
 			{
 				trace("cancelPreloading");
@@ -298,9 +304,15 @@
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
 					m_layerTemperature.removeEventListener(InteractiveDataLayer.PROGRESS, onTemperatureLayerProgress);
 					m_layerTemperature.removeEventListener(GetCapabilitiesEvent.CAPABILITIES_RECEIVED, onCapabilitiesReceived);
-					m_iw.removeLayer(m_layerTemperature, true);
+//					m_iw.removeLayer(m_layerTemperature, true);
+					m_iw.interactiveLayerMap.removeLayer(m_layerTemperature);
+					
+					m_layerTemperature.destroy();
+					m_layerTemperature = null;
+					
 				}
 				
+				initPreloading();
 				m_layerTemperature = addLayer('temperature', 1, null, 256, bUseTiling);
 				
 				m_layerTemperature.addEventListener(InteractiveDataLayer.LOADING_STARTED, onTemperatureLayerLoadingStarted);
@@ -331,9 +343,11 @@
 				
 				btnAutoPlay.selected = false;
 				
-				autoPlay(false);
+//				autoPlay(false);
+				cancelPreloading();
 				clearCache();
 				m_createTiledLayers = b_play;
+				
 				//recreate new layer
 				createTemperatureLayer(b_play);
 			}
@@ -469,8 +483,6 @@
 				}
 			}
 
-			private var _currentPreloadingPosition: int;
-			
 			private function preloadFramesAfterCapabilitiesReceived(count: int): void
 			{
 				if (preloadingData)
@@ -491,8 +503,7 @@
 					} else {
 						
 						//just preload first frame
-						_currentPreloadingPosition = 0;
-						preloadDataAtPosition(_currentPreloadingPosition);
+						preloadDataAtPosition(preloadedFramesCount);
 					}
 				}
 			}
@@ -545,7 +556,7 @@
 			private function onTemperatureLayerLoadingStarted(event: InteractiveLayerEvent): void
 			{
 				m_temperatureLayerLoaded = false;
-//				preloadingFramesCount++;
+				preloadingFramesCount++;
 				trace("\nonTemperatureLayerLoadingStarted autoPlayPaused: " + autoPlayPaused + " preloadingFramesCount: " + preloadingFramesCount);
 			}
 
@@ -560,7 +571,7 @@
 					preloadAllFramesAfterCapabilitiesReceived();
 				/// need to update frames on next frame (frame wil be cached in cache)
 				callLater(updateProgressAfterFrameLoadingFinished);
-				trace("onTemperatureLayerLoadingFinished autoPlayPaused: " + autoPlayPaused + " autoPlayEnabled: " + autoPlayEnabled + " preloadingFramesCount: " + preloadingFramesCount + " preloadedFramesCount: " + preloadedFramesCount + "\n");
+				trace("onTemperatureLayerLoadingFinished autoPlayPaused: " + autoPlayPaused + " preloadingFramesCount: " + preloadingFramesCount + " preloadedFramesCount: " + preloadedFramesCount + "\n");
 				continueWithAutoPlayIfPossible();
 			}
 
@@ -573,7 +584,7 @@
 			{
 				if (preloadingData && preloadingData.length > 0)
 				{
-					return _currentPreloadingPosition == (preloadingData.length - 1)
+					return preloadedFramesCount == (preloadingData.length);
 				}
 				return false;
 			}
@@ -591,6 +602,7 @@
 					_allFramesArePreloaded = allFramesAreaPreloaded;
 				}
 				
+				trace("onTemperatureLayerPreloadingFinished: " + allFramesAreaPreloaded + " preloaded: " + preloadedFramesCount);
 				if (_allFramesArePreloaded)
 				{
 					//all frames are preloaded
@@ -603,14 +615,14 @@
 				} else {
 					
 					//check if data is preloaded
-					m_layerTemperature.isPreloaded(preloadingData.getItemAt(_currentPreloadingPosition) as IViewProperties);
+					var b_isPreloaded: Boolean = m_layerTemperature.isPreloaded(preloadingData.getItemAt(preloadedFramesCount) as IViewProperties);
+					var b_isPreloading: Boolean = m_layerTemperature.isPreloading(preloadingData.getItemAt(preloadedFramesCount) as IViewProperties);
 					
 					//do the same if progress event would be dispatched
 					onTemperatureLayerProgress();
 					
 					//and preload next frame
-					_currentPreloadingPosition++;
-					preloadDataAtPosition(_currentPreloadingPosition);
+					preloadDataAtPosition(preloadedFramesCount);
 				}
 			}
 
@@ -651,11 +663,12 @@
 					var isCached: Boolean = m_layerTemperature.isPreloaded(wmsViewProperties);
 					if (isCached)
 					{
-//						trace("\t getCachedFramesCount cached: " + wmsViewProperties.getWMSDimensionValue('FORECAST'))
 						cachedCount++;
+					} else {
+						trace("\t\t getCachedFramesCount NOT CACHED: " + wmsViewProperties.getWMSDimensionValue('FORECAST'))
 					}
 				}
-//				trace("\t getCachedFramesCount cachedCount: " + cachedCount)
+				trace("\t getCachedFramesCount cachedCount: " + cachedCount + " / " + preloadingData.length);
 				return cachedCount;
 			}
 
@@ -683,8 +696,15 @@
 
 			private function preloadViewData(preloadingViewData: WMSViewProperties): void
 			{
+				
 				//and preload it
-				m_layerTemperature.preload(preloadingViewData);
+				if (!m_layerTemperature.isPreloading(preloadingViewData))
+				{
+					trace("preloadViewData: " + preloadingViewData.dimensions[2].value);
+					m_layerTemperature.preload(preloadingViewData);
+				} else {
+					trace("preloadViewData:  " + preloadingViewData.dimensions[2].value + " IS ALREADY PRELOADING");
+				}
 			}
 
 			/**
