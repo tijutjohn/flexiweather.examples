@@ -17,6 +17,7 @@
         
         <s:HGroup id="buttons">
             <s:Button id="nextFrame" label="Next Frame" click="onNextClick();" />
+            <s:Label text="FORECAST: {currentForecast}" color="0xffffff" fontSize="18" fontWeight="bold"/>
         </s:HGroup>
         
     </s:HGroup>
@@ -36,6 +37,9 @@
 			
 			import mx.events.FlexEvent;
             
+			[Bindable]
+			public var currentForecast: String;
+			
 //            private var iblBaseLayer:IblBaseLayer;
             private var temperatureLayer:InteractiveLayerWMSWithQTT;
             
@@ -43,7 +47,7 @@
             //  Modify these variables to update to an advertised model run and turn tiling on/off
             //  For temperature layer.
             //-------------------------------------------------------------------------------------
-            private var currentModelRun:String = "2013-08-26T00:00:00Z";
+            private var currentModelRun:String = "2014-02-17T00:00:00Z";
             private var tilingOn:Boolean = true;
             //-------------------------------------------------------------------------------------
             //-------------------------------------------------------------------------------------
@@ -155,8 +159,9 @@
                 } else {
                     currentForecastIndex = 0;
                 }
-                
-                temperatureLayer.setWMSDimensionValue("FORECAST", steps[currentForecastIndex]);
+
+				currentForecast = steps[currentForecastIndex];
+                temperatureLayer.setWMSDimensionValue("FORECAST", currentForecast);
                 temperatureLayer.refresh(false);
             }
             
