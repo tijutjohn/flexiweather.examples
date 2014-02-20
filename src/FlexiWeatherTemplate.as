@@ -34,6 +34,8 @@ package
 		[Bindable]
 		protected var serviceForecasts: WMSServiceConfiguration;
 		[Bindable]
+		protected var serviceObservations: WMSServiceConfiguration;
+		[Bindable]
 		protected var serviceGFS: WMSServiceConfiguration;
 
 		public function FlexiWeatherTemplate()
@@ -72,6 +74,10 @@ package
 			serviceForecasts = scm.getService(
 					"forecasts",
 					s_serverURL + "/forecasts", new Version(1, 3, 0),
+					WMSServiceConfiguration) as WMSServiceConfiguration;
+			serviceObservations = scm.getService(
+					"observations",
+					s_serverURL + "/observations", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
 			
 			if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
@@ -133,6 +139,11 @@ package
 					return serviceForecasts;
 					break;
 				}
+				case 'observations':
+				{
+					return serviceObservations;
+					break;
+				}
 				case 'gfs':
 				{
 					return serviceGFS;
@@ -186,6 +197,19 @@ package
 					lc.dimensionTimeName = 'TIME';
 					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
 					lWMS.name = 'TAF Airport Forecasts';
+					lWMS.alpha = layerAlpha;
+					iw.interactiveLayerMap.addLayer(lWMS);
+					break;
+				}
+				case 'surface':
+				{
+					srv = getWMSLayerConfiguration('observation');
+					lc = new WMSWithQTTLayerConfiguration(srv, ["surface"], tileSize);
+					lc.avoidTiling = !bUseTiling;
+					lc.label = "Surface";
+					lc.dimensionTimeName = 'TIME';
+					lWMS = new InteractiveLayerWMSWithQTT(iw, lc);
+					lWMS.name = 'Surface';
 					lWMS.alpha = layerAlpha;
 					iw.interactiveLayerMap.addLayer(lWMS);
 					break;
