@@ -28,8 +28,6 @@ package
 		[Bindable]
 		protected var serviceRIA: WMSServiceConfiguration;
 		[Bindable]
-		protected var serviceWMS: WMSServiceConfiguration;
-		[Bindable]
 		protected var serviceAFWA: WMSServiceConfiguration;
 		[Bindable]
 		protected var serviceForecasts: WMSServiceConfiguration;
@@ -52,11 +50,6 @@ package
 
 			scm = OGCServiceConfigurationManager.getInstance();
 			
-			serviceWMS = scm.getService(
-					"wms",
-					s_serverURL + "/ria/wms", new Version(1, 3, 0),
-					WMSServiceConfiguration) as WMSServiceConfiguration;
-			
 //			serviceAFWA = scm.getService(
 //					"afwa",
 //					s_serverURL + "/ow/afwa/afwaGC.xml", new Version(1, 3, 0),
@@ -64,7 +57,7 @@ package
 			
 			serviceRIA = scm.getService(
 					"ria",
-					s_serverURL + "/ria", new Version(1, 3, 0),
+					s_serverURL + "/ria/wms", new Version(1, 3, 0),
 					WMSServiceConfiguration) as WMSServiceConfiguration;
 			
 			serviceGFS = scm.getService(
@@ -120,13 +113,9 @@ package
 			switch (type)
 			{
 				case 'ria':
-				{
-					return serviceRIA;
-					break;
-				}
 				case 'wms':
 				{
-					return serviceWMS;
+					return serviceRIA;
 					break;
 				}
 				case 'afwa':
