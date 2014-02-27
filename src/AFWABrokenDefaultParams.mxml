@@ -42,12 +42,12 @@
                 
                 serviceRIA = scm.getService(
                     "ria",
-                    s_serverURL + "/ria", new Version(1, 3, 0),
+                    s_serverURL + "/ria/wms", new Version(1, 3, 0),
                     WMSServiceConfiguration) as WMSServiceConfiguration;
                 
                 serviceGFS = scm.getService(
                     "gfs",
-                    s_serverURL + "/gfs", new Version(1, 3, 0),
+                    s_serverURL + "/ncep/gfs", new Version(1, 3, 0),
                     WMSServiceConfiguration) as WMSServiceConfiguration;
                 
                 scm.update(scm.getAllServicesNames());

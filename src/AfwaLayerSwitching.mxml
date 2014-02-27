@@ -48,9 +48,9 @@
             }
 
             private function initServiceConfig():void {
-                var serverUrl:String = 'http://ogcie.iblsoft.com';
+                var serverUrl:String = 'https://ogcie.iblsoft.com';
                 var serviceConfigManager:OGCServiceConfigurationManager = OGCServiceConfigurationManager.getInstance();
-                serviceRIA = serviceConfigManager.getService("ria", serverUrl + "/ria", new Version(1, 3, 0), WMSServiceConfiguration) as WMSServiceConfiguration;
+                serviceRIA = serviceConfigManager.getService("ria", serverUrl + "/ria/wms", new Version(1, 3, 0), WMSServiceConfiguration) as WMSServiceConfiguration;
                 serviceConfigManager.update(serviceConfigManager.getAllServicesNames());
             }
 

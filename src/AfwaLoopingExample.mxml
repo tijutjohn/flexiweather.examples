@@ -96,7 +96,7 @@
                 scm= OGCServiceConfigurationManager.getInstance();
                 serviceRIA = scm.getService(
                     "ria",
-                    s_serverURL + "/ria", new Version(1, 3, 0),
+                    s_serverURL + "/ria/wms", new Version(1, 3, 0),
                     WMSServiceConfiguration) as WMSServiceConfiguration;
                 serviceGFS = scm.getService(
                     "obs",

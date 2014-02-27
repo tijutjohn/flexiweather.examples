@@ -173,7 +173,7 @@
                     OGCServiceConfigurationManager.getInstance();
             var srv: WMSServiceConfiguration = scm.getService(
                     "ria",
-                    s_serverURL + "/ria", new Version(1, 3, 0),
+                    s_serverURL + "/ria/wms", new Version(1, 3, 0),
                     WMSServiceConfiguration) as WMSServiceConfiguration;
             var srv2: WMSServiceConfiguration = scm.getService(
                     "obs",
