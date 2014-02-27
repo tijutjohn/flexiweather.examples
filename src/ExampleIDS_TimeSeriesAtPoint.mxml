@@ -137,9 +137,7 @@
 			private const DATE_TIME_FORMAT: String = "%d.%m.%Y %H:%M";
 			private const USE_CASE_PARAMETER_VALUES: String = "parameter-values";
 			private const USE_CASE_THRESHOLD_PROBABILITY: String = "threshold-probability";
-			//private const WCS_URL: String = "http://palo:8008/test";
-			//private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
-			private const WCS_URL: String = "http://ogcie.iblsoft.com/ncep/gefs";
+			private const WCS_URL: String = "https://ogcie.iblsoft.com/ncep/gefs";
 
 			/**
 			 * Initialization of example.

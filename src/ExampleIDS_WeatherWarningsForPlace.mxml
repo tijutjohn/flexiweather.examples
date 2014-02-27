@@ -67,9 +67,7 @@
 					"4) All SIGMETs for the specified place which validity intersects the specified range will " +
 					"be displayed in the area below the button (if no ICAO code is specified, SIGMETs for all places " +
 					"will be displayed).<br/>";
-			//private const WCS_URL: String = "http://palo:8009/observations";
-			private const WCS_URL: String = "http://wms.iblsoft.com/observations";
-			//private const WCS_URL: String = "http://ogcie.iblsoft.com/observations";
+			private const WCS_URL: String = "https://ogcie.iblsoft.com/observations";
 
 			/**
 			 * Initialization of example.
