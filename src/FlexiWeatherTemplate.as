@@ -80,8 +80,17 @@ package
 				scm.addEventListener(ServiceCapabilitiesEvent.CAPABILITIES_LOADED, onCapabilitiesLoaded);
 			}
 			
-			var map: InteractiveLayerMap = new InteractiveLayerMap();
-			m_iw.addLayer(map);
+			var map: InteractiveLayerMap;
+			
+			//add default map, if it is not there
+			var layersCount: int = m_iw.numLayers;
+//			map = m_iw.getLayerByType(InteractiveLayerMap) as InteractiveLayerMap;
+			
+			if (!map)
+			{
+				map = new InteractiveLayerMap();
+				m_iw.addLayer(map);
+			}
 		}
 
 		protected function onCapabilitiesNodeParsed(event: ServiceCapabilitiesEvent): void

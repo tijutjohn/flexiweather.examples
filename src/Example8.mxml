@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns:widgets="com.iblsoft.flexiweather.widgets.*" 
 		xmlns="*" minWidth="955"
 		minHeight="600" frameRate="30" backgroundColor="0x888888"
+		xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
+		xmlns:layers="com.iblsoft.flexiweather.ogc.configuration.layers.*" 
+		xmlns:ogc="com.iblsoft.flexiweather.ogc.*"
+		xmlns:tiling="com.iblsoft.flexiweather.ogc.tiling.*"
 		skinClass="spark.skins.spark.ApplicationSkin">
+	
 	<fx:Declarations>
+		<layers:QTTMSLayerConfiguration id="qttmsConfig1"/>
+		<layers:WMSWithQTTLayerConfiguration id="lcqtBackground" service="{serviceRIA}" label="Backgrounds/DEM" layerNames="['background-dem']" />
+		<layers:WMSWithQTTLayerConfiguration id="lcqtForeground" service="{serviceRIA}" label="Foreground" layerNames="['foreground-lines']" />
+		<layers:WMSLayerConfiguration id="lcqtSurface" service="{serviceObservations}" label="Surface" layerNames="['surface']" 
+									  autoRefreshPeriod="30"/>
 	</fx:Declarations>
 	
 	<fx:Style source="css/fonts.css"/>
@@ -32,7 +41,13 @@
 				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
 						click="m_iw.setCRSExtentAndViewBBox('EPSG:900913');"/>
 			</s:HGroup>
+			<s:HGroup width="100%" horizontalAlign="center">
+				<s:ToggleButton id="btnTogglePanning" label="Use Bitmap Panning"
+						change="FlexiWeatherConfiguration.USE_KML_BITMAP_PANNING = btnTogglePanning.selected"/>
+				<s:Button label="Browse for KML file" click="browseForKMLFile()"/>
+			</s:HGroup>
 		</s:BorderContainer>
+		
 		<s:BorderContainer backgroundColor="0x999999" borderColor="0xbbbbbb" width="100%"
 				minHeight="0">
 			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5" paddingLeft="5"
@@ -49,6 +64,7 @@
 				<s:Button label="Create KML from source" click="showPopupForDynamicKML()"/>
 			</s:HGroup>
 		</s:BorderContainer>
+		
 		<s:HGroup width="100%" verticalAlign="middle">
 			<s:Label 
 					text="Please note, there is problem to load KML/KMZ assets with relative path. In Web browser there is no possibility to find out whole path of file, which was selected from dialog."
@@ -79,8 +95,23 @@
 			<widgets:InteractiveWidget id="m_iw" width="100%" height="100%"
 					anticollisionUpdated="anticollisionUpdateCount++">
 				<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
-				<widgets:InteractiveLayerPan id="m_ilp" zOrder="2" startPanning="startPanning()"
-						stopPanning="stopPanning()"/>
+				<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+				
+				<widgets:InteractiveLayerMap>
+					
+					<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtBackground}" name="DEMBackground" zOrder="-10"/>
+					
+					<ogc:InteractiveLayerQTTMS id="m_openStreetLayer" name="OpenStreetMap" zOrder="-8" 
+											   configuration="{qttmsConfig1}"
+											   />
+					
+					<ogc:InteractiveLayerWMS id="m_layerSufraceObservations" configuration="{lcqtSurface}" name="Surface" zOrder="0" 
+											 />
+					
+					<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtForeground}" name="Foreground" zOrder="9"/>
+					
+				</widgets:InteractiveLayerMap>
+				
 			</widgets:InteractiveWidget>
 		</s:HGroup>
 	</s:VGroup>
@@ -91,6 +122,7 @@
 			import com.furusystems.dconsole2.DConsole;
 			import com.furusystems.dconsole2.IConsole;
 			import com.furusystems.dconsole2.core.gui.maindisplay.ConsoleView;
+			import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
 			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
 			import com.iblsoft.flexiweather.net.loaders.KMLLoader;
 			import com.iblsoft.flexiweather.ogc.BBox;
@@ -101,6 +133,7 @@
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.configuration.services.WMSServiceConfiguration;
+			import com.iblsoft.flexiweather.ogc.events.ServiceCapabilitiesEvent;
 			import com.iblsoft.flexiweather.ogc.kml.InteractiveLayerKML;
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.controls.KMLBitmapLoader;
@@ -149,7 +182,9 @@
 			import mx.managers.PopUpManager;
 			
 			import spark.components.Image;
-			private var m_openStreetLayer: InteractiveLayerQTTMS;
+			
+//			private var m_openStreetLayer: InteractiveLayerQTTMS;
+			
 			[Bindable]
 			public var openedDocuments: ArrayCollection;
 			[Bindable]
@@ -171,6 +206,8 @@
 				
 				WMSServiceConfiguration.PARSE_GET_CAPABILITIES = true;
 				Projection.AVOID_HORIZONTAL_WRAPPING = false;
+				
+				FlexiWeatherConfiguration.USE_KML_BITMAP_PANNING = true;
 				
 				if (Capabilities.playerType == "Desktop")
 					BackgroundJobManager.getInstance().m_progressBar = new LabelJobProgressIndicator(labelProgress);
@@ -203,6 +240,9 @@
 				kmzFiles = new ArrayCollection(String("assets/kmz/balloon-image-rel.kmz,assets/kmz/usa-ca-sf.kmz,assets/kmz/continents.kmz,assets/kmz/satconus.kmz").split(","));
 				lstOpenedDocuments.addEventListener('unload', onUnloadKMLFile);
 				lstOpenedDocuments.addEventListener('changeVisibility', onKMLFileChangeVisibility);
+				lstOpenedDocuments.addEventListener('showBitmap', onShowBitmap);
+				lstOpenedDocuments.addEventListener('hideBitmap', onHideBitmap);
+				lstOpenedDocuments.addEventListener('updateAlpha', onBitmapAlphaChange);
 				AbstractURLLoader.crossDomainProxyURLPattern = "http://wms.iblsoft.com/ria/proxy?u=${URL}";
 				Projection.addCRSByProj4("ESRI:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
 				Projection.addCRSByProj4("ESRI:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
@@ -210,15 +250,23 @@
 
 				m_iw.setCRSExtentAndViewBBox('CRS:84');
 				
-//				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = false;
+				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = true;
 				
-				addLayer('dem', 1);
-				addLayer('foreground', 1);
-				
-				scm.update(scm.getAllServicesNames());
 				this.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
 				this.addEventListener(Event.ADDED_TO_STAGE, onAddedToStage);
 //				initConsole();
+				
+				btnTogglePanning.selected = FlexiWeatherConfiguration.USE_KML_BITMAP_PANNING;
+				
+				getAllServicesCapabilities();
+			}
+			
+			override protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
+			{
+				super.onAllCapabilitiesUpdated(event);
+//				
+//				addLayer('dem', 1);
+//				addLayer('foreground', 1);
 			}
 
 			private function onAddedToStage(event: Event): void
@@ -402,6 +450,53 @@
 			*/
 			}
 
+			private function onShowBitmap(event: Event): void
+			{
+				trace("onShowBitmap");
+				var renderer: KMLFileListItemRenderer = event.target as KMLFileListItemRenderer;
+				var kmlURL: String = renderer.path as String;
+				if (_kmlLayerDictionary[kmlURL])
+				{
+					var kmlObject: Object = _kmlLayerDictionary[kmlURL];
+					var kmlLayer: InteractiveLayerKML = kmlObject.layer as InteractiveLayerKML;
+					if (kmlLayer)
+						kmlDataProvider = kmlLayer.kml.kmlDataProvider;
+					
+//					kmlLayer.changeToScreenshotMode();
+				}
+			}
+			
+			private function onBitmapAlphaChange(event: DynamicEvent): void
+			{
+				trace("onBitmapAlphaChange");
+				var renderer: KMLFileListItemRenderer = event.target as KMLFileListItemRenderer;
+				var kmlURL: String = renderer.path as String;
+				if (_kmlLayerDictionary[kmlURL])
+				{
+					var kmlObject: Object = _kmlLayerDictionary[kmlURL];
+					var kmlLayer: InteractiveLayerKML = kmlObject.layer as InteractiveLayerKML;
+					if (kmlLayer)
+						kmlDataProvider = kmlLayer.kml.kmlDataProvider;
+					
+//					kmlLayer.updateAlpha(event['alpha']);
+				}
+			}
+			private function onHideBitmap(event: Event): void
+			{
+				trace("onHideBitmap");
+				var renderer: KMLFileListItemRenderer = event.target as KMLFileListItemRenderer;
+				var kmlURL: String = renderer.path as String;
+				if (_kmlLayerDictionary[kmlURL])
+				{
+					var kmlObject: Object = _kmlLayerDictionary[kmlURL];
+					var kmlLayer: InteractiveLayerKML = kmlObject.layer as InteractiveLayerKML;
+					if (kmlLayer)
+						kmlDataProvider = kmlLayer.kml.kmlDataProvider;
+					
+//					kmlLayer.changeBackFromScreenshotMode();
+				}
+			}
+			
 			private function onKMLFileChangeVisibility(event: Event): void
 			{
 				trace("onKMLFileChangeVisibility");
@@ -759,32 +854,33 @@
 						layer.testPan(event);
 				}
 			}
-			private function startPanning(): void
-			{
-				m_iw.suspendAnticollisionProcessing = true;
-				_layoutVisibilityBeforePanning = m_iw.labelLayout.visible;
-				m_iw.labelLayout.visible = false;
-				
-				for each (var obj: Object in _kmlLayerDictionary)
-				{
-					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
-					if (layer)
-						layer.suspendUpdating = true;
-				}
-			}
-
-			private function stopPanning(): void
-			{
-				m_iw.suspendAnticollisionProcessing = false;
-				m_iw.labelLayout.visible = _layoutVisibilityBeforePanning;
-				
-				for each (var obj: Object in _kmlLayerDictionary)
-				{
-					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
-					if (layer)
-						layer.suspendUpdating = false;
-				}
-			}
+//			private function startPanning(): void
+//			{
+//				_layoutVisibilityBeforePanning = m_iw.labelLayout.visible;
+//				m_iw.labelLayout.visible = false;
+//				
+//				for each (var obj: Object in _kmlLayerDictionary)
+//				{
+//					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
+//					if (layer)
+//						layer.suspendUpdating = true;
+//				}
+//				
+//				m_iw.suspendAnticollisionProcessing = true;
+//			}
+//
+//			private function stopPanning(): void
+//			{
+//				m_iw.suspendAnticollisionProcessing = false;
+//				m_iw.labelLayout.visible = _layoutVisibilityBeforePanning;
+//				
+//				for each (var obj: Object in _kmlLayerDictionary)
+//				{
+//					var layer: InteractiveLayerKML = obj.layer as InteractiveLayerKML;
+//					if (layer)
+//						layer.suspendUpdating = false;
+//				}
+//			}
 
 			private function debugKRM(): void
 			{
