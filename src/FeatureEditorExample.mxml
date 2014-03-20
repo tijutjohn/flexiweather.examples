@@ -80,15 +80,16 @@
 			import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
-			import com.iblsoft.flexiweather.ogc.editable.MoveablePoint;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditable;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableMode;
-			import com.iblsoft.flexiweather.ogc.editable.features.FrontType;
-			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableFront;
+			import com.iblsoft.flexiweather.ogc.editable.data.MoveablePoint;
+			import com.iblsoft.flexiweather.ogc.editable.data.front.FrontType;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.WFSFeatureEditableFront;
 			import com.iblsoft.flexiweather.ogc.events.MoveablePointEvent;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
+			
 			import mx.events.FlexEvent;
 			import mx.events.PropertyChangeEvent;
 			private var currentFeatureType: String;
