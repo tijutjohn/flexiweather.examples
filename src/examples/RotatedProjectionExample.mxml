@@ -3,7 +3,7 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark" 
 			   xmlns:mx="library://ns.adobe.com/flex/mx" 
 			   xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
-			   xmlns="*"
+			   xmlns="examples.*"
 			   minWidth="955" minHeight="600">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->

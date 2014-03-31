@@ -5,6 +5,7 @@
 
     <fx:Script><![CDATA[
         import examples.*;
+        import examples.afwa.*;
 
         import mx.collections.ArrayList;
         import mx.core.IVisualElement;

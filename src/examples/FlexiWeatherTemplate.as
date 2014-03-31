@@ -1,4 +1,4 @@
-package
+package examples
 {
 	import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
