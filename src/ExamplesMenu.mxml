@@ -6,6 +6,7 @@
     <fx:Script><![CDATA[
         import examples.*;
         import examples.afwa.*;
+        import examples.ids.*;
         import examples.kml.*;
         
         import mx.collections.ArrayList;

@@ -15,7 +15,7 @@
 			<s:Spacer width="100%"/>
 			<s:Label id="m_labelProgress" textAlign="right" fontWeight="bold"/>
 		</s:HGroup>
-		<s:TextArea id="m_legendTextArea" height="120" width="100%" editable="false"
+		<s:TextArea id="m_legendTextArea" height="100" width="100%" editable="false"
 				visible="{m_showLegendCheckBox.selected}"
 				includeInLayout="{m_showLegendCheckBox.selected}"/>
 		<s:HGroup width="100%" height="100%">
@@ -25,7 +25,6 @@
 				<widgets:InteractiveLayerPan id="m_ilpan" zOrder="2"/>
 				<utils:InteractiveLayerCoverageBitmap id="m_ilCoverageBitmap" zOrder="3"/>
 				<utils:InteractiveLayerRectangle id="m_ilRectangle" zOrder="4"/>
-				<utils:InteractiveLayerLabels id="m_ilLabels" zOrder="5"/>
 			</widgets:InteractiveWidget>
 			<s:VGroup>
 				<s:HGroup verticalAlign="middle">
@@ -47,23 +46,20 @@
 					<s:Label text="Validity:"/>
 					<s:Label id="m_validityLabel"/>
 				</s:HGroup>
-				<s:HGroup verticalAlign="middle">
-					<s:Label text="Levels:"/>
-					<s:List id="m_levelsList" dataProvider="{ma_levels}"
-							allowMultipleSelection="true" height="200"/>
-				</s:HGroup>
-				<s:Spacer height="20"/>
-				<s:HGroup verticalAlign="middle">
-					<s:Label text="Statistical operation:"/>
-					<s:DropDownList id="m_statOperationComboBox"
-							dataProvider="{ma_statOperations}"/>
-				</s:HGroup>
 				<s:Spacer height="20"/>
 				<s:Button label="Display on the map" id="m_displayButton"
 						click="displayOnTheMap()"/>
 				<s:Spacer height="20"/>
+				<s:Button label="Get GeoTIFF" id="m_getCoverageAsGeoTIFFButton"
+						click="getCoverageAsGeoTIFF()"/>
+				<s:Button label="Get GeoTIFFfloat" id="m_getCoverageAsGeoTIFFfloatButton"
+						click="getCoverageAsGeoTIFFfloat()"/>
 				<s:Button label="Get GRIB1" id="m_getCoverageAsGRIB1Button"
 						click="getCoverageAsGRIB1()"/>
+				<s:Button label="Get NetCDF3" id="m_getCoverageAsNetCDF3Button"
+						click="getCoverageAsNetCDF3()"/>
+				<s:Button label="Get KML" id="m_getCoverageAsKMLButton"
+						click="getCoverageAsKML()"/>
 				<s:Button label="Get JSON" id="m_getCoverageAsJSONButton"
 						click="getCoverageAsJSON()"/>
 			</s:VGroup>
@@ -91,7 +87,10 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			import com.iblsoft.utils.ColorGradient;
-			import mx.collections.ArrayCollection;
+
+            import examples.*;
+
+            import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import spark.utils.TextFlowUtil;
@@ -106,26 +105,16 @@
 			private var m_forecast: Duration = null;
 			private var m_lastSelectedForecast: Duration = null;
 			[Bindable]
-			private var ma_levels: ArrayCollection = new ArrayCollection();
-			[Bindable]
-			private var ma_statOperations: ArrayCollection = new ArrayCollection();
-			[Bindable]
 			private var ms_requests: String = "";
 			[Bindable]
 			private var ma_parameters: ArrayCollection = new ArrayCollection();
-			private const REQUEST_2D_COLLAPSE: String = "2D-collapse";
-			private const REQUEST_SINGLE_VALUE: String = "single-value";
-			private const LEGEND: String = "This example demonstrates capability of WCS to obtain " +
-					"a 2D collapse of the vertical dimension for any parameter, as well as simple min/max/avg " +
-					"of any parameter within the volume.<br/>" +
+			private const LEGEND: String = "This example demonstrates capability of WCS to obtain a sub-set of a grid.<br/>" +
 					"<span fontWeight='bold'>Usage:</span><br/>" +
 					"1) Select rectangular area on the map.<br/>" +
-					"2) Select parameter, run, forecast and a set of levels (hold SHIFT to select a continues range of levels or CTRL " +
-					"to select/deselect any level).<br/>" +
-					"3) Select statistical operation (minumum, maximum, average).<br/>" +
-					"4a) Click the 'Display on the map' button to see to required coverage data on the map.<br/>" +
-					"4b) Click one of the appropriate 'Get ...' button to download coverage data in the selected format " +
-					"(GRIB1, JSON).";
+					"2) Select parameter, run and forecast.<br/>" +
+					"3a) Click the 'Display on the map' button to see to required coverage data on the map.<br/>" +
+					"3b) Click one of the appropriate 'Get ...' button to download coverage data in the selected format (GeoTIFF, GoeTIFFfloat, " +
+					"GRIB1, NetCDF3, KML, JSON).";
 			//private const WCS_URL: String = "http://palo:8008/test";
 			private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
 
@@ -139,7 +128,6 @@
 				m_iw.addLayer(ilm);
 				m_ilRectangle.container = m_iw;
 				m_ilCoverageBitmap.container = m_iw;
-				m_ilLabels.container = m_iw;
 				m_iw.setCRSExtentAndViewBBox('CRS:84');
 				var ilBkg: InteractiveLayerMSBase = addLayer('dem', 1);
 				ilBkg.setWMSStyleName(0, 'white-colours');
@@ -158,16 +146,12 @@
 				m_xmlLoader.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onDataLoadedFailed);
 				m_xmlLoader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onDescribeCoverageDataLoaded);
 				m_legendTextArea.textFlow = spark.utils.TextFlowUtil.importFromString(LEGEND);
+				ma_parameters.addItem({"label": "Precipitation", "value": "precipitation"});
 				ma_parameters.addItem({"label": "Temperature", "value": "temperature"});
 				ma_parameters.addItem({"label": "Relative Humidity", "value": "relative-humidity"});
 				m_parameterComboBox.selectedIndex = 0;
-				m_parameterComboBox.typicalItem = ma_parameters.getItemAt(1);
+				m_parameterComboBox.typicalItem = ma_parameters.getItemAt(2);
 				loadAvailableRuns();
-				ma_statOperations.addItem({"label": "Minimum", "value": "min"});
-				ma_statOperations.addItem({"label": "Maximum", "value": "max"});
-				ma_statOperations.addItem({"label": "Average", "value": "avg"});
-				m_statOperationComboBox.selectedIndex = 1;
-				m_statOperationComboBox.typicalItem = ma_statOperations.getItemAt(1);
 			}
 
 			private function get coverageName(): String
@@ -238,7 +222,6 @@
 			{
 				ma_runs.removeAll();
 				ma_forecasts.removeAll();
-				ma_levels.removeAll();
 				var wcs: Namespace = new Namespace("http://www.opengis.net/wcs");
 				var xmlResult: XML = event.result as XML;
 				var xmlAxisDescription: XMLList = xmlResult.wcs::CoverageOffering.wcs::rangeSet.wcs::RangeSet.wcs::axisDescription.wcs::AxisDescription;
@@ -247,6 +230,7 @@
 				var xmlMinRun: XMLList = xmlRunInterval.wcs::min;
 				var xmlMaxRun: XMLList = xmlRunInterval.wcs::max;
 				var runItem: Object;
+				var xmlSingleValue: XML;
 				if ((xmlMinRun.length() > 0) && (xmlMaxRun.length() > 0))
 				{
 					var s_minRun: String = xmlRunInterval.wcs::min[0].text();
@@ -267,7 +251,7 @@
 				}
 				else
 				{
-					for each (var xmlSingleValue: XML in xmlRunValues.wcs::singleValue)
+					for each (xmlSingleValue in xmlRunValues.wcs::singleValue)
 					{
 						var s_run: String = xmlSingleValue.toString();
 						runItem = new Object();
@@ -283,10 +267,10 @@
 					{
 						for (var s_i: String in ma_runs)
 						{
-							var i_run: int = int(s_i);
-							if ((ma_runs[i_run]["value"] as Date) == m_lastSelectedRun)
+							var i: int = int(s_i);
+							if ((ma_runs[i]["value"] as Date) == m_lastSelectedRun)
 							{
-								i_selectedRun = i_run;
+								i_selectedRun = i;
 								break;
 							}
 						}
@@ -349,22 +333,6 @@
 					m_forecast = ma_forecasts.getItemAt(i_selectedForecast)["value"] as Duration;
 				}
 				updateValidity();
-				var xmlLevelValues: XMLList = xmlAxisDescription.(wcs::name == "ELEVATION").wcs::values;
-				for each (var xmlLevelSingleValue: XML in xmlLevelValues.wcs::singleValue)
-				{
-					var s_level: String = xmlLevelSingleValue.toString();
-					var levelItem: Object = new Object();
-					levelItem["value"] = s_level;
-					levelItem["label"] = s_level;
-					ma_levels.addItem(levelItem);
-				}
-				var selectedLevelsIndices: Vector.<int> = new Vector.<int>();
-				for (var i: int = 0; i < ma_levels.length; i++)
-				{
-					selectedLevelsIndices.push(i);
-				}
-				m_levelsList.selectedIndices = selectedLevelsIndices;
-				m_levelsList.typicalItem = ma_levels.getItemAt(0);
 			}
 
 			private function updateValidity(): void
@@ -381,94 +349,67 @@
 
 			private function onCoverageDataLoaded(event: UniURLLoaderEvent): void
 			{
-				var s_requestType: String = event.associatedData as String;
 				var data: Object = event.result;
-				var a_coverageData: Array = data["coverageStatisticsData"];
-				if (s_requestType == REQUEST_2D_COLLAPSE)
+				var a_coverageData: Array = data["coverageData"];
+				var colorGradient: ColorGradient;
+				if (coverageName == "precipitation")
 				{
-					var colorGradient: ColorGradient;
-					if (coverageName == "temperature")
-					{
-						var a_valuesCels: Array = [-26.0, -24.0, -22.0, -20.0, -18.0, -16.0, -14.0, -12.0,
-								-10.0, -8.0, -6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0,
-								20.0, 22.0, 24.0, 26.0, 28.0, 30.0, 32.0];
-						var a_valuesKelv: Array = [];
-						for each (var f_celsValue: Number in a_valuesCels)
-						{
-							a_valuesKelv.push(f_celsValue + 273.15);
-						}
-						colorGradient = new ColorGradient(a_valuesKelv,
-								[0xffffffff, 0xffe1e1e1, 0xffbebebe, 0xff828282, 0xff565474, 0xff59447f, 0xff5a007f,
-								0xff32007f, 0xff000082, 0xff0033b4, 0xff0000ff, 0xff007eff, 0xff00beff, 0xff00ffff,
-								0xff00f7c6, 0xff18d78c, 0xff00aa64, 0xff2baa2b, 0xff2bc82b, 0xff00ff00, 0xffccff00,
-								0xffffff00, 0xffeded7e, 0xffe4cc66, 0xffdcae49, 0xffffaa00, 0xffff5500, 0xffff0000,
-								0xffc80000, 0xff780000]);
-					}
-					else if (coverageName == "relative-humidity")
-					{
-						colorGradient = new ColorGradient([10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0],
-								[0xffffffff, 0xffcccccc, 0xff007eff, 0xff00beff, 0xff00ffff, 0xff00f2bd, 0xff00cc00,
-								0xff00ff00, 0xffccff00, 0xffffff00]);
-					}
-					for each (var coverageItem: Object in a_coverageData)
-					{
-						var a_values: Array = coverageItem["values"];
-						m_ilCoverageBitmap.setCoverageData(m_ilRectangle.coord1, m_ilRectangle.coord2,
-								a_values, colorGradient);
-					}
+					colorGradient = new ColorGradient(
+							[0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0,
+							20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 100.0, 300.0],
+							[0x00ffffff, 0xffaaffff, 0xff00ffff, 0xff00aaff, 0xff0055ff, 0xff004cb2,
+							0xff006699, 0xff007373, 0xff009966, 0xff00a229, 0xff48d800, 0xff00ff00,
+							0xffaaff00, 0xffdcff37, 0xffffff00, 0xffffeb0c, 0xffffc800, 0xffffaa00,
+							0xffff7800, 0xffff5500, 0xffff0000, 0xffc80000, 0xffa00000, 0xff740000,
+							0xff55007f, 0xffff55ff]);
 				}
-				else if (s_requestType == REQUEST_SINGLE_VALUE)
+				else if (coverageName == "temperature")
 				{
-					for each (coverageItem in a_coverageData)
+					var a_valuesCels: Array = [-26.0, -24.0, -22.0, -20.0, -18.0, -16.0, -14.0, -12.0,
+							-10.0, -8.0, -6.0, -4.0, -2.0, 0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0,
+							20.0, 22.0, 24.0, 26.0, 28.0, 30.0, 32.0];
+					var a_valuesKelv: Array = [];
+					for each (var f_value: Number in a_valuesCels)
 					{
-						var f_value: Number = coverageItem["value"];
-						var s_bbox: String = coverageItem["bbox"];
-						var a_bbox: Array = s_bbox.split(",");
-						var f_x1: Number = new Number(a_bbox[0]);
-						var f_y1: Number = new Number(a_bbox[1]);
-						var f_x2: Number = new Number(a_bbox[2]);
-						var f_y2: Number = new Number(a_bbox[3]);
-						var coord: Coord = new Coord("CRS:84", (f_x1 + f_x2) / 2, (f_y1 + f_y2) / 2);
-						var textFormat: TextFormat = new TextFormat();
-						textFormat.size = 20;
-						textFormat.color = 0x0000ff;
-						m_ilLabels.clearLabels();
-						if (coverageName == "temperature")
-						{
-							m_ilLabels.addLabel(coord, f_value.toFixed(1) + " K", textFormat, 0, -10);
-							m_ilLabels.addLabel(coord, (f_value - 273.15).toFixed(1) + "°C", textFormat, 0, 10);
-						}
-						else if (coverageName == "relative-humidity")
-							m_ilLabels.addLabel(coord, f_value.toFixed(1) + "%", textFormat, 0, 0);
+						a_valuesKelv.push(f_value + 273.15);
 					}
+					colorGradient = new ColorGradient(a_valuesKelv,
+							[0xffffffff, 0xffe1e1e1, 0xffbebebe, 0xff828282, 0xff565474, 0xff59447f, 0xff5a007f,
+							0xff32007f, 0xff000082, 0xff0033b4, 0xff0000ff, 0xff007eff, 0xff00beff, 0xff00ffff,
+							0xff00f7c6, 0xff18d78c, 0xff00aa64, 0xff2baa2b, 0xff2bc82b, 0xff00ff00, 0xffccff00,
+							0xffffff00, 0xffeded7e, 0xffe4cc66, 0xffdcae49, 0xffffaa00, 0xffff5500, 0xffff0000,
+							0xffc80000, 0xff780000]);
+				}
+				else if (coverageName == "relative-humidity")
+				{
+					colorGradient = new ColorGradient([10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0],
+							[0xffffffff, 0xffcccccc, 0xff007eff, 0xff00beff, 0xff00ffff, 0xff00f2bd, 0xff00cc00,
+							0xff00ff00, 0xffccff00, 0xffffff00]);
+				}
+				for each (var coverageItem: Object in a_coverageData)
+				{
+					var a_values: Array = coverageItem["values"];
+					m_ilCoverageBitmap.setCoverageData(m_ilRectangle.coord1, m_ilRectangle.coord2,
+							a_values, colorGradient);
 				}
 			}
 
-			private function prepareRequest(s_requestType: String = REQUEST_2D_COLLAPSE): URLRequest
+			private function prepareRequest(): URLRequest
 			{
 				var request: URLRequest = new URLRequest(WCS_URL);
 				request.method = URLRequestMethod.GET;
 				var requestParams: URLVariables = new URLVariables();
 				requestParams["SERVICE"] = "WCS";
 				requestParams["VERSION"] = "1.0.0";
-				requestParams["REQUEST"] = "GetCoverageStatistics";
+				requestParams["REQUEST"] = "GetCoverage";
 				requestParams["CRS"] = "CRS:84";
 				requestParams["COVERAGE"] = coverageName;
 				requestParams["DIM_RUN"] = ISO8601Parser.dateToString(run);
 				requestParams["DIM_FORECAST"] = "PT" + forecast.hoursTotal.toString() + "H";
-				var s_statOperation: String = m_statOperationComboBox.selectedItem["value"] as String;
-				if (s_requestType == REQUEST_2D_COLLAPSE)
-					requestParams["STATISTICS"] = s_statOperation + "(level;C)";
+				if (coverageName == "precipitation")
+					requestParams["ELEVATION"] = "gnd-surf";
 				else
-					requestParams["STATISTICS"] = s_statOperation + "(area;" + s_statOperation + "(level;C))";
-				var s_levels: String = "";
-				for each (var levelItem: Object in m_levelsList.selectedItems)
-				{
-					if (s_levels.length > 0)
-						s_levels += ",";
-					s_levels += levelItem["value"] as String;
-				}
-				requestParams["ELEVATION"] = s_levels;
+					requestParams["ELEVATION"] = "2m";
 				var c1: Coord = m_ilRectangle.coord1;
 				var c2: Coord = m_ilRectangle.coord2;
 				if (!c1 || !c2)
@@ -492,9 +433,29 @@
 				AbstractURLLoader.navigateToURL(request);
 			}
 
+			private function getCoverageAsGeoTIFF(): void
+			{
+				getCoverage("GeoTIFF");
+			}
+
+			private function getCoverageAsGeoTIFFfloat(): void
+			{
+				getCoverage("GeoTIFFfloat");
+			}
+
 			private function getCoverageAsGRIB1(): void
 			{
 				getCoverage("GRIB1");
+			}
+
+			private function getCoverageAsNetCDF3(): void
+			{
+				getCoverage("NetCDF3");
+			}
+
+			private function getCoverageAsKML(): void
+			{
+				getCoverage("KML");
 			}
 
 			private function getCoverageAsJSON(): void
@@ -504,20 +465,13 @@
 
 			private function displayOnTheMap(): void
 			{
-				var request: URLRequest = prepareRequest(REQUEST_2D_COLLAPSE);
+				var request: URLRequest = prepareRequest();
 				if (!request)
 					return;
 				request.data["FORMAT"] = "JSON";
 				logRequest(request);
-				m_jsonLoader.load(request, REQUEST_2D_COLLAPSE,
-						"Get coverage data (2D collapse) for the selected area from web service.");
-				request = prepareRequest(REQUEST_SINGLE_VALUE);
-				if (!request)
-					return;
-				request.data["FORMAT"] = "JSON";
-				logRequest(request);
-				m_jsonLoader.load(request, REQUEST_SINGLE_VALUE,
-						"Get coverage data (single value) for the selected area from web service.");
+				m_jsonLoader.load(request, null,
+						"Get coverage data for the selected area from web service.");
 			}
 
 			private function logRequest(request: URLRequest): void

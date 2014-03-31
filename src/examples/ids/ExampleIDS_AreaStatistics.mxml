@@ -106,7 +106,10 @@
 			import com.iblsoft.flexiweather.widgets.InteractiveLayerMap;
 			import com.iblsoft.flexiweather.widgets.LabelJobProgressIndicator;
 			import com.iblsoft.utils.InteractiveLayerPolygons;
-			import mx.charts.chartClasses.DataDescription;
+
+            import examples.*;
+
+            import mx.charts.chartClasses.DataDescription;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.events.FlexEvent;

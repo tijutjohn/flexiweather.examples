@@ -44,7 +44,10 @@
 			import com.iblsoft.flexiweather.net.loaders.XMLLoader;
 			import com.iblsoft.flexiweather.utils.DateUtils;
 			import com.iblsoft.flexiweather.utils.ISO8601Parser;
-			import mx.controls.Alert;
+
+            import examples.*;
+
+            import mx.controls.Alert;
 			import mx.events.FlexEvent;
 			import spark.utils.TextFlowUtil;
 			private var m_xmlLoader: XMLLoader;
