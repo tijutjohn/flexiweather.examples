@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
                xmlns:s="library://ns.adobe.com/flex/spark" 
                xmlns:mx="library://ns.adobe.com/flex/mx"
                creationComplete="onCreationComplete(event)"
                xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
                minWidth="955" minHeight="600"
-               skinClass="spark.skins.spark.ApplicationSkin">
+               >
     
     <s:VGroup width="100%" height="100%" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10">
                 <s:Button label="Change To Style" click="changeStyle(event)" />
@@ -82,4 +82,4 @@
         ]]>
     </fx:Script>
     
-</s:Application>
+</s:Group>

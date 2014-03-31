@@ -15,10 +15,10 @@ package
 	
 	import mx.events.FlexEvent;
 	
-	import spark.components.Application;
+	import spark.components.Group;
 
 	/** Base class with helper methods for all examples. */
-	public class FlexiWeatherTemplate extends Application
+	public class FlexiWeatherTemplate extends Group
 	{
 		[Bindable]
 		public var m_iw: InteractiveWidget;

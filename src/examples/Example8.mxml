@@ -2,12 +2,11 @@
 <FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns="*" minWidth="955"
-		minHeight="600" frameRate="30" backgroundColor="0x888888"
+		minHeight="600"
 		xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
 		xmlns:layers="com.iblsoft.flexiweather.ogc.configuration.layers.*" 
 		xmlns:ogc="com.iblsoft.flexiweather.ogc.*"
-		xmlns:tiling="com.iblsoft.flexiweather.ogc.tiling.*"
-		skinClass="spark.skins.spark.ApplicationSkin">
+		xmlns:tiling="com.iblsoft.flexiweather.ogc.tiling.*" >
 	
 	<fx:Declarations>
 		<layers:QTTMSLayerConfiguration id="qttmsConfig1"/>
@@ -98,16 +97,16 @@
 				
 				<widgets:InteractiveLayerMap>
 					
-					<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtBackground}" name="DEMBackground" zOrder="-10"/>
+					<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqtBackground}" name="DEMBackground" zOrder="-10"/>
 					
-					<ogc:InteractiveLayerQTTMS id="m_openStreetLayer" name="OpenStreetMap" zOrder="-8" 
-											   configuration="{qttmsConfig1}"
+					<ogc:InteractiveLayerQTTMS id="m_openStreetLayer" name="OpenStreetMap" zOrder="-8"
+                                               container="{m_iw}" configuration="{qttmsConfig1}"
 											   />
 					
-					<ogc:InteractiveLayerWMS id="m_layerSufraceObservations" configuration="{lcqtSurface}" name="Surface" zOrder="0" 
+					<ogc:InteractiveLayerWMS id="m_layerSufraceObservations" container="{m_iw}" configuration="{lcqtSurface}" name="Surface" zOrder="0"
 											 />
 					
-					<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtForeground}" name="Foreground" zOrder="9"/>
+					<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqtForeground}" name="Foreground" zOrder="9"/>
 					
 				</widgets:InteractiveLayerMap>
 				

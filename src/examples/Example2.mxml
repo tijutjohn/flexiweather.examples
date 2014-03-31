@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
 		creationComplete="onCreationComplete(event)">
 	<mx:Script>
 		<![CDATA[
@@ -149,4 +149,4 @@
 	<mx:VBox width="100%" height="100%">
 		<mx:Canvas id="canvas" width="100%" height="100%"/>
 	</mx:VBox>
-</mx:Application>
+</mx:VBox>

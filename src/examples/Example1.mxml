@@ -93,20 +93,21 @@
 			
 			<widgets:InteractiveLayerMap>
 				
-				<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtBackground}" name="DEMBackground" zOrder="-10"/>
+				<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqtBackground}" name="DEMBackground" zOrder="-10"/>
 				
-				<ogc:InteractiveLayerQTTMS id="m_openStreetLayer" name="OpenStreetMap" zOrder="-8" 
+				<ogc:InteractiveLayerQTTMS id="m_openStreetLayer" name="OpenStreetMap" zOrder="-8"
+                                           container="{m_iw}"
 										   configuration="{qttmsConfig1}"
 										   progress="onOpenStreetLayerProgress(event)" 
 										   loadingStarted="onOpenStreetLayerLoadingStarted(event)"
 										   loadingFinished="onOpenStreetLayerLoadingFinished(event)"/>
 				
-				<ogc:InteractiveLayerWMS id="m_layerSufraceObservations" configuration="{lcqtSurface}" name="Surface" zOrder="0" 
+				<ogc:InteractiveLayerWMS id="m_layerSufraceObservations" container="{m_iw}" configuration="{lcqtSurface}" name="Surface" zOrder="0"
 										 progress="onSurfaceObservationsLayerProgress(event)" 
 										 loadingStarted="onSurfaceObservationsLayerLoadingStarted(event)"
 										 loadingFinished="onSurfaceObservationsLayerLoadingFinished(event)"/>
 				
-				<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtForeground}" name="Foreground" zOrder="9"/>
+				<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqtForeground}" name="Foreground" zOrder="9"/>
 				
 			</widgets:InteractiveLayerMap>
 			

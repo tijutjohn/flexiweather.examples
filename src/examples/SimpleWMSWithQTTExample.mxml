@@ -23,10 +23,10 @@
 		<widgets:InteractiveLayerPan zOrder="10"/>
 		
 		<widgets:InteractiveLayerMap>
-			<tiling:InteractiveLayerWMSWithQTT configuration="{lcqt}" name="DEMBackground" zOrder="-10"/>
-			<tiling:InteractiveLayerWMSWithQTT configuration="{lcqt3}" name="Temperature" zOrder="5" alpha="0"/>
-			<ogc:InteractiveLayerWMS configuration="{wmsConfig1}" name="Temp2" zOrder="6" alpha="0.5"/>
-			<tiling:InteractiveLayerWMSWithQTT configuration="{lcqt2}" name="Foreground" zOrder="9"/>
+			<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqt}" name="DEMBackground" zOrder="-10"/>
+			<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqt3}" name="Temperature" zOrder="5" alpha="0"/>
+			<ogc:InteractiveLayerWMS container="{m_iw}" configuration="{wmsConfig1}" name="Temp2" zOrder="6" alpha="0.5"/>
+			<tiling:InteractiveLayerWMSWithQTT container="{m_iw}" configuration="{lcqt2}" name="Foreground" zOrder="9"/>
 		</widgets:InteractiveLayerMap>
 	</widgets:InteractiveWidget>
 
