@@ -6,7 +6,8 @@
     <fx:Script><![CDATA[
         import examples.*;
         import examples.afwa.*;
-
+        import examples.kml.*;
+        
         import mx.collections.ArrayList;
         import mx.core.IVisualElement;
 
@@ -14,7 +15,7 @@
         private var examplesDataProvider:ArrayList = new ArrayList([
             Example1WebApp,
             Example6,
-            Example8,
+            KMLExample,
             FeatureEditorExample,
             AFWA_FW53_FW54_Example,
             AFWABrokenDefaultParams,
@@ -30,7 +31,7 @@
             Example5,
             Example6,
             Example7,
-            Example8,
+            KMLExample,
             ExampleDatelineWithWMSLayer,
             ExampleIDS_AreaProbability,
             ExampleIDS_AreaStatistics,
