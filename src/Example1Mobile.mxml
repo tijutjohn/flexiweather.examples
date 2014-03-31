@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:ViewNavigatorApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
 		xmlns:s="library://ns.adobe.com/flex/spark"
-		minWidth="955" minHeight="600" firstView="examples.Example1View">
+		minWidth="955" minHeight="600" firstView="examples.MainExampleView">
 </s:ViewNavigatorApplication>

@@ -53,7 +53,7 @@
 
 			protected function onAddNewFeature(s_type: String): void
 			{
-				var fwl: Example3Feature = new Example3Feature(s_type);
+				var fwl: DrawingExampleFeature = new DrawingExampleFeature(s_type);
 				var x: Number = Math.random() * 340.0 - 170.0;
 				var y: Number = Math.random() * 160.0 - 80.0;
 				fwl.coordinates = [

@@ -1,4 +1,4 @@
-package examples
+package examples.featureEditor
 {
 	import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerFeatureBase;
@@ -12,12 +12,12 @@ package examples
 	import flash.display.DisplayObject;
 	import flash.geom.Point;
 
-	public class Example3Feature extends WFSFeatureEditableCurve implements ILineSegmentApproximableBounds
+	public class DrawingExampleFeature extends WFSFeatureEditableCurve implements ILineSegmentApproximableBounds
 	{
 		private var m_label: AnnotationTextBox = new AnnotationTextBox();
 		private var ms_type: String;
 
-		public function Example3Feature(s_type: String)
+		public function DrawingExampleFeature(s_type: String)
 		{
 			super('http://www.iblsoft.com/wfs/test', 'Example3FeatureWithLabel', null);
 			ms_type = s_type;

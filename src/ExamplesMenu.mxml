@@ -8,14 +8,16 @@
         import examples.afwa.*;
         import examples.ids.*;
         import examples.kml.*;
+        import examples.preloading.*;
+        import examples.featureEditor.*;
         
         import mx.collections.ArrayList;
         import mx.core.IVisualElement;
 
         [Bindable]
         private var examplesDataProvider:ArrayList = new ArrayList([
-            Example1WebApp,
-            Example6,
+            MainExampleWebApp,
+            PreloadingAnimationExample,
             KMLExample,
             FeatureEditorExample,
             AFWA_FW53_FW54_Example,
@@ -25,12 +27,12 @@
             AfwaLoopingExample,
             AfwaPerformanceExample,
             AFWAProjectionLayerRouteFW71,
-            Example1WebApp,
-            Example2,
-            Example3,
+            MainExampleWebApp,
+            CurveRendererExample,
+            DrawingExample,
             Example4,
             Example5,
-            Example6,
+            PreloadingAnimationExample,
             Example7,
             KMLExample,
             ExampleDatelineWithWMSLayer,
