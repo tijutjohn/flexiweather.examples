@@ -1,6 +1,7 @@
 package examples
 {
 	import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
+	import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
 	import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 	import com.iblsoft.flexiweather.ogc.Version;
 	import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
@@ -42,6 +43,7 @@ package examples
 
 			addEventListener(FlexEvent.CREATION_COMPLETE, onCreationComplete);
 			s_serverURL = 'http://ogcie.iblsoft.com';
+			AbstractURLLoader.baseURL = s_serverURL; 
 		}
 
 		protected function onCreationComplete(event: FlexEvent): void

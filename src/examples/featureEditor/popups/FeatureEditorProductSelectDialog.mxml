@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:mx="library://ns.adobe.com/flex/mx"  xmlns:s="library://ns.adobe.com/flex/spark" xmlns:fx="http://ns.adobe.com/mxml/2009"  
+				title="Select Feature Editor Product"
+				creationComplete="init()"
+				close="cancel()"
+				>
+	<s:layout>
+		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle" paddingTop="20" paddingRight="20" paddingLeft="20" paddingBottom="20"/>
+	</s:layout>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.data.FeatureEditorProduct;
+			
+			import examples.featureEditor.events.FeatureEditorEvent;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			[Bindable] 
+			public var products: ArrayCollection = new ArrayCollection(String("World,Europe").split(','));
+			
+			private var _allowFreeDrawingSelection: Boolean;
+			[Bindable]
+			public function get allowFreeDrawingSelection(): Boolean
+			{
+				return _allowFreeDrawingSelection;
+			} 
+			public function set allowFreeDrawingSelection(value: Boolean): void
+			{
+				_allowFreeDrawingSelection = value;
+//				if (_allowFreeDrawingSelection)
+//					height = 250;
+//				else
+//					height = 180;
+			} 
+			
+			private function cancel(): void
+			{
+				var fee: FeatureEditorEvent = new FeatureEditorEvent(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTION_CANCELLED);
+				dispatchEvent(fee);
+				PopUpManager.removePopUp(this);
+			}
+			private function select(): void
+			{
+				var fee: FeatureEditorEvent = new FeatureEditorEvent(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED);
+				fee.product = new FeatureEditorProduct();
+				fee.product.name = cmbProducts.selectedItem as String;
+				fee.product.date = editBaseTimeDay.selectedDate;
+				fee.product.timeOffset = comboBaseTimeOffset.selectedItem.value;
+				fee.product.forecast = comboForecastTime.selectedItem.value;
+				dispatchEvent(fee);
+				
+				PopUpManager.removePopUp(this);
+			}
+			private function freeDrawing(): void
+			{
+				var fee: FeatureEditorEvent = new FeatureEditorEvent(FeatureEditorEvent.FEATURE_EDITOR_FREE_DRAWING_SELECTED);
+				fee.product = new FeatureEditorProduct();
+				dispatchEvent(fee);
+				
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function init(): void
+			{
+				editBaseTimeDay.selectedDate = new Date();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%" height="100%" gap="20">
+		
+	
+		<s:Form width="100%">
+			
+			<s:FormItem label="Product:" width="100%">
+				<s:ComboBox id="cmbProducts" dataProvider="{products}" width="100%" labelField="name" requireSelection="true"/>
+			</s:FormItem>
+			
+			<s:FormItem label="Run:" width="100%">
+				<mx:DateField id="editBaseTimeDay" showToday="true" editable="false" />
+				<s:ComboBox id="comboBaseTimeOffset" labelField="label" requireSelection="true">
+					<s:ArrayCollection>
+						<fx:Object label="00:00" value="0"/>
+						<fx:Object label="06:00" value="21600"/>
+						<fx:Object label="12:00" value="43200"/>
+						<fx:Object label="18:00" value="64800"/>
+						<!--mx:String>Other...</mx:String-->
+					</s:ArrayCollection>
+				</s:ComboBox>
+			</s:FormItem>
+			
+			<s:FormItem label="Forecast:" width="100%">
+				<s:ComboBox id="comboForecastTime"  labelField="label" requireSelection="true">
+					<s:ArrayCollection>
+						<fx:Object label="+0h" value="0"/>
+						<fx:Object label="+3h" value="10800"/>
+						<fx:Object label="+6h" value="21600"/>
+						<fx:Object label="+9h" value="32400"/>
+						<fx:Object label="+12h" value="43200"/>
+						<fx:Object label="+18h" value="64800"/>
+						<fx:Object label="+24h" value="86400"/>
+						<fx:Object label="+48h" value="172800"/>
+					</s:ArrayCollection>
+				</s:ComboBox>
+			</s:FormItem>
+			
+			<s:HGroup width="100%" horizontalAlign="right">
+				<s:Button  label="Cancel" click="cancel()"/>
+				<s:Button  label="Select" id="buttonLoad" click="select()"/>
+			</s:HGroup>
+		</s:Form>
+		
+		<s:VGroup width="100%" visible="{allowFreeDrawingSelection}" includeInLayout="{allowFreeDrawingSelection}"
+			>
+			<s:HGroup width="100%" horizontalAlign="center">
+				<s:Label  text="or create"/>
+			</s:HGroup>
+			<s:HGroup width="100%" horizontalAlign="center">
+				<s:Button  label="Free Drawing"  click="freeDrawing()"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:VGroup>
+	<s:Spacer height="20"/>
+</s:TitleWindow>

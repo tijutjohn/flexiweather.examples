@@ -6,75 +6,97 @@
     <fx:Script><![CDATA[
         import examples.*;
         import examples.afwa.*;
+        import examples.featureEditor.*;
         import examples.ids.*;
         import examples.kml.*;
         import examples.preloading.*;
-        import examples.featureEditor.*;
         
         import mx.collections.ArrayList;
         import mx.core.IVisualElement;
 
         [Bindable]
         private var examplesDataProvider:ArrayList = new ArrayList([
-            MainExampleWebApp,
-            PreloadingAnimationExample,
-            KMLExample,
-            FeatureEditorExample,
-            AFWA_FW53_FW54_Example,
-            AFWABrokenDefaultParams,
-            AfwaLayerAddingExampleFW88,
-            AfwaLayerSwitching,
-            AfwaLoopingExample,
-            AfwaPerformanceExample,
-            AFWAProjectionLayerRouteFW71,
-            MainExampleWebApp,
-            CurveRendererExample,
-            DrawingExample,
-            Example4,
-            Example5,
-            PreloadingAnimationExample,
-            Example7,
-            KMLExample,
-            ExampleDatelineWithWMSLayer,
-            ExampleIDS_AreaProbability,
-            ExampleIDS_AreaStatistics,
-            ExampleIDS_GridSubSet,
-            ExampleIDS_TimeSeriesAtPoint,
-            ExampleIDS_VolumeStatistics,
-            ExampleIDS_WeatherWarningsForPlace,
-            ExampleMultiViewWithConfiguration,
-            FeatureEditorExample,
-            FlexiWeatherExample,
-            FlyingRouteExample,
-            GetCapabilitiesParsingExample,
-            GetCapabilitiesXMLNodeParsingExample,
-            InteractiveLayerTiledExample,
-            KMLInfoWindowTest,
-            PreloadingFramesExample,
-            RotatedProjectionExample,
-            SimpleWMSWithQTTExample,
-            /*Test,*/
-            TileSizeExample,
-            URLPostCancelTest
+			{className:MainExampleWebApp, title: "Main Example Web App", description: "Main Example Web App", color: 0xaa0000},
+			{className:FeatureEditorExample, title: "FeatureEditorExample", description: "Example of showing new Features added to FlexiWeather (FW-92)", color: 0x005BA6},
+			{className:PreloadingAnimationExample, title: "PreloadingAnimationExample", description: "", color: 0x005BA6},
+			{className:KMLExample, title: "KMLExample", description: "Example for KML", color: 0xaa0000},
+			{className:AFWA_FW53_FW54_Example, title: "AFWA_FW53_FW54_Example", description: "", color: 0x005BA6},
+			{className:AFWABrokenDefaultParams, title: "AFWABrokenDefaultParams", description: "", color: 0x005BA6},
+			{className:AfwaLayerAddingExampleFW88, title: "AfwaLayerAddingExampleFW88", description: "", color: 0x005BA6},
+			{className:AfwaLayerSwitching, title: "AfwaLayerSwitching", description: "", color: 0x005BA6},
+			{className:AfwaLoopingExample, title: "AfwaLoopingExample", description: "", color: 0x005BA6},
+			{className:AfwaPerformanceExample, title: "AfwaPerformanceExample", description: "", color: 0x005BA6},
+			{className:AFWAProjectionLayerRouteFW71, title: "AFWAProjectionLayerRouteFW71", description: "", color: 0x005BA6},
+			{className:CurveRendererExample, title: "CurveRendererExample", description: "", color: 0x005BA6},
+			{className:DrawingExample, title: "DrawingExample", description: "", color: 0x005BA6},
+			{className:Example4, title: "Example4", description: "", color: 0x005BA6},
+			{className:Example5, title: "Example5", description: "", color: 0x005BA6},
+			{className:Example7, title: "Example7", description: "", color: 0x005BA6},
+			{className:ExampleDatelineWithWMSLayer, title: "ExampleDatelineWithWMSLayer", description: "", color: 0x005BA6},
+			{className:ExampleIDS_AreaProbability, title: "ExampleIDS_AreaProbability", description: "", color: 0x005BA6},
+			{className:ExampleIDS_AreaStatistics, title: "ExampleIDS_AreaStatistics", description: "", color: 0x005BA6},
+			{className:ExampleIDS_GridSubSet, title: "ExampleIDS_GridSubSet", description: "", color: 0x005BA6},
+			{className:ExampleIDS_TimeSeriesAtPoint, title: "ExampleIDS_TimeSeriesAtPoint", description: "", color: 0x005BA6},
+			{className:ExampleIDS_VolumeStatistics, title: "ExampleIDS_VolumeStatistics", description: "", color: 0x005BA6},
+			{className:ExampleIDS_WeatherWarningsForPlace, title: "ExampleIDS_WeatherWarningsForPlace", description: "", color: 0x005BA6},
+			{className:ExampleMultiViewWithConfiguration, title: "ExampleMultiViewWithConfiguration", description: "", color: 0x005BA6},
+			{className:FeatureEditorExample, title: "FeatureEditorExample", description: "", color: 0x005BA6},
+			{className:FlexiWeatherExample, title: "FeatureEditorExample", description: "", color: 0x005BA6},
+			{className:FlyingRouteExample, title: "FlyingRouteExample", description: "", color: 0x005BA6},
+			{className:GetCapabilitiesParsingExample, title: "GetCapabilitiesParsingExample", description: "", color: 0x005BA6},
+			{className:GetCapabilitiesXMLNodeParsingExample, title: "GetCapabilitiesXMLNodeParsingExample", description: "", color: 0x005BA6},
+			{className:InteractiveLayerTiledExample, title: "InteractiveLayerTiledExample", description: "", color: 0x005BA6},
+			{className:KMLInfoWindowTest, title: "KMLInfoWindowTest", description: "", color: 0x005BA6},
+			{className:PreloadingFramesExample, title: "PreloadingFramesExample", description: "", color: 0x005BA6},
+			{className:RotatedProjectionExample, title: "RotatedProjectionExample", description: "", color: 0x005BA6},
+			{className:SimpleWMSWithQTTExample, title: "SimpleWMSWithQTTExample", description: "", color: 0x005BA6},
+			{className:TileSizeExample, title: "TileSizeExample", description: "", color: 0x005BA6},
+			{className:URLPostCancelTest, title: "URLPostCancelTest", description: "", color: 0x005BA6}
         ]);
 
         private function onUserSelectExample():void {
             moduleGroup.removeAllElements();
-            var example:IVisualElement = new (moduleSelector.selectedItem as Class)();
+			
+			var item: Object = moduleSelector.selectedItem;
+			
+			exampleTitle.setStyle('color', item.color);
+			exampleTitle.text = item.title;
+			exampleDescription.text = item.description;
+			
+            var example:IVisualElement = new (item.className as Class)();
             example.percentWidth = 100;
             example.percentHeight = 100;
             moduleGroup.addElement(example);
         }
         ]]></fx:Script>
 
-    <s:VGroup id="buttonGroup" width="100%" height="100%">
-        <s:ComboBox id="moduleSelector" width="225" labelFunction="{getQualifiedClassName}" prompt="Please Select Example" dataProvider="{examplesDataProvider}" change="onUserSelectExample()" >
+    <s:HGroup id="buttonGroup" width="100%" height="100%">
+        <s:List id="moduleSelector" width="300" height="100%" dataProvider="{examplesDataProvider}" change="onUserSelectExample()" 
+				alternatingItemColors="[#f0f0f0,#fafafa]">
             <s:layout>
-                <s:VerticalLayout requestedRowCount="20"/>
+                <s:VerticalLayout gap="0" />
             </s:layout>
-        </s:ComboBox>
-        <s:Group id="moduleGroup" width="100%" height="100%" />
-    </s:VGroup>
+			<s:itemRenderer>
+				<fx:Component>
+					<s:ItemRenderer width="100%">
+						<s:layout>
+							<s:VerticalLayout paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="4"/>
+						</s:layout>
+						<s:Label text="{data.title}" fontSize="13" fontWeight="bold" color="{data.color}" width="100%"/>
+						<s:Label text="{data.description}" fontSize="11" fontWeight="normal" color="0x888888" width="100%"/>
+					</s:ItemRenderer>
+				</fx:Component>
+			</s:itemRenderer>
+        </s:List>
+		<s:VGroup width="100%" height="100%" paddingTop="10">
+			<s:Label id="exampleTitle" fontSize="16" fontWeight="bold" color="0x005BA6" width="100%"/>
+			<s:Label id="exampleDescription" fontSize="11" fontWeight="normal" color="0x888888" width="100%"/>
+			<s:BorderContainer width="100%" height="100%" borderVisible="true" borderColor="0x666666"
+							   backgroundColor="0xf0f0f0">
+		        <s:Group id="moduleGroup" width="100%" height="100%" />
+			</s:BorderContainer>
+		</s:VGroup>
+    </s:HGroup>
 
 </s:Application>
 

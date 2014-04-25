@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
-		xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns:widgets="com.iblsoft.flexiweather.widgets.*" xmlns="examples.*"
-		xmlns:editable="com.iblsoft.flexiweather.ogc.editable.*">
+					  xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:widgets="com.iblsoft.flexiweather.widgets.*" xmlns="examples.*"
+					  xmlns:editable="com.iblsoft.flexiweather.ogc.editable.*" xmlns:ogc="com.iblsoft.flexiweather.ogc.*">
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.editable.data.IconFeatureType;
+		]]>
+	</fx:Script>
 	<fx:Declarations>
-
+		
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
 	<states>
@@ -12,90 +17,198 @@
 		<s:State name="editing"/>
 	</states>
 	<s:VGroup width="100%" height="100%">
-		<s:HGroup width="100%">
-			<s:Button label="Warm Front" click="changeTool('front', FrontType.WARM)"
-					enabled.editing="false"/>
-			<s:Button label="Cold Front" click="changeTool('front', FrontType.COLD)"
-					enabled.editing="false"/>
-			<s:Button label="Occluded Front" click="changeTool('front', FrontType.OCCLUDED)"
-					enabled.editing="false"/>
-			<s:Button label="Pressure Centre" click="changeTool('pressure')"
-					enabled.editing="false"/>
-			<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
-			<s:Button label="Star with Label" click="changeTool('starWithLabel')"
-					enabled.editing="false"/>
-			<s:Button label="Done" click="done()" enabled.normal="false"/>
-		</s:HGroup>
-		<s:HGroup width="100%">
-			<s:ToggleButton width="32" height="32" id="buttonCurveAddPoints"
-					click="addCurvePoints()" toolTip="Add points"
-					icon="@Embed(source='/assets/icons/common/edit-24.png')"/>
-		</s:HGroup>
-		<s:BorderContainer backgroundColor="0xaaaaaa" borderColor="0xcccccc" width="100%"
-				minHeight="0">
-			<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle" paddingBottom="5"
-					paddingLeft="5" paddingRight="5" paddingTop="5">
-				<s:Label text="Change projection"/>
-				<s:ToggleButton label="LatLon CRS:84" selected="{m_iw.crs == 'CRS:84'}"
-						click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBoxRaw(-180,-90,180,90);"/>
-				<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'ESRI:102018'}"
-						click="m_iw.setCRS('ESRI:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
-				<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'ESRI:102021'}"
-						click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
-				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
-						click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBoxRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+		
+		<s:BorderContainer width="100%" backgroundColor="0xe0e0e0" borderColor="0xaaaaaa">
+			
+			
+			<s:VGroup width="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				<s:HGroup width="100%">
+					<s:Button label="Warm Front" click="changeTool(FeatureType.FRONT, {type: FrontType.WARM})"
+							  enabled.editing="false"/>
+					<s:Button label="Cold Front" click="changeTool(FeatureType.FRONT, {type: FrontType.COLD})"
+							  enabled.editing="false"/>
+					<s:Button label="Occluded Front" click="changeTool(FeatureType.FRONT, {type: FrontType.OCCLUDED})"
+							  enabled.editing="false"/>
+					<s:Button label="Pressure Centre" click="changeTool(FeatureType.PRESSURE_CENTRE)"
+							  enabled.editing="false"/>
+					<s:Button label="Depression" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_DEPRESSION})"
+							  enabled.editing="false"/>
+					<s:Button label="Storm" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_TROPIC_STORM})"
+							  enabled.editing="false"/>
+					<s:Button label="Hurricane" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_TYPHOON})"
+							  enabled.editing="false"/>
+				</s:HGroup>
+				<s:HGroup width="100%">
+					<s:Button label="Thunderstorm" click="changeTool(FeatureType.THUNDERSTORM_AREA, {type: ThunderstormAreaAnnotation.TYPE_RAIN})"
+							  enabled.editing="false"/>
+					<s:Button label="Light Turbulence" click="changeTool(FeatureType.TURBULENCE, {type: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+							  enabled.editing="false"/>
+					<s:Button label="Moderate Turbulence" click="changeTool(FeatureType.TURBULENCE, {type: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+							  enabled.editing="false"/>
+					<s:Button label="Severe Turbulence" click="changeTool(FeatureType.TURBULENCE, {type: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+							  enabled.editing="false"/>
+					
+					<s:Button label="Scattered Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
+							  enabled.editing="false"/>
+					<s:Button label="Broken Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
+							  enabled.editing="false"/>
+					<s:Button label="Overcast Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
+							  enabled.editing="false"/>
+					
+					<s:Button label="Light Rime Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_RIME, degree: IcingAreaAnnotation.DEGREE_TYPE_LIGHT} )"
+							  enabled.editing="false"/>
+					<s:Button label="Light Mixed Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_MIXED, degree: IcingAreaAnnotation.DEGREE_TYPE_LIGHT} )"
+							  enabled.editing="false"/>
+					<s:Button label="Moderate Rime Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_RIME, degree: IcingAreaAnnotation.DEGREE_TYPE_MODERATE} )"
+							  enabled.editing="false"/>
+					<s:Button label="Moderate Mixed Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_MIXED, degree: IcingAreaAnnotation.DEGREE_TYPE_MODERATE} )"
+							  enabled.editing="false"/>
+				</s:HGroup>
+				
+				<s:HGroup width="100%">
+					<s:Button label="Rain Steady" click="changeTool(IconFeatureType.RAIN_STEADY, {type: IconFeatureType.RAIN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="Rain Showers" click="changeTool(IconFeatureType.RAIN_SHOWERS, {type: IconFeatureType.RAIN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="Snow Steady" click="changeTool(IconFeatureType.SNOW_STEADY, {type: IconFeatureType.SNOW_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="Snow Showers" click="changeTool(IconFeatureType.SNOW_SHOWERS, {type: IconFeatureType.SNOW_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="RASN Steady" click="changeTool(IconFeatureType.RASN_STEADY, {type: IconFeatureType.RASN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="RASN Showers" click="changeTool(IconFeatureType.RASN_SHOWERS, {type: IconFeatureType.RASN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="Drizzle" click="changeTool(IconFeatureType.DRIZZLE, {type: IconFeatureType.DRIZZLE, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="Rain" click="changeTool(IconFeatureType.RAIN, {type: IconFeatureType.RAIN, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="Pellets" click="changeTool(IconFeatureType.PELLETS, {type: IconFeatureType.PELLETS, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="Fog/Mist" click="changeTool(IconFeatureType.FOG, {type: IconFeatureType.FOG, color: 0xffff00} )" enabled.editing="false"/>
+					<s:Button label="Haze" click="changeTool(IconFeatureType.HAZE, {type: IconFeatureType.HAZE, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="Smoke" click="changeTool(IconFeatureType.SMOKE, {type: IconFeatureType.SMOKE, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="Blowing Dust/Sand" click="changeTool(IconFeatureType.BLOWING_DUST, {type: IconFeatureType.BLOWING_DUST, color: 0xA8A87D} )" enabled.editing="false"/>
+				</s:HGroup>
+				<s:HGroup width="100%">
+					<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
+					<s:Button label="Star with Label" click="changeTool('starWithLabel')"
+							  enabled.editing="false"/>
+				</s:HGroup>
+				<s:HGroup width="100%">
+					<s:Button label="Done" click="done()" enabled.normal="false"/>
+					<s:ToggleButton width="32" height="32" id="buttonCurveAddPoints"
+									click="addCurvePoints()" toolTip="Add points"
+									icon="@Embed(source='/assets/icons/common/edit-24.png')"/>
+				</s:HGroup>
+			</s:VGroup>
+		</s:BorderContainer>
+		
+		<s:BorderContainer width="100%" backgroundColor="0xe0e0e0" borderColor="0xaaaaaa">
+			<s:HGroup width="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" verticalAlign="middle">
+				
+				<s:BorderContainer backgroundColor="0xf0f0f0" borderColor="0xaaaaaa">
+					<s:HGroup verticalAlign="middle" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+						<s:Label text="Product:" fontWeight="bold"/>
+						<s:Label text="{productName}" width="200"/>
+						<s:Button label="Select Product" click="selectProduct()"/>
+					</s:HGroup>
+				</s:BorderContainer>
+				
+				
+				<s:Button label="Load" click="wfsLayer.loadData()"/>
+				<s:Button label="Save" click="wfsLayer.save()"/>
+				<s:Button label="Issue" click="wfsLayer.issue()"/>
+				<s:Button label="Refresh" click="wfsLayer.refreshData()"/>
+				
 			</s:HGroup>
 		</s:BorderContainer>
+		
+		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
+						   minHeight="0">
+			<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle" paddingBottom="5"
+					  paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change projection"/>
+				<s:ToggleButton label="LatLon CRS:84" selected="{m_iw.crs == 'CRS:84'}"
+								click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBoxRaw(-180,-90,180,90);"/>
+				<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'ESRI:102018'}"
+								click="m_iw.setCRS('ESRI:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'ESRI:102021'}"
+								click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
+								click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBoxRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		
+		
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%"
-				click="onMouseClick(event)">
+								   click="onMouseClick(event)">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
-			<editable:InteractiveLayerWFSEditable id="wfsLayer" version="{new Version(1,0,0)}"
-					zOrder="1000"/>
+			
+			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,0,0)}"
+												  zOrder="1000"/>
+			
 		</widgets:InteractiveWidget>
+		
 	</s:VGroup>
-
+	
 	<!-- Point tools dialog -->
 	<s:BorderContainer id="pointTools" visible="false" includeInLayout="false"
-			backgroundColor="0xaaaaaa" backgroundAlpha="0.6" borderColor="0x444444" width="200">
+					   backgroundColor="0xaaaaaa" backgroundAlpha="0.6" borderColor="0x444444" width="200">
 		<s:VGroup width="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
 			<s:Button height="32" width="100%" id="buttonFeatureRemove"
-					click="removeSelectedFeature()" label="Remove selected feature"
-					icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
+					  click="removeSelectedFeature()" label="Remove selected feature"
+					  icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
 			<s:Button height="32" width="100%" id="buttonPointRemove"
-					label="Remove selected point"
-					icon="@Embed(source='/assets/icons/common/delete-24.png')"
-					click="removeSelectedPoint()"/>
+					  label="Remove selected point"
+					  icon="@Embed(source='/assets/icons/common/delete-24.png')"
+					  click="removeSelectedPoint()"/>
 			<s:HGroup width="100%">
 				<s:Button label="Finish editing" enabled.normal="false"
-						click="done();hideTools()" width="100%"/>
+						  click="done();hideTools()" width="100%"/>
 				<s:Button label="Hide" click="hideTools()"/>
 			</s:HGroup>
 		</s:VGroup>
 	</s:BorderContainer>
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
+			import examples.featureEditor.events.FeatureEditorEvent;
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.data.FeatureEditorProduct;
+			import mx.core.FlexGlobals;
+			import mx.managers.PopUpManager;
+			import examples.featureEditor.popups.FeatureEditorProductSelectDialog;
+			import mx.collections.ArrayCollection;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableIcon;
 			import com.iblsoft.features.StarFeature;
 			import com.iblsoft.flexiweather.ogc.FeatureBase;
 			import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 			import com.iblsoft.flexiweather.ogc.Version;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
-			import com.iblsoft.flexiweather.ogc.editable.MoveablePoint;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditable;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableMode;
-			import com.iblsoft.flexiweather.ogc.editable.features.FrontType;
-			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableFront;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.CloudAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.IcingAreaAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.StormAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.ThunderstormAreaAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.TurbulenceAreaAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.data.FeatureType;
+			import com.iblsoft.flexiweather.ogc.editable.data.MoveablePoint;
+			import com.iblsoft.flexiweather.ogc.editable.data.front.FrontType;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableStorm;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.WFSFeatureEditableFront;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableCloud;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableIcingArea;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableThunderstormArea;
 			import com.iblsoft.flexiweather.ogc.events.MoveablePointEvent;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
+			
 			import mx.events.FlexEvent;
 			import mx.events.PropertyChangeEvent;
 			private var currentFeatureType: String;
-			private var currentFeatureSetting: String;
+			private var currentFeatureSetting: Object;
 			private var currentlyEditedFeature: WFSFeatureEditable;
 			private var currentlySelectedPoint: MoveablePoint;
-
+			
+			[Bindable]
+			public var product: FeatureEditorProduct;
+			
+			[Bindable]
+			public var productName: String = "Please select product";
+			
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
 				super.onCreationComplete(event);
@@ -109,13 +222,13 @@
 				wfsLayer.addEventListener(InteractiveLayerWFSEditable.SELECTION_CHANGE, onWFSLayerSelectionChange);
 				getAllServicesCapabilities();
 			}
-
+			
 			private function createNewEditableWFSLayer(): InteractiveLayerWFSEditable
 			{
 				return new InteractiveLayerWFSEditable(m_iw, new Version(1, 0, 0));
 			}
-
-			private function changeTool(type: String, setting: String = null): void
+			
+			private function changeTool(type: String, setting: Object = null): void
 			{
 				onNewObjectAdded();
 				currentlyEditedFeature = null;
@@ -123,12 +236,12 @@
 				currentFeatureSetting = setting;
 				currentState = 'editing';
 			}
-
+			
 			private function addCurvePoints(): void
 			{
 				currentlyEditedFeature.editMode = (buttonCurveAddPoints.selected) ? WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS : WFSFeatureEditableMode.MOVE_POINTS;
 			}
-
+			
 			private function removeSelectedFeature(): void
 			{
 				if (currentlyEditedFeature)
@@ -138,7 +251,7 @@
 				}
 				updatePointToolsPosition();
 			}
-
+			
 			private function removeSelectedPoint(): void
 			{
 				if (currentlyEditedFeature)
@@ -148,7 +261,7 @@
 				}
 				updatePointToolsPosition();
 			}
-
+			
 			private function addStarWithLabel(pt: Point): void
 			{
 				currentlyEditedFeature = new StarFeature("http://www.iblsoft.com/wfs", "Star", null);
@@ -156,47 +269,90 @@
 				(currentlyEditedFeature as StarFeature).bold = true;
 				(currentlyEditedFeature as StarFeature).color = 0xffffff;
 				(currentlyEditedFeature as StarFeature).fontSize = 18;
-				currentlyEditedFeature.coordinates = [m_iw.pointToCoord(pt.x, pt.y)];
-				wfsLayer.addFeature(currentlyEditedFeature);
-				wfsLayer.highlightItem(currentlyEditedFeature);
-				wfsLayer.selectItem(currentlyEditedFeature);
+				addFeatureToLayer(pt);
 			}
-
+			
+			private function addIconFeature(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableIcon("http://www.iblsoft.com/wfs", currentFeatureSetting.type , null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableIcon).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableIcon).color = currentFeatureSetting.color;
+				}
+				addFeatureToLayer(pt);
+			}
+			
 			private function addStar(pt: Point): void
 			{
 				currentlyEditedFeature = new StarFeature("http://www.iblsoft.com/wfs", "Star", null);
-				currentlyEditedFeature.coordinates = [m_iw.pointToCoord(pt.x, pt.y)];
-				wfsLayer.addFeature(currentlyEditedFeature);
-				wfsLayer.highlightItem(currentlyEditedFeature);
-				wfsLayer.selectItem(currentlyEditedFeature);
+				addFeatureToLayer(pt);
 			}
-
+			
 			private function addNewPressureCentre(pt: Point): void
 			{
-				currentlyEditedFeature = new WFSFeatureEditablePressureCentre("http://www.iblsoft.com/wfs", "PressureCentre", null);
-				currentlyEditedFeature.coordinates = [m_iw.pointToCoord(pt.x, pt.y)];
-				wfsLayer.addFeature(currentlyEditedFeature);
-				wfsLayer.highlightItem(currentlyEditedFeature);
-				wfsLayer.selectItem(currentlyEditedFeature);
+				currentlyEditedFeature = new WFSFeatureEditablePressureCentre("http://www.iblsoft.com/wfs", FeatureType.PRESSURE_CENTRE, null);
+				addFeatureToLayer(pt);
 			}
-
+			private function addNewStorm(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableStorm("http://www.iblsoft.com/wfs", FeatureType.STORM, null);
+				if (currentFeatureSetting != null)
+					(currentlyEditedFeature as WFSFeatureEditableStorm).type = currentFeatureSetting.type;
+				addFeatureToLayer(pt);
+			}
+			
+			private function addNewThunderstorm(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableThunderstormArea("http://www.iblsoft.com/wfs", FeatureType.THUNDERSTORM_AREA, null);
+				if (currentFeatureSetting != null)
+					(currentlyEditedFeature as WFSFeatureEditableThunderstormArea).type = currentFeatureSetting.type;
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			private function addNewCloud(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableCloud("http://www.iblsoft.com/wfs", FeatureType.CLOUD, null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableCloud).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableCloud).distribution = currentFeatureSetting.distribution;
+				}
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			private function addNewcingArea(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableIcingArea("http://www.iblsoft.com/wfs", FeatureType.ICING_AREA, null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableIcingArea).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableIcingArea).degree = currentFeatureSetting.degree;
+				}
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			
 			private function addNewFront(pt: Point): void
 			{
-				currentlyEditedFeature = new WFSFeatureEditableFront("http://www.iblsoft.com/wfs", "Front", null);
-				if (currentFeatureSetting != null)
-					(currentlyEditedFeature as WFSFeatureEditableFront).type = currentFeatureSetting;
-				currentlyEditedFeature.coordinates = [m_iw.pointToCoord(pt.x, pt.y)];
+				currentlyEditedFeature = new WFSFeatureEditableFront("http://www.iblsoft.com/wfs", FeatureType.FRONT, null);
 				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				
+				addFeatureToLayer(pt);
+			}
+			
+			private function addFeatureToLayer(pt: Point): void
+			{
+				currentlyEditedFeature.coordinates = [m_iw.pointToCoord(pt.x, pt.y)];
 				wfsLayer.addFeature(currentlyEditedFeature);
 				wfsLayer.highlightItem(currentlyEditedFeature);
 				wfsLayer.selectItem(currentlyEditedFeature);
 			}
-
 			private function onNewObjectAdded(): void
 			{
 				reset();
 			}
-
+			
 			private function removeMoveablePointsListeners(): void
 			{
 				if (currentlyEditedFeature)
@@ -206,7 +362,7 @@
 					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
 				}
 			}
-
+			
 			private function addMoveablePointsListeners(): void
 			{
 				if (currentlyEditedFeature)
@@ -216,41 +372,41 @@
 					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
 				}
 			}
-
+			
 			private function hideTools(): void
 			{
 				changePointToolsVisibility(false);
 			}
-
+			
 			private function changePointToolsVisibility(visible: Boolean): void
 			{
 				pointTools.visible = visible;
 				pointTools.includeInLayout = visible;
 			}
-
+			
 			private function deleteMarker(): void
 			{
 				removeSelectedPoint();
 			}
-
+			
 			private function onCurrentlyEditedFeaturePointSelectionChange(event: MoveablePointEvent): void
 			{
 				currentlySelectedPoint = event.point;
 				changePointToolsVisibility(true);
 			}
-
+			
 			private function onCurrentlyEditedFeatureClick(event: MoveablePointEvent): void
 			{
 				currentlySelectedPoint = event.point;
 				changePointToolsVisibility(true);
 			}
-
+			
 			private function onCurrentlyEditedFeatureMove(event: MoveablePointEvent): void
 			{
 				currentlySelectedPoint = event.point;
 				updatePointToolsPosition();
 			}
-
+			
 			private function updatePointToolsPosition(): void
 			{
 				if (currentlyEditedFeature)
@@ -265,7 +421,7 @@
 					hideTools();
 				}
 			}
-
+			
 			private function onWFSLayerSelectionChange(event: PropertyChangeEvent): void
 			{
 				trace("onSelectionChanged");
@@ -297,10 +453,10 @@
 				if (currentlyEditedFeature)
 				{
 					buttonCurveAddPoints.selected = ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS) 
-							|| (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
+						|| (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
 				}
 			}
-
+			
 			private function isSinglePointFeature(feature: WFSFeatureEditable): Boolean
 			{
 				if (feature is WFSFeatureEditablePressureCentre)
@@ -309,12 +465,12 @@
 					return true;
 				return false;
 			}
-
+			
 			private function done(): void
 			{
 				reset();
 			}
-
+			
 			private function reset(): void
 			{
 				wfsLayer.selectItem(null);
@@ -324,7 +480,7 @@
 				currentFeatureSetting = null;
 				currentState = 'normal';
 			}
-
+			
 			private function onMouseClick(event: MouseEvent): void
 			{
 				var pt: Point = new Point(event.localX, event.localY);
@@ -339,8 +495,8 @@
 						return;
 					}
 					if (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS ||
-							currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_ON_CURVE ||
-							currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS)
+						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_ON_CURVE ||
+						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS)
 					{
 						currentlyEditedFeature.addPoint(pt);
 						currentlyEditedFeature.update(new FeatureUpdateContext(FeatureUpdateContext.FULL_UPDATE));
@@ -355,15 +511,59 @@
 					{
 						switch (currentFeatureType)
 						{
-							case 'front':
+							case FeatureType.FRONT:
 							{
 								addNewFront(pt);
 								break;
 							}
-							case 'pressure':
+							case FeatureType.PRESSURE_CENTRE:
 							{
 								addNewPressureCentre(pt);
 								//we have added point and Pressure has just 1 point, so we're done
+								done();
+								break;
+							}
+							case FeatureType.STORM:
+							{
+								addNewStorm(pt);
+								//we have added point and Pressure has just 1 point, so we're done
+								done();
+								break;
+							}
+							case FeatureType.THUNDERSTORM_AREA:
+							{
+								addNewThunderstorm(pt);
+								break;
+							}
+							case FeatureType.CLOUD:
+							{
+								addNewCloud(pt);
+								break;
+							}
+							case FeatureType.ICING_AREA:
+							{
+								addNewcingArea(pt);
+								break;
+							}
+							case IconFeatureType.DRIZZLE:
+							case IconFeatureType.FOG:
+							case IconFeatureType.HAZE:
+							case IconFeatureType.BLOWING_DUST:
+							case IconFeatureType.RAIN_STEADY:
+							case IconFeatureType.RAIN_SHOWERS:
+							case IconFeatureType.SNOW_STEADY:
+							case IconFeatureType.SNOW_SHOWERS:
+							case IconFeatureType.RASN_STEADY:
+							case IconFeatureType.RASN_SHOWERS:
+							case IconFeatureType.RAIN:
+							case IconFeatureType.DRIZZLE:
+							case IconFeatureType.PELLETS:
+							case IconFeatureType.FOG:
+							case IconFeatureType.HAZE:
+							case IconFeatureType.SMOKE:
+							case IconFeatureType.BLOWING_DUST:
+							{
+								addIconFeature(pt);
 								done();
 								break;
 							}
@@ -384,6 +584,30 @@
 						}
 					}
 				}
+			}
+			
+			private function selectProduct(): void
+			{
+				var popup: FeatureEditorProductSelectDialog = new FeatureEditorProductSelectDialog();
+				PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
+				PopUpManager.centerPopUp(popup);
+				
+				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_FREE_DRAWING_SELECTED, onFreeDrawingSelected);
+				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED, onProductSelected);
+			}
+			
+			private function onFreeDrawingSelected(event: FeatureEditorEvent): void
+			{
+				productName = "Free drawing";
+			}
+			private function onProductSelected(event: FeatureEditorEvent): void
+			{
+				var product: FeatureEditorProduct = event.product;
+				product.serviceURL = AbstractURLLoader.baseURL;
+				
+				productName = product.toString();
+				
+				wfsLayer.wfsService.setProduct(product);
 			}
 		]]>
 	</fx:Script>
