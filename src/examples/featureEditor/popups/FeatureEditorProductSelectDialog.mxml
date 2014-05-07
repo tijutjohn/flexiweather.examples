@@ -18,7 +18,7 @@
 			import mx.managers.PopUpManager;
 			
 			[Bindable] 
-			public var products: ArrayCollection = new ArrayCollection(String("World,Europe").split(','));
+			public var products: ArrayCollection;
 			
 			private var _allowFreeDrawingSelection: Boolean;
 			[Bindable]
@@ -45,10 +45,11 @@
 			{
 				var fee: FeatureEditorEvent = new FeatureEditorEvent(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED);
 				fee.product = new FeatureEditorProduct();
-				fee.product.name = cmbProducts.selectedItem as String;
+				fee.product.name = cmbProducts.selectedItem.label;
 				fee.product.date = editBaseTimeDay.selectedDate;
 				fee.product.timeOffset = comboBaseTimeOffset.selectedItem.value;
 				fee.product.forecast = comboForecastTime.selectedItem.value;
+				fee.product.serviceURL = cmbProducts.selectedItem.url;
 				dispatchEvent(fee);
 				
 				PopUpManager.removePopUp(this);
@@ -75,7 +76,7 @@
 		<s:Form width="100%">
 			
 			<s:FormItem label="Product:" width="100%">
-				<s:ComboBox id="cmbProducts" dataProvider="{products}" width="100%" labelField="name" requireSelection="true"/>
+				<s:ComboBox id="cmbProducts" dataProvider="{products}" width="100%" labelField="label" requireSelection="true"/>
 			</s:FormItem>
 			
 			<s:FormItem label="Run:" width="100%">
