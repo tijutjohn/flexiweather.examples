@@ -40,13 +40,13 @@
 							  enabled.editing="false"/>
 				</s:HGroup>
 				<s:HGroup width="100%">
-					<s:Button label="Thunderstorm" click="changeTool(FeatureType.THUNDERSTORM_AREA, {type: ThunderstormAreaAnnotation.TYPE_RAIN})"
+					<s:Button label="* Thunderstorm" click="changeTool(FeatureType.THUNDERSTORM_AREA, {type: ThunderstormAreaAnnotation.TYPE_RAIN})"
 							  enabled.editing="false"/>
-					<s:Button label="Light Turbulence" click="changeTool(FeatureType.TURBULENCE, {degree: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+					<s:Button label="Light Turbulence" click="changeTool(FeatureType.TURBULENCE_AREA, {degree: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
 							  enabled.editing="false"/>
-					<s:Button label="Moderate Turbulence" click="changeTool(FeatureType.TURBULENCE, {degree: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+					<s:Button label="Moderate Turbulence" click="changeTool(FeatureType.TURBULENCE_AREA, {degree: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
 							  enabled.editing="false"/>
-					<s:Button label="Severe Turbulence" click="changeTool(FeatureType.TURBULENCE, {degree: TurbulenceAreaAnnotation.TYPE_SEVERE_IN_CLEAR_AIR})"
+					<s:Button label="Severe Turbulence" click="changeTool(FeatureType.TURBULENCE_AREA, {degree: TurbulenceAreaAnnotation.TYPE_SEVERE_IN_CLEAR_AIR})"
 							  enabled.editing="false"/>
 					
 					<s:Button label="Scattered Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
@@ -67,19 +67,19 @@
 				</s:HGroup>
 				
 				<s:HGroup width="100%">
-					<s:Button label="Rain Steady" click="changeTool(IconFeatureType.RAIN_STEADY, {type: IconFeatureType.RAIN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
-					<s:Button label="Rain Showers" click="changeTool(IconFeatureType.RAIN_SHOWERS, {type: IconFeatureType.RAIN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
-					<s:Button label="Snow Steady" click="changeTool(IconFeatureType.SNOW_STEADY, {type: IconFeatureType.SNOW_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
-					<s:Button label="Snow Showers" click="changeTool(IconFeatureType.SNOW_SHOWERS, {type: IconFeatureType.SNOW_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
-					<s:Button label="RASN Steady" click="changeTool(IconFeatureType.RASN_STEADY, {type: IconFeatureType.RASN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
-					<s:Button label="RASN Showers" click="changeTool(IconFeatureType.RASN_SHOWERS, {type: IconFeatureType.RASN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
-					<s:Button label="Drizzle" click="changeTool(IconFeatureType.DRIZZLE, {type: IconFeatureType.DRIZZLE, color: 0xff0000} )" enabled.editing="false"/>
-					<s:Button label="Rain" click="changeTool(IconFeatureType.RAIN, {type: IconFeatureType.RAIN, color: 0xff0000} )" enabled.editing="false"/>
-					<s:Button label="Pellets" click="changeTool(IconFeatureType.PELLETS, {type: IconFeatureType.PELLETS, color: 0xff0000} )" enabled.editing="false"/>
-					<s:Button label="Fog/Mist" click="changeTool(IconFeatureType.FOG, {type: IconFeatureType.FOG, color: 0xffff00} )" enabled.editing="false"/>
-					<s:Button label="Haze" click="changeTool(IconFeatureType.HAZE, {type: IconFeatureType.HAZE, color: 0xA8A87D} )" enabled.editing="false"/>
-					<s:Button label="Smoke" click="changeTool(IconFeatureType.SMOKE, {type: IconFeatureType.SMOKE, color: 0xA8A87D} )" enabled.editing="false"/>
-					<s:Button label="Blowing Dust/Sand" click="changeTool(IconFeatureType.BLOWING_DUST, {type: IconFeatureType.BLOWING_DUST, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="* Rain Steady" click="changeTool(IconFeatureType.RAIN_STEADY, {type: IconFeatureType.RAIN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Rain Showers" click="changeTool(IconFeatureType.RAIN_SHOWERS, {type: IconFeatureType.RAIN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Snow Steady" click="changeTool(IconFeatureType.SNOW_STEADY, {type: IconFeatureType.SNOW_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Snow Showers" click="changeTool(IconFeatureType.SNOW_SHOWERS, {type: IconFeatureType.SNOW_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* RASN Steady" click="changeTool(IconFeatureType.RASN_STEADY, {type: IconFeatureType.RASN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* RASN Showers" click="changeTool(IconFeatureType.RASN_SHOWERS, {type: IconFeatureType.RASN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Drizzle" click="changeTool(IconFeatureType.DRIZZLE, {type: IconFeatureType.DRIZZLE, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="* Rain" click="changeTool(IconFeatureType.RAIN, {type: IconFeatureType.RAIN, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="* Pellets" click="changeTool(IconFeatureType.PELLETS, {type: IconFeatureType.PELLETS, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="* Fog/Mist" click="changeTool(IconFeatureType.FOG, {type: IconFeatureType.FOG, color: 0xffff00} )" enabled.editing="false"/>
+					<s:Button label="* Haze" click="changeTool(IconFeatureType.HAZE, {type: IconFeatureType.HAZE, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="* Smoke" click="changeTool(IconFeatureType.SMOKE, {type: IconFeatureType.SMOKE, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="* Blowing Dust/Sand" click="changeTool(IconFeatureType.BLOWING_DUST, {type: IconFeatureType.BLOWING_DUST, color: 0xA8A87D} )" enabled.editing="false"/>
 				</s:HGroup>
 				<s:HGroup width="100%">
 					<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
@@ -111,6 +111,12 @@
 				<s:Button label="Save" click="saveProduct()" enabled="{product != null}"/>
 				<s:Button label="Issue" click="issueProduct()" enabled="{product != null}"/>
 				<s:Button label="Refresh" click="refreshProduct()" enabled="{product != null}"/>
+				<s:Line height="100%">
+					<s:stroke>
+						<s:SolidColorStroke color="0x777777" weight="1"/>
+					</s:stroke>
+				</s:Line>
+				<s:Button label="Clear" click="clearProduct()"/>
 				
 			</s:HGroup>
 		</s:BorderContainer>
@@ -164,6 +170,7 @@
 	</s:BorderContainer>
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.events.WFSTransactionEvent;
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
 			import mx.controls.Alert;
@@ -348,7 +355,7 @@
 			
 			private function addNewTurbulenceArea(pt: Point): void
 			{
-				currentlyEditedFeature = new WFSFeatureEditableTurbulenceArea("http://www.iblsoft.com/wfs", FeatureType.TURBULENCE, null);
+				currentlyEditedFeature = new WFSFeatureEditableTurbulenceArea("http://www.iblsoft.com/wfs", FeatureType.TURBULENCE_AREA, null);
 				if (currentFeatureSetting != null)
 					(currentlyEditedFeature as WFSFeatureEditableTurbulenceArea).degree = currentFeatureSetting.degree;
 				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
@@ -587,7 +594,7 @@
 								done();
 								break;
 							}
-							case FeatureType.TURBULENCE:
+							case FeatureType.TURBULENCE_AREA:
 							{
 								addNewTurbulenceArea(pt);
 								break;
@@ -648,17 +655,18 @@
 				}
 			}
 			
+			private function clearProduct(): void
+			{
+				wfsLayer.removeAllFeatures();
+			}
+			
 			private function refreshProduct(): void
 			{
-				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_LOADED, onRefreshLoaded);
-				
 				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
 				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
-//				
+
+				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_LOADED, onRefreshLoaded);
 				showFeatureEditorProgressPopup("Refresh", "Refreshing product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
-				
-//				wfsLayer.setQueryParameterGET("RUN",run);
-//				wfsLayer.setQueryParameterGET("VALIDITY", validity);	
 				wfsLayer.refreshData();
 			}
 			
@@ -690,14 +698,24 @@
 			private function loadProduct(): void
 			{
 				var popup: FeatureEditorProductSelectDialog = createProductDialog();
-				
-				//				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_FREE_DRAWING_SELECTED, onFreeDrawingSelected);
 				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED, onLoadProductSelected);
-				
 			}
+			
 			private function issueProduct(): void
 			{
+				if(mb_serviceBusy) {
+					Alert.show("Another WFS transaction is in progress, please try again later.", "Feature Editor");
+					return;
+				}
 				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+				showFeatureEditorProgressPopup("Issue", "Issueing product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
+				
+				addTransactionListeners(wfsLayer);
+				wfsLayer.issue();
+				
+				mb_serviceBusy = true;
 			}
 			
 			private function saveProduct(): void
@@ -756,40 +774,60 @@
 				product = event.product;
 				productName = product.toString();
 				
-				wfsLayer.wfsService.setProduct(product);
 				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+				showFeatureEditorProgressPopup("Load", "Loading product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
+				
+				wfsLayer.emptyRemovedFeatures();
+				
+				wfsLayer.wfsService.setProduct(product);
+				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_LOADED, onFeaturesLoaded);
 				wfsLayer.loadData();
+			}
+			
+			private function onFeaturesLoaded(event: InteractiveLayerEvent): void
+			{
+				trace("onFeaturesLoaded");
+				hideFeatureEditorProgressPopup();
 			}
 			
 			public function addTransactionListeners(userLayer: InteractiveLayerWFSFeatureEditor): void
 			{
 				transactionInProgress = true;
 				
-				userLayer.addEventListener(UniURLLoaderEvent.DATA_LOADED, onTransactionResult);
-				userLayer.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onTransactionFailed);
+				userLayer.addEventListener(WFSTransactionEvent.TRANSACTION_COMPLETE, onTransactionResult);
+				userLayer.addEventListener(WFSTransactionEvent.TRANSACTION_FAILED, onTransactionFailed);
+//				userLayer.addEventListener(UniURLLoaderEvent.DATA_LOADED, onTransactionResult);
+//				userLayer.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onTransactionFailed);
 				
 			}
 			public function removeTransactionListeners(userLayer: InteractiveLayerWFSFeatureEditor): void
 			{
 				transactionInProgress = false;
-				userLayer.removeEventListener(UniURLLoaderEvent.DATA_LOADED, onTransactionResult);
-				userLayer.removeEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onTransactionFailed);
+				userLayer.removeEventListener(WFSTransactionEvent.TRANSACTION_COMPLETE, onTransactionResult);
+				userLayer.removeEventListener(WFSTransactionEvent.TRANSACTION_FAILED, onTransactionFailed);
+//				userLayer.removeEventListener(UniURLLoaderEvent.DATA_LOADED, onTransactionResult);
+//				userLayer.removeEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onTransactionFailed);
 			}
 			
-			protected function onTransactionFailed(event: UniURLLoaderErrorEvent): void
+			protected function onTransactionFailed(event: WFSTransactionEvent): void
 			{
 				mb_serviceBusy = false;
 				
 				removeTransactionListeners(event.target as InteractiveLayerWFSFeatureEditor);
 				
+				hideFeatureEditorProgressPopup();
 			}
 			
-			protected function onTransactionResult(event: UniURLLoaderEvent): void
+			protected function onTransactionResult(event: WFSTransactionEvent): void
 			{
 				
 				mb_serviceBusy = false;
 				
 				removeTransactionListeners(event.target as InteractiveLayerWFSFeatureEditor);
+				
+				hideFeatureEditorProgressPopup();
 				
 				var xml: XML = XML(event.result); // TransactionResponse xmlns="http://www.opengis.net/wfs"
 				var wfs: Namespace = new Namespace("http://www.opengis.net/wfs");
@@ -801,13 +839,13 @@
 					//				Alert.show("WFS backend transaction failed, see log for defails.", "Feature Editor");
 					return; 
 				}
-				//			
-				//			productDirtyFlag = false;
-				//			if (freeDrawingProduct)
-				//			{
-				//				selectedProduct = freeDrawingProduct.clone();
-				//				freeDrawingProduct = null;
-				//			}
+				
+				switch (event.transactionType)
+				{
+					case InteractiveLayerWFSFeatureEditor.TRANSACTION_ISSUE:
+						Alert.show('Product was issued', 'Feature Editor');
+						break;
+				}
 				
 			}
 			
