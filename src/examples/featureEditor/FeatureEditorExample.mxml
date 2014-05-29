@@ -30,6 +30,10 @@
 							  enabled.editing="false"/>
 					<s:Button label="Occluded Front" click="changeTool(FeatureType.FRONT, {type: FrontType.OCCLUDED})"
 							  enabled.editing="false"/>
+					<s:Button label="Trough" click="changeTool(FeatureType.FRONT, {type: FrontType.TROUGH})"
+							  enabled.editing="false"/>
+					<s:Button label="DryLine" click="changeTool(FeatureType.FRONT, {type: FrontType.DRY_LINE})"
+							  enabled.editing="false"/>
 					<s:Button label="Pressure Centre" click="changeTool(FeatureType.PRESSURE_CENTRE)"
 							  enabled.editing="false"/>
 					<s:Button label="Depression" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_DEPRESSION, label: 'Depression'})"
