@@ -108,6 +108,7 @@
 				
 				
 				<s:Button label="Load" click="loadProduct()"/>
+				<s:Button label="Import" click="importProduct()" enabled="{product != null}"/>
 				<s:Button label="Save" click="saveProduct()" enabled="{product != null}"/>
 				<s:Button label="Issue" click="issueProduct()" enabled="{product != null}"/>
 				<s:Button label="Refresh" click="refreshProduct()" enabled="{product != null}"/>
@@ -143,7 +144,7 @@
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 			
-			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,0,0)}"
+			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}"
 												  zOrder="1000"/>
 			
 		</widgets:InteractiveWidget>
@@ -170,26 +171,15 @@
 	</s:BorderContainer>
 	<fx:Script>
 		<![CDATA[
-			import com.iblsoft.flexiweather.ogc.editable.featureEditor.events.WFSTransactionEvent;
+			import com.iblsoft.features.StarFeature;
+			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
-			import mx.controls.Alert;
-			import com.iblsoft.flexiweather.utils.ISO8601Parser;
-			import examples.featureEditor.popups.ProgressPopup;
-			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
-			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableTurbulenceArea;
 			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
-			import examples.featureEditor.events.FeatureEditorEvent;
-			import com.iblsoft.flexiweather.ogc.editable.featureEditor.data.FeatureEditorProduct;
-			import mx.core.FlexGlobals;
-			import mx.managers.PopUpManager;
-			import examples.featureEditor.popups.FeatureEditorProductSelectDialog;
-			import mx.collections.ArrayCollection;
-			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableIcon;
-			import com.iblsoft.features.StarFeature;
 			import com.iblsoft.flexiweather.ogc.FeatureBase;
 			import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
 			import com.iblsoft.flexiweather.ogc.Version;
+			import com.iblsoft.flexiweather.ogc.editable.IObjectWithBaseTimeAndValidity;
 			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditable;
 			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableMode;
@@ -201,18 +191,32 @@
 			import com.iblsoft.flexiweather.ogc.editable.data.FeatureType;
 			import com.iblsoft.flexiweather.ogc.editable.data.MoveablePoint;
 			import com.iblsoft.flexiweather.ogc.editable.data.front.FrontType;
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.data.FeatureEditorProduct;
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.events.WFSTransactionEvent;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableIcon;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableStorm;
 			import com.iblsoft.flexiweather.ogc.editable.features.curves.WFSFeatureEditableFront;
 			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableCloud;
 			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableIcingArea;
 			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableThunderstormArea;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableTurbulenceArea;
 			import com.iblsoft.flexiweather.ogc.events.MoveablePointEvent;
+			import com.iblsoft.flexiweather.ogc.wfs.WFSFeatureBase;
 			import com.iblsoft.flexiweather.proj.Coord;
 			import com.iblsoft.flexiweather.proj.Projection;
+			import com.iblsoft.flexiweather.utils.ISO8601Parser;
 			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
 			import mx.events.FlexEvent;
 			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			
+			import examples.featureEditor.events.FeatureEditorEvent;
+			import examples.featureEditor.popups.FeatureEditorProductSelectDialog;
+			import examples.featureEditor.popups.ProgressPopup;
 			private var currentFeatureType: String;
 			private var currentFeatureSetting: Object;
 			private var currentlyEditedFeature: WFSFeatureEditable;
@@ -695,6 +699,13 @@
 				}
 			}
 			
+			private function importProduct(): void
+			{
+				var popup: FeatureEditorProductSelectDialog = createProductDialog();
+				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED, onImportProductSelected);
+				
+			}
+			
 			private function loadProduct(): void
 			{
 				var popup: FeatureEditorProductSelectDialog = createProductDialog();
@@ -769,6 +780,55 @@
 				
 				wfsLayer.wfsService.setProduct(product);
 			}
+			private function onImportProductSelected(event: FeatureEditorEvent): void
+			{
+				//do not use product from event, because it's import product, not current one
+//				product = event.product;
+				productName = product.toString();
+				
+				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+
+				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_IMPORTED, onImportLoaded);
+				wfsLayer.importData(product.serviceURL, run, validity);
+			}
+			
+			private function onImportLoaded(event: InteractiveLayerEvent): void
+			{
+				wfsLayer.removeEventListener(InteractiveLayerEvent.FEATURES_IMPORTED, onImportLoaded);
+//				m_docklet.enabled = _enabledBackup;
+				updateFeaturesTime(event.newFeatures);
+				
+				var newFeaturesCount: int = event.newFeaturesCount;
+//				if (newFeaturesCount > 0)
+//					productDirtyFlag = true;
+			}
+			
+			private function updateFeaturesTime(newFeatures: ArrayCollection): void
+			{
+				if (product)
+				{
+					var editableFeature: WFSFeatureEditable;
+					
+					var baseTime: Date = wfsLayer.wfsService.getBaseTime(product);
+					var validity: Date = wfsLayer.wfsService.getValidity(product);
+					
+					for each(var feature: WFSFeatureBase in newFeatures) 
+					{
+						editableFeature = feature as WFSFeatureEditable;
+						if(editableFeature == null)
+							continue;
+						
+						if(editableFeature is IObjectWithBaseTimeAndValidity) 
+						{
+							IObjectWithBaseTimeAndValidity(editableFeature).baseTime = baseTime;
+							IObjectWithBaseTimeAndValidity(editableFeature).validity = validity;
+						}
+					}	
+				}
+			}
+			
 			private function onLoadProductSelected(event: FeatureEditorEvent): void
 			{
 				product = event.product;
