@@ -197,7 +197,7 @@
 			import com.iblsoft.flexiweather.ogc.editable.data.front.FrontType;
 			import com.iblsoft.flexiweather.ogc.editable.featureEditor.data.FeatureEditorProduct;
 			import com.iblsoft.flexiweather.ogc.editable.featureEditor.events.WFSTransactionEvent;
-			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableIcon;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableMacro;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
 			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableStorm;
 			import com.iblsoft.flexiweather.ogc.editable.features.curves.WFSFeatureEditableFront;
@@ -271,6 +271,7 @@
 				wfsLayer.addQueryFeature('Text');
 				wfsLayer.addQueryFeature('VolcanicAsh');
 				wfsLayer.addQueryFeature('Volcano');
+				wfsLayer.addQueryFeature('Macro');
 			}
 			
 			private function createNewEditableWFSLayer(): InteractiveLayerWFSEditable
@@ -329,11 +330,11 @@
 			
 			private function addIconFeature(pt: Point): void
 			{
-				currentlyEditedFeature = new WFSFeatureEditableIcon("http://www.iblsoft.com/wfs", currentFeatureSetting.type , null);
+				currentlyEditedFeature = new WFSFeatureEditableMacro("http://www.iblsoft.com/wfs", FeatureType.MACRO , null);
 				if (currentFeatureSetting != null)
 				{
-					(currentlyEditedFeature as WFSFeatureEditableIcon).type = currentFeatureSetting.type;
-					(currentlyEditedFeature as WFSFeatureEditableIcon).color = currentFeatureSetting.color;
+					(currentlyEditedFeature as WFSFeatureEditableMacro).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableMacro).color = currentFeatureSetting.color;
 				}
 				addFeatureToLayer(pt);
 			}
