@@ -9,6 +9,13 @@
 			<s:Button label="Unload" click="dispatchEvent(new Event('unload', true))"/>
 			<s:Button label="Change visibility" click="dispatchEvent(new Event('changeVisibility', true))"/>
 		</s:HGroup>
+<!--		<s:HGroup width="100%" gap="2" verticalAlign="middle">
+			<s:Button label="Show Bitmap" click="dispatchEvent(new Event('showBitmap', true))"/>
+			<s:Button label="Hide Bitmap" click="dispatchEvent(new Event('hideBitmap', true))"/>
+		</s:HGroup>
+		<s:HGroup width="100%" gap="2" verticalAlign="middle">
+			<s:HSlider id="sliderAlpha" minimum="0" maximum="1" value="1" stepSize="0.1" change="updateAlpha()"/>
+		</s:HGroup>-->
 		<mx:ProgressBar id="progress" width="100%" mode="manual" labelPlacement="center"/>
 		<s:Label text="{path}" width="100%"/>
 	</s:VGroup>
@@ -17,6 +24,8 @@
 		<![CDATA[
 			import com.iblsoft.flexiweather.ogc.kml.configuration.KMLLayerConfiguration;
 			import com.iblsoft.flexiweather.ogc.kml.events.KMLEvent;
+			
+			import mx.events.DynamicEvent;
 			
 			[Bindable]
 			public var path: String;
@@ -64,6 +73,13 @@
 				
 				progress.visible = progress.includeInLayout = false;
 			}
+			
+//			private function updateAlpha(): void
+//			{
+//				var de: DynamicEvent = new DynamicEvent("updateAlpha", true);
+//				de.alpha = sliderAlpha.value;
+//				dispatchEvent(de);
+//			}
 		]]>
 	</fx:Script>
 </s:ItemRenderer>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" 
+			   xmlns:controls="com.iblsoft.flexiweather.widgets.controls.*">
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.widgets.controls.ToggleButtonBarItemData;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<controls:ToggleButtonBar>
+		<controls:dataProvider>
+			<s:ArrayCollection>
+				<controls:ToggleButtonBarItemData ident="action.normal1" label="" type="{ToggleButtonBarItemData.NORMAL}" tooltip="Refresh all layers" icon='@Embed(source="/assets/icons/mapeditor/recompute-24.png")' priority="10"/>
+				<controls:ToggleButtonBarItemData ident="action.normal2" label="" type="{ToggleButtonBarItemData.NORMAL}" tooltip="Refresh all layers" icon='@Embed(source="/assets/icons/mapeditor/recompute-24.png")' priority="10"/>
+				<controls:ToggleButtonBarItemData ident="action.toggle1" label="" type="{ToggleButtonBarItemData.TOGGLE}" tooltip="Refresh all layers" icon='@Embed(source="/assets/icons/mapeditor/recompute-24.png")' priority="10"/>
+				<controls:ToggleButtonBarItemData ident="action.toggle2" label="" type="{ToggleButtonBarItemData.TOGGLE}" tooltip="Refresh all layers" icon='@Embed(source="/assets/icons/mapeditor/recompute-24.png")' priority="10"/>
+				<controls:ToggleButtonBarItemData ident="action.exclusive1" label="" type="{ToggleButtonBarItemData.EXCLUSIVE}" tooltip="Simple arrow tool" icon='@Embed(source="/assets/icons/gfx/cursor-24.png")' priority="5"/>
+				<controls:ToggleButtonBarItemData ident="action.exclusive2" label="" type="{ToggleButtonBarItemData.EXCLUSIVE}" tooltip="Full Map Mode" icon='@Embed(source="/assets/icons/common/window_fullscreen-24.png")' iconToggle='@Embed(source="/assets/icons/common/window_nofullscreen-24.png")' priority="11"/>
+			</s:ArrayCollection>
+		</controls:dataProvider>
+	</controls:ToggleButtonBar>
+</s:Application>

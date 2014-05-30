@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<s:VGroup width="100%" height="100%">
+		<s:HGroup width="100%">
+			<s:Label text="Service"/>
+			<s:ComboBox id="cbService" selectedIndex="0">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:String>ria</fx:String>
+						<fx:String>gfs</fx:String>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:ComboBox>
+			<s:Label text="Layer"/>
+			<s:ComboBox id="cbLayer" selectedIndex="0">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:String>background-dem</fx:String>
+						<fx:String>foreground-lines</fx:String>
+						<fx:String>Temperature</fx:String>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:ComboBox>
+			<s:Label text="Tile size"/>
+			<s:ComboBox id="cbTileSize" selectedIndex="0">
+				<s:dataProvider>
+					<s:ArrayList>
+						<fx:String>256</fx:String>
+						<fx:String>512</fx:String>
+						<fx:String>1024</fx:String>
+					</s:ArrayList>
+				</s:dataProvider>
+			</s:ComboBox>
+			<s:Label text="X"/>
+			<s:NumericStepper id="nsTileX" minimum="0" maximum="16" value="0"/>
+			<s:Label text="Y"/>
+			<s:NumericStepper id="nsTileY" minimum="0" maximum="16" value="0"/>
+			<s:Label text="zoom"/>
+			<s:NumericStepper id="nsZoom" minimum="0" maximum="12" value="0"/>
+			<s:Label text="Width"/>
+			<s:NumericStepper id="nsWidth" minimum="0" maximum="2000" value="800"/>
+			<s:Label text="Height"/>
+			<s:NumericStepper id="nsHeight" minimum="0" maximum="2000" value="600"/>
+			<s:Button label="Load" click="load()"/>
+			
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="{info}"/>
+		</s:HGroup>
+		<s:Image id="img" width="100%" height="100%"/>
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.loaders.ImageLoader;
+			
+			[Bindable]
+			public var info: String;
+			
+			private function load(): void
+			{
+				var service: String =  cbService.selectedItem as String;
+				var layer: String =  cbLayer.selectedItem as String;
+				var tileSize: int =  parseInt(cbTileSize.selectedItem as String, 10);
+				var zoom: int =  nsZoom.value;
+				var tileX: int =  nsTileX.value;
+				var tileY: int =  nsTileY.value;
+				var w: int =  nsWidth.value;
+				var h: int =  nsHeight.value;
+				var bbox: String = "-163.79310344827587,-90,163.79310344827587,90";
+				
+				var request: String = "http://wms.iblsoft.com/"+service+"?CRS=CRS:84&SERVICE=WMS&WIDTH="+w+"&VERSION=1.3.0&HEIGHT="+h+"&FORMAT=image/png";
+				request += "&REQUEST=GetGTile&STYLE=&LAYER="+layer+"&BBOX="+bbox+"&TRANSPARENT=TRUE&TILEZOOM="+zoom+"&TILECOL="+tileX+"&TILEROW="+tileY;
+				
+				var imageLoader: ImageLoader = new ImageLoader();
+				imageLoader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onImageLoaded);
+				imageLoader.load(new URLRequest(request));
+			}
+			
+			private function onImageLoaded(event: UniURLLoaderEvent): void
+			{
+				img.source = event.result;
+				info = "Width: " + (event.result as Bitmap).width + " , Height: " + (event.result as Bitmap).height;
+			}
+		]]>
+	</fx:Script>
+</s:Application>

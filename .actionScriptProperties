@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="Example7.mxml" projectUUID="0bc2d61c-1fdb-49ab-b5aa-8303dc3ba720" version="10">
-  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
+<actionScriptProperties analytics="false" mainApplicationPath="ExamplesMenu.mxml" projectUUID="0bc2d61c-1fdb-49ab-b5aa-8303dc3ba720" version="10">
+  <compiler additionalCompilerArguments="-locale en_US" autoRSLOrdering="true" copyDependentFiles="true" flexSDK="Flex 4.6.0" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="true" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="1">
       <libraryPathEntry kind="4" path=""/>
@@ -8,27 +8,28 @@
       <libraryPathEntry kind="3" linkType="1" path="/FlexiWeather/bin/FlexiWeather.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="1" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/air"/>
       <libraryPathEntry kind="1" linkType="1" path="${PROJECT_FRAMEWORKS}/libs/mobile"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/Common"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/FlexProject"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LIB_LOCATION}/version4libs/FlexProject_Extended"/>
+      <libraryPathEntry kind="1" linkType="1" path="${FLEXUNIT_LOCALE_LOCATION}/version4locale/"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
   <applications>
-    <application path="Example7.mxml"/>
-    <application path="Test.mxml"/>
-    <application path="ExampleMultiViewWithConfiguration.mxml"/>
-    <application path="Example3.mxml"/>
-    <application path="Example2.mxml"/>
-    <application path="Example8.mxml"/>
-    <application path="Example1WebApp.mxml"/>
-    <application path="FlyingRouteExample.mxml"/>
-    <application path="TileLayoutTest.mxml"/>
-    <application path="DropdownlistTest.mxml"/>
-    <application path="FlexiWeatherExample.mxml"/>
-    <application path="FeatureEditorExample.mxml"/>
-    <application path="TileSizeExample.mxml"/>
-    <application path="ExampleIDS_AreaProbability.mxml"/>
-    <application path="ExampleIDS_AreaStatistics.mxml"/>
-    <application path="ExampleIDS_GridSubSet.mxml"/>
-    <application path="ExampleIDS_TimeSeriesAtPoint.mxml"/>
+    <application path="examples/drawing/LineIntersectionsTest.mxml"/>
+    <application path="examples/ui/ToggleButtonBarTest.mxml"/>
+    <application path="examples/ui/HorizontalDatagrid.mxml"/>
+    <application path="examples/ui/InteractiveTabBarExample.mxml"/>
+    <application path="examples/LoadersMemoryLeakTest.mxml"/>
+    <application path="examples/tiling/TilesTest.mxml"/>
+    <application path="examples/afwa/AFWAGetCapabilitiesParsing.mxml"/>
+    <application path="examples/ui/DropdownlistTest.mxml"/>
+    <application path="examples/ui/ScrollbarTests.mxml"/>
+    <application path="examples/ui/NumericStepperTest.mxml"/>
+    <application path="ExamplesMenu.mxml"/>
+    <application path="examples/ExampleFitMap.mxml"/>
+    <application path="examples/printing/VectorPrinting.mxml"/>
+    <application path="examples/afwa/AFWA_FW81_Example.mxml"/>
   </applications>
   <modules/>
   <buildCSSFiles/>

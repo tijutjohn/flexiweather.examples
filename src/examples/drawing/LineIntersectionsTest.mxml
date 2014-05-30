@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%">
+		<s:HGroup width="100%">
+			<s:HGroup>
+				<s:Label text="Line 1, poin left"/>
+				<s:NumericStepper id="l1x1" value="-10.9" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+				<s:NumericStepper id="l1y1" value="21.2" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+			</s:HGroup>
+			<s:HGroup>
+				<s:Label text="Line 1, poin right"/>
+				<s:NumericStepper id="l1x2" value="8.9" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+				<s:NumericStepper id="l1y2" value="15.1" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+			</s:HGroup>
+		</s:HGroup>
+		<s:HGroup width="100%">
+			<s:HGroup>
+				<s:Label text="BBox"/>
+				<s:NumericStepper id="l2x1" value="-20" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+				<s:NumericStepper id="l2y1" value="-4.5" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+			</s:HGroup>
+			<s:HGroup>
+				<s:Label text="Line 2, point right"/>
+				<s:NumericStepper id="l2x2" value="8" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+				<s:NumericStepper id="l2y2" value="49.5" stepSize="0.1" minimum="-100" maximum="100" change="updateCanvas()"/>
+			</s:HGroup>
+		</s:HGroup>
+		
+		<s:Label text="isInsideBox: {isInsideBox} isIntersectedSpecial: {isIntersectedSpecial}"/>
+<!--		<s:Label text="Intersection West : isInsideBox: {isIntersected1} / {isIntersectedSpecial1}"/>
+		<s:Label text="Intersection West : isInsideBox: {isIntersected2} / {isIntersectedSpecial2}"/>
+		<s:Label text="Intersection West : isInsideBox: {isIntersected3} / {isIntersectedSpecial3}"/>
+		<s:Label text="Intersection West : isInsideBox: {isIntersected4} / {isIntersectedSpecial4}"/>-->
+		<s:Label text="Intersection West : isInsideBox: {isIntersected1}"/>
+		<s:Label text="Intersection East : isInsideBox: {isIntersected2}"/>
+		<s:Label text="Intersection North : isInsideBox: {isIntersected3}"/>
+		<s:Label text="Intersection South : isInsideBox: {isIntersected4}"/>
+		<mx:UIComponent id="canvas" width="100%" height="100%"/>
+		
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.BBox;
+			import com.iblsoft.flexiweather.utils.geometry.LineSegment;
+			
+			[Bindable] public var isIntersectedSpecial:  Boolean;
+			
+			[Bindable] public var isIntersected1:  Boolean;
+//			[Bindable] public var isIntersectedSpecial1:  Boolean;
+			
+			[Bindable] public var isIntersected2:  Boolean;
+//			[Bindable] public var isIntersectedSpecial2:  Boolean;
+			
+			[Bindable] public var isIntersected3:  Boolean;
+//			[Bindable] public var isIntersectedSpecial3:  Boolean;
+			
+			[Bindable] public var isIntersected4:  Boolean;
+//			[Bindable] public var isIntersectedSpecial4:  Boolean;
+			
+			[Bindable]
+			public var isInsideBox:  Boolean;
+			
+			private var _line1: LineSegment;
+			private var _boxLine1: LineSegment;
+			private var _boxLine2: LineSegment;
+			private var _boxLine3: LineSegment;
+			private var _boxLine4: LineSegment;
+			
+			private function updateCanvas(): void
+			{
+				_line1 = new LineSegment(l1x1.value, l1y1.value, l1x2.value, l1y2.value);
+				var m_viewBBox: BBox = new BBox(l2x1.value, l2y1.value, l2x2.value, l2y2.value);
+				
+				var viewBBoxWestLine: LineSegment = new LineSegment(l2x1.value, l2y1.value, l2x1.value, l2y2.value);
+				var viewBBoxEastLine: LineSegment = new LineSegment(l2x2.value, l2y1.value, l2x2.value, l2y2.value);
+				var viewBBoxNorthLine: LineSegment = new LineSegment(l2x1.value, l2y1.value, l2x2.value, l2y1.value);
+				var viewBBoxSouthLine: LineSegment = new LineSegment(l2x1.value, l2y2.value, l2x2.value, l2y2.value);
+				
+//				_line2 = new LineSegment(l2x1.value, l2y1.value, l2x2.value, l2y2.value);
+				
+				isInsideBox = _line1.isInsideBox(m_viewBBox) 
+				isIntersectedSpecial = _line1.isIntersectedBox(viewBBoxWestLine, viewBBoxEastLine, viewBBoxNorthLine, viewBBoxSouthLine);
+				
+				isIntersected1 = _line1.intersectionWithLineSegment(viewBBoxWestLine) != null;
+				isIntersected2 = _line1.intersectionWithLineSegment(viewBBoxEastLine) != null;
+				isIntersected3 = _line1.intersectionWithLineSegment(viewBBoxNorthLine) != null;
+				isIntersected4 = _line1.intersectionWithLineSegment(viewBBoxSouthLine) != null;
+				
+				var gr: Graphics = canvas.graphics;
+				gr.clear();
+				
+				var p1: Point = pointToCanvas(_line1.x1, _line1.y1);
+				var p2: Point = pointToCanvas(_line1.x2, _line1.y2);
+				
+				
+				var p3: Point = pointToCanvas(l2x1.value, l2y1.value);
+				var p4: Point = pointToCanvas( l2x2.value, l2y2.value);
+				
+				gr.lineStyle(2, 0xff0000);
+				gr.moveTo(p1.x, p1.y);
+				gr.lineTo(p2.x, p2.y);
+				
+				gr.lineStyle(2, 0x00ff00);
+				gr.drawRect(p3.x, p3.y, p4.x - p3.x, p4.y - p3.y);
+			}
+			
+			private function pointToCanvas(x: Number, y: Number): Point
+			{
+				var _minX: Number = -100;
+				var _minY: Number = -100;
+				
+				var _maxX: Number = 100;
+				var _maxY: Number = 100;
+				
+				var scaleX: Number = canvas.width / (_maxX - _minX);
+				var scaleY: Number =  canvas.height / (_maxY - _minY);
+				
+				var p: Point = new Point(_minX + (x - _minX) * scaleX, _minY + (y - _minY) * scaleY);
+				
+				return p;
+			}
+		]]>
+	</fx:Script>
+</s:Application>

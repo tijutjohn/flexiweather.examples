@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%" id="canvas">
+		<s:HGroup>
+			<s:Button label="Load Map" click="loadMap()"/>
+			<s:Button label="Print" click="print()" enabled="{printEnabled}"/>
+			
+		</s:HGroup>
+		<s:Label text="{description}" width="100%"/>
+		<mx:UIComponent id="map" width="100%" height="100%"/>
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.loaders.LoaderWithAssociatedData;
+			import com.iblsoft.flexiweather.ogc.net.loaders.WMSImageLoader;
+			
+			import mx.core.IVisualElement;
+			import mx.printing.FlexPrintJob;
+			
+			[Bindable]
+			public var description: String;
+			[Bindable]
+			public var printEnabled: Boolean;
+			
+			private var obsURL: String = 'http://wms.iblsoft.com/obs?&BBOX=-80,-43.502088490099,104.15841584158414,65.48228650990099&CRS=EPSG:4326&FORMAT=application/x-shockwave-flash&HEIGHT=909&LAYERS=Surface&REQUEST=GetMap&SERVICE=WMS&STATION_MODEL_ZOOM=0.8&STYLES=&TRANSPARENT=TRUE&VERSION=1.3.0&WIDTH=1536&time=2013-02-08T06:00:00Z';
+			private var mapMovie: AVM1Movie;
+			
+			public function loadMap(): void
+			{
+				description = 'Loading Surface  observation';
+				
+				var loader: WMSImageLoader = new WMSImageLoader();
+				loader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onMapLoaded);
+				loader.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onMapLoadFailed);
+				
+				loader.load(new URLRequest(obsURL));
+			}
+			
+			private function onMapLoadFailed(event: UniURLLoaderErrorEvent): void
+			{
+				description = 'Loading Surface  observation failed';
+				
+			}
+			private function onMapLoaded(event: UniURLLoaderEvent): void
+			{
+				description = 'Surface  observation loaded';
+				
+				if (event.result is AVM1Movie)
+				{
+					mapMovie = event.result as AVM1Movie;
+					map.addChild(mapMovie.parent);
+					printEnabled = true;
+				}
+			}
+			private function print(): void
+			{
+				var myPrintJob: FlexPrintJob = new FlexPrintJob();
+				myPrintJob.printAsBitmap = false;
+//				var sprite: Sprite = new Sprite();
+//				sprite.addChild(mapMovie.parent as LoaderWithAssociatedData);
+				if (myPrintJob.start()) {
+					try {
+						myPrintJob.addObject(map);
+					}
+					catch(e:Error) {
+						// handle error 
+						description = "print error: " + e.message;
+					}
+					myPrintJob.send();
+				} 
+			}
+				
+			
+		]]>
+	</fx:Script>
+</s:Application>

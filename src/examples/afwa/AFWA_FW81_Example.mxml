@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
+					  minWidth="955" minHeight="600" xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
+					  xmlns="examples.*">
+	<fx:Declarations>
+		
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:VGroup width="100%" height="100%" gap="10" paddingTop="10" paddingBottom="10"
+			  paddingLeft="10" paddingRight="10">
+		<s:HGroup id="hboxCaption" width="100%" verticalAlign="middle">
+			<s:Label text="This example demonstrates proble of FW81"
+					 fontWeight="bold" fontSize="14"/>
+			<s:Label id="labelProgress" textAlign="right" fontWeight="bold"/>
+		</s:HGroup>
+		<s:HGroup width="100%">
+			<s:VGroup>
+				<s:HGroup height="100%" id="hb1">
+					<s:Label text="Projection:" width="100" fontWeight="bold"/>
+					<s:ButtonBar selectedIndex="0" id="bb1" click="changeProjection((event.currentTarget as ButtonBar).selectedItem)" >
+						<s:dataProvider>
+							<s:ArrayCollection>
+								<fx:Object label="South Polar Stereo" data="ESRI:102021"/>
+								<fx:Object label="CRS:84" data="CRS:84"/>
+							</s:ArrayCollection>
+						</s:dataProvider>
+					</s:ButtonBar>
+					<!--<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'ESRI:102021'}"
+									click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+					<s:ToggleButton label="CRS:84" selected="{m_iw.crs == 'CRS:84'}"
+									click="m_iw.setCRSExtentAndViewBBox('CRS:84');"/>-->
+				</s:HGroup>
+				<s:HGroup >
+					<s:Label text="Loading method:" width="100" fontWeight="bold"/>
+					<s:ButtonBar selectedIndex="0" width="{bb1.width}"  click="changeLoadingMethod((event.currentTarget as ButtonBar).selectedItem)">
+						<s:dataProvider>
+							<s:ArrayCollection>
+								<fx:Object label="GetMap"/>
+								<fx:Object label="GetGTile"/>
+							</s:ArrayCollection>
+						</s:dataProvider>
+					</s:ButtonBar>
+				</s:HGroup>
+				<s:HGroup width="{hb1.width}">
+					<mx:ProgressBar width="100%" labelPlacement="center" label="Preloading"/>
+				</s:HGroup>
+			</s:VGroup>
+			<s:HGroup height="100%">
+				<s:Button label="Load next frame" height="100%" click="loadNextFrame()"/>
+			</s:HGroup>
+			<s:HGroup>
+				<s:List dataProvider="{framesData}" click="onFrameClick()" id="listFrames">
+					<s:layout>
+						<s:HorizontalLayout gap="0"/>
+					</s:layout>
+					<s:itemRenderer>
+						<fx:Component>
+							<s:ItemRenderer width="100%">
+								<s:BorderContainer borderColor="0xaaaaaa" minHeight="0">
+									<s:VGroup width="100%">
+										<s:Label text="{data.crs}" width="100"/>
+										<s:Label text="{data.loadingMethod}" width="100"/>
+									</s:VGroup>
+								</s:BorderContainer>
+							</s:ItemRenderer>
+						</fx:Component>
+					</s:itemRenderer>
+				</s:List>
+			</s:HGroup>
+		</s:HGroup>
+		<s:HGroup width="100%" height="100%">
+			<widgets:InteractiveWidget id="m_iw" width="100%" height="100%">
+				<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+				<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+				<widgets:InteractiveLayerMap id="ilm" width="100%" height="100%"/>
+			</widgets:InteractiveWidget>
+		</s:HGroup>
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.FlexiWeatherConfiguration;
+			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
+			import com.iblsoft.flexiweather.ogc.configuration.layers.WMSWithQTTLayerConfiguration;
+			import com.iblsoft.flexiweather.ogc.data.viewProperties.IViewProperties;
+			import com.iblsoft.flexiweather.ogc.data.viewProperties.WMSViewProperties;
+			import com.iblsoft.flexiweather.ogc.events.ServiceCapabilitiesEvent;
+			import com.iblsoft.flexiweather.ogc.tiling.InteractiveLayerWMSWithQTT;
+			import com.iblsoft.flexiweather.proj.Projection;
+			import com.iblsoft.flexiweather.widgets.InteractiveDataLayer;
+			
+			import mx.events.FlexEvent;
+			
+			// you can limit maximum of loading (and preloading) frames
+			public static const MAX_FRAMES_ANIMATED: int = 8;
+			
+			private var m_layerTemperature: InteractiveLayerWMSWithQTT;
+			
+			[Bindable]
+			public var framesData: ArrayCollection = new ArrayCollection();
+			
+			override protected function onCreationComplete(event: FlexEvent): void
+			{
+				// this will prevent FlexiWeather from loading GetCapabilities request and its up to developer to correct set parsed data to all layers
+				FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES = true;
+				
+				super.onCreationComplete(event);
+				
+				Projection.addCRSByProj4("ESRI:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				
+				createLargeTileLayer();
+				
+				if (FlexiWeatherConfiguration.FLEXI_WEATHER_LOADS_GET_CAPABILITIES)
+					scm.update(scm.getAllServicesNames());
+				
+				
+				changeProjection({label: "South Polar Stereo", data:'ESRI:102021'});
+				changeLoadingMethod({label:"GetMap"});
+				
+				//                createInteractiveLayerQTTMS();
+//				createLargeTileLayer();
+			}
+			
+			override protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
+			{
+				trace("FlexiWeatherTemplate onCapabilitiesUpdated");
+				getForecastValues();
+			}
+			
+			private function createLargeTileLayer(): void
+			{
+				var config: WMSWithQTTLayerConfiguration = new WMSWithQTTLayerConfiguration(serviceGFS, ['temperature']);
+				
+				m_layerTemperature = config.createInteractiveLayer(m_iw) as InteractiveLayerWMSWithQTT;
+				m_iw.interactiveLayerMap.addLayer(m_layerTemperature);
+				m_layerTemperature.refresh(true);
+			}
+			
+			private function changeProjection(projection: Object): void
+			{
+				trace("changeProjection: " + projection.label);
+				m_iw.setCRS(projection.data, false); 
+				switch(projection.data)
+				{
+					case "ESRI:102021":
+						m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);
+						break;
+					case "CRS:84":
+						m_iw.setExtentBBoxRaw(-180,-90, 180, 90);
+						break;
+				}
+			}
+			
+			private var _loadingMethod: String = 'GetMap';
+			private function changeLoadingMethod(method: Object): void
+			{
+				trace("changeLoadingMethod: " + method.label);
+				_loadingMethod = method.label;
+				switch(_loadingMethod)
+				{
+					default:
+					case 'GetMap':
+					{
+						InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = true;
+						break;
+					}
+					case 'GetGTile':
+					{
+						InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = false;
+						break;
+					}
+				}
+			}
+			
+			private var _currentPosition: int = 0;
+			private function loadNextFrame(): void
+			{
+				preloadDataAtPosition(_currentPosition);
+				_currentPosition++; 
+			}
+			
+			private function preloadDataAtPosition(position: int): void
+			{
+				var viewProperties: WMSViewProperties = preloadingData.getItemAt(position) as WMSViewProperties;
+				viewProperties.crs = m_iw.getCRS();
+				viewProperties.setViewBBox(m_iw.getViewBBox());
+				preloadViewData(viewProperties);
+				
+				var item: Object = {crs: m_iw.getCRS(), loadingMethod: _loadingMethod, viewProperties: viewProperties};
+				if (framesData.length < position)
+					framesData.setItemAt(item, position);
+				else
+					framesData.addItem(item);
+				
+			}
+			
+			private function preloadViewData(preloadingViewData: WMSViewProperties): void
+			{
+				//and preload it
+				m_layerTemperature.addEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
+				m_layerTemperature.preload(preloadingViewData);
+			}
+			
+			private function onTemperatureLayerPreloadingFinished(event: InteractiveLayerEvent): void
+			{
+				m_layerTemperature.removeEventListener(InteractiveDataLayer.PRELOADING_FINISHED, onTemperatureLayerPreloadingFinished);
+				var viewProperties: WMSViewProperties = event.data as WMSViewProperties;
+				
+				setWMSDimension(viewProperties);
+			}
+			
+			private function setWMSDimension(viewProperties: WMSViewProperties): void
+			{
+				trace("setWMSDimension 1 crs: " + viewProperties.crs + " viewBBox: " + viewProperties.getViewBBox().toBBOXString());
+				
+				m_layerTemperature.container.setCRS(viewProperties.crs);
+				m_layerTemperature.container.setViewBBox(viewProperties.getViewBBox(), false);
+				
+				m_layerTemperature.changeViewProperties(viewProperties);
+//				m_layerTemperature.setWMSDimensionValue('FORECAST', viewProperties.getWMSDimensionValue('FORECAST'));
+				m_layerTemperature.refresh(false);
+				
+				//check currentViewProperties
+				viewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
+				trace("setWMSDimension 2 currentViewProperties crs: " + viewProperties.crs + " viewBBox: " + viewProperties.getViewBBox().toBBOXString());
+			}
+			
+			private function onFrameClick(): void
+			{
+				if (listFrames.selectedIndex > -1)
+				{
+					var viewProperties: WMSViewProperties = listFrames.dataProvider.getItemAt(listFrames.selectedIndex).viewProperties as WMSViewProperties;
+					setWMSDimension(viewProperties);
+					
+				}
+			}
+			[Bindable]
+			public var maxFrames: int;
+			
+			/**
+			 * array of forecast string values from capabilities request. We need it for slider to change FORECAST dimension of temperature layer
+			 */
+			[Bindable]
+			private var preloadingData: ArrayCollection;
+			
+			private function getViewData(forecast: String): IViewProperties
+			{
+				var currViewData: WMSViewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
+				if (currViewData)
+				{
+					//clone current view properties from temperature layer
+					var preloadingViewData: IViewProperties = currViewData.clone() as IViewProperties;
+					var wmsPreloadingViewData: WMSViewProperties = preloadingViewData as WMSViewProperties;
+					//and set FORECAST for this view properties
+					wmsPreloadingViewData.setWMSDimensionValue('FORECAST', forecast);
+					return wmsPreloadingViewData;
+				}
+				return null;
+			}
+			
+			/**
+			 * Get all FORECAST value string from Temperature layer. It must be called after capabilities are receiverd and parsed
+			 */
+			private function getForecastValues(): void
+			{
+				var dimNames: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsNames(), MAX_FRAMES_ANIMATED);
+				var dimValues: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsValues('FORECAST'), MAX_FRAMES_ANIMATED);
+				if (dimValues)
+				{
+					maxFrames = dimValues.length;
+					var currViewData: WMSViewProperties = m_layerTemperature.currentViewProperties as WMSViewProperties;
+					var total: int = dimValues.length;
+					preloadingData = new ArrayCollection();
+					//0th item is currently loaded frame, so it will not be preloaded again
+					for (var i: int = 0; i < total; i++)
+					{
+						var dimValue: Object = dimValues[i] as Object;
+						//store viewProperties for each frame
+						var frameViewProperties: WMSViewProperties = getViewData(dimValue.value) as WMSViewProperties;
+						preloadingData.addItem(frameViewProperties);
+					}
+				}
+			}
+			
+			private function filterFramesCount(arr: Array, total: int): Array
+			{
+				var result: Array = [];
+				var total: int = Math.min(arr.length, total);
+				for (var i: int = 0; i < total; i++)
+				{
+					result.push(arr[i]);
+				}
+				return result;
+			}
+
+		]]>
+	</fx:Script>
+</FlexiWeatherTemplate>

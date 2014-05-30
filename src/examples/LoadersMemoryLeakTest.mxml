@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   applicationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%">
+		<s:Button label="Start Image Loaders" click="start()"/>
+		<s:Button label="Start JSON Loaders" click="startJSON()"/>
+		<s:Button label="Garbage collector" click="gc()"/>
+		<s:CheckBox label="Call Destroy" selected="true" id="chbDestroy"/>
+		<s:CheckBox label="Remove Listener" selected="true" id="chbListener"/>
+		<s:TextArea id="output" width="100%" height="100%"/>
+	</s:VGroup>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.net.data.UniURLLoaderData;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.loaders.JSONLoader;
+			import com.iblsoft.flexiweather.net.loaders.UniURLLoader;
+			
+			import json.JParser;
+			
+			private var mi_callId: int = 0;
+			
+			private function init(): void
+			{
+				var jsonLoader: JSONLoader = new JSONLoader();
+				
+				var jsonObj:Object = new Object();
+//				jsonObj.id = mi_callId++;
+				jsonObj.jsonrpc = '2.0';
+				jsonObj.method = 'listRolesAndNotificationTypes';
+				jsonObj.id = 1;
+				jsonObj.params = {};
+				
+//				{"method":"listRolesAndNotificationTypes","jsonrpc":"2.0","params":{},"id":1}
+				
+				
+				var request:URLRequest = new URLRequest('http://vwtest:8000/ria/mainpanel');
+				request.method = URLRequestMethod.POST;
+				request.data = JParser.encode(jsonObj);
+				jsonLoader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onJSONInitialized)
+				jsonLoader.load(request);
+			}
+			
+			private var _instanceID: int;
+			private function onJSONInitialized(event: UniURLLoaderEvent): void
+			{
+				trace("onJSONInitialized");	
+				_instanceID = event.result.result.instanceId;
+				
+				var loader: JSONLoader = event.target as JSONLoader;
+				loader.removeEventListener(UniURLLoaderEvent.DATA_LOADED, onJSONInitialized);
+				
+				startJSON();
+			}
+			
+			private function gc(): void
+			{
+				System.gc();	
+			}
+			
+			private function start(): void
+			{
+				var timer: Timer = new Timer(1000);
+				timer.addEventListener(TimerEvent.TIMER, loadRequest);
+				timer.start();
+			}
+			private function startJSON(): void
+			{
+				var timer: Timer = new Timer(1000);
+				timer.addEventListener(TimerEvent.TIMER, loadJSONRequest);
+				timer.start();
+			}
+
+			private function loadJSONRequest(event:TimerEvent):void
+			{
+				mi_callId++;
+				
+				var jsonLoader: JSONLoader = new JSONLoader();
+				
+				var jsonObj:Object = new Object();
+				//				jsonObj.id = mi_callId++;
+				jsonObj.jsonrpc = '2.0';
+				jsonObj.method = 'listRegularTasksNotificationsValidForecastsAndAlerts';
+//				jsonObj.instanceId = _instanceID;
+				jsonObj.id = mi_callId;
+				jsonObj.params = {roles:["Shared"],instanceId: _instanceID};
+				
+				
+				//{"method":"listRegularTasksNotificationsValidForecastsAndAlerts","jsonrpc":"2.0",
+					
+				//	"params":{"validForecasts":{"id":"1378797089"},"regularTasks":{"timeFrom":"2013-09-10T06:00:00Z","timeTo":"2013-09-10T18:00:00Z","id":"96c34e1cbdcf7ba7eb689479030ffc23"},"alerts":{"id":2999},"notifications":{"id":"375|2013-09-10T09:02:01Z"},"roles":["Shared"],"timeout":"10s","roleAlerts":{"id":2973},"instanceId":1},"id":3}
+				
+				//				{"method":"listRolesAndNotificationTypes","jsonrpc":"2.0","params":{},"id":1}
+				
+				
+				var request:URLRequest = new URLRequest('http://vwtest:8000/ria/mainpanel');
+				request.method = URLRequestMethod.POST;
+				request.data = JParser.encode(jsonObj);
+				jsonLoader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onJSONRequest)
+				jsonLoader.load(request);
+			}
+			private function loadRequest(event:TimerEvent):void
+			{
+				var request: URLRequest = getURLRequest();
+				var loader: UniURLLoader = new UniURLLoader();
+				loader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onDataLoaded);
+				loader.load(request);
+			}
+			
+			private function toKB(size: Number): String
+			{
+				return int((size / 1024) * 100)/100 + "kB";
+			}
+			
+			
+			
+			private function onJSONRequest(event: UniURLLoaderEvent): void
+			{
+				mi_callId++;
+				output.text = mi_callId + ". JSON Memory: " + toKB(System.privateMemory) + " / " + toKB(System.totalMemory) + " free: " + toKB(System.freeMemory) + "\n" + output.text;
+				
+				var loader: JSONLoader = event.target as JSONLoader;
+				if (chbListener.selected)
+					loader.removeEventListener(UniURLLoaderEvent.DATA_LOADED, onJSONRequest);
+				if (chbDestroy)
+					loader.destroy();
+				
+			}
+			private function onDataLoaded(event: UniURLLoaderEvent): void
+			{
+				mi_callId++;
+				output.text = mi_callId + ". IMAGE Memory: " + toKB(System.privateMemory) + " / " + toKB(System.totalMemory) + " free: " + toKB(System.freeMemory) + "\n" + output.text;
+				
+				var loader: UniURLLoader = event.target as UniURLLoader;
+				if (chbListener.selected)
+					loader.removeEventListener(UniURLLoaderEvent.DATA_LOADED, onDataLoaded);
+				if (chbDestroy)
+					loader.destroy();
+				
+			}
+			
+			private function getURLRequest(): URLRequest
+			{
+				var request: URLRequest = new URLRequest('http://vwtest:8000/ria?BBOX=%2D49%2E334883866133865%2C%2D23%2E324947071361258%2C60%2E31819742757243%2C47%2E99238900442818&VERSION=1%2E3%2E0&TRANSPARENT=TRUE&SERVICE=WMS&HEIGHT=999&REQUEST=GetMap&STYLES=&FORMAT=image%2Fjpeg&WIDTH=1536&LAYERS=background%2Ddem&CRS=EPSG%3A4326');
+				return request;
+			}
+		]]>
+	</fx:Script>
+</s:Application>

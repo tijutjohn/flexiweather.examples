@@ -1,0 +1,937 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark" xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:widgets="com.iblsoft.flexiweather.widgets.*" xmlns="examples.*"
+					  xmlns:editable="com.iblsoft.flexiweather.ogc.editable.*" xmlns:ogc="com.iblsoft.flexiweather.ogc.*">
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.editable.data.IconFeatureType;
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<states>
+		<s:State name="normal"/>
+		<s:State name="editing"/>
+	</states>
+	<s:VGroup width="100%" height="100%">
+		
+		<s:Label text="Please select or load Product first!" fontWeight="bold" visible="{product == null}"/>
+		<s:BorderContainer width="100%" backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" enabled="{product != null}">
+			
+			
+			<s:VGroup width="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10">
+				<s:HGroup width="100%">
+					<s:Button label="Warm Front" click="changeTool(FeatureType.FRONT, {type: FrontType.WARM})"
+							  enabled.editing="false"/>
+					<s:Button label="Cold Front" click="changeTool(FeatureType.FRONT, {type: FrontType.COLD})"
+							  enabled.editing="false"/>
+					<s:Button label="Occluded Front" click="changeTool(FeatureType.FRONT, {type: FrontType.OCCLUDED})"
+							  enabled.editing="false"/>
+					<s:Button label="Trough" click="changeTool(FeatureType.FRONT, {type: FrontType.TROUGH})"
+							  enabled.editing="false"/>
+					<s:Button label="DryLine" click="changeTool(FeatureType.FRONT, {type: FrontType.DRY_LINE})"
+							  enabled.editing="false"/>
+					<s:Button label="Pressure Centre" click="changeTool(FeatureType.PRESSURE_CENTRE)"
+							  enabled.editing="false"/>
+					<s:Button label="Depression" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_DEPRESSION, label: 'Depression'})"
+							  enabled.editing="false"/>
+					<s:Button label="Storm" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_TROPIC_STORM, label: 'Storm'})"
+							  enabled.editing="false"/>
+					<s:Button label="Hurricane" click="changeTool(FeatureType.STORM, {type: StormAnnotation.TYPE_TYPHOON, label: 'Hurricane'})"
+							  enabled.editing="false"/>
+				</s:HGroup>
+				<s:HGroup width="100%">
+					<s:Button label="* Thunderstorm" click="changeTool(FeatureType.THUNDERSTORM_AREA, {type: ThunderstormAreaAnnotation.TYPE_RAIN})"
+							  enabled.editing="false"/>
+					<s:Button label="Light Turbulence" click="changeTool(FeatureType.TURBULENCE_AREA, {degree: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+							  enabled.editing="false"/>
+					<s:Button label="Moderate Turbulence" click="changeTool(FeatureType.TURBULENCE_AREA, {degree: TurbulenceAreaAnnotation.TYPE_MODERATE_FRQ_SEVERE})"
+							  enabled.editing="false"/>
+					<s:Button label="Severe Turbulence" click="changeTool(FeatureType.TURBULENCE_AREA, {degree: TurbulenceAreaAnnotation.TYPE_SEVERE_IN_CLEAR_AIR})"
+							  enabled.editing="false"/>
+					
+					<s:Button label="Scattered Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
+							  enabled.editing="false"/>
+					<s:Button label="Broken Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
+							  enabled.editing="false"/>
+					<s:Button label="Overcast Clouds" click="changeTool(FeatureType.CLOUD, {type: CloudAnnotation.TYPE_CLOUD_MODERATE, distribution: 'SKC'})"
+							  enabled.editing="false"/>
+					
+					<s:Button label="Light Rime Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_RIME, degree: IcingAreaAnnotation.DEGREE_TYPE_LIGHT} )"
+							  enabled.editing="false"/>
+					<s:Button label="Light Mixed Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_MIXED, degree: IcingAreaAnnotation.DEGREE_TYPE_LIGHT} )"
+							  enabled.editing="false"/>
+					<s:Button label="Moderate Rime Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_RIME, degree: IcingAreaAnnotation.DEGREE_TYPE_MODERATE} )"
+							  enabled.editing="false"/>
+					<s:Button label="Moderate Mixed Icing" click="changeTool(FeatureType.ICING_AREA, {type: IcingAreaAnnotation.TYPE_MIXED, degree: IcingAreaAnnotation.DEGREE_TYPE_MODERATE} )"
+							  enabled.editing="false"/>
+				</s:HGroup>
+				
+				<s:HGroup width="100%">
+					<s:Button label="* Rain Steady" click="changeTool(IconFeatureType.RAIN_STEADY, {type: IconFeatureType.RAIN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Rain Showers" click="changeTool(IconFeatureType.RAIN_SHOWERS, {type: IconFeatureType.RAIN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Snow Steady" click="changeTool(IconFeatureType.SNOW_STEADY, {type: IconFeatureType.SNOW_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Snow Showers" click="changeTool(IconFeatureType.SNOW_SHOWERS, {type: IconFeatureType.SNOW_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* RASN Steady" click="changeTool(IconFeatureType.RASN_STEADY, {type: IconFeatureType.RASN_STEADY, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* RASN Showers" click="changeTool(IconFeatureType.RASN_SHOWERS, {type: IconFeatureType.RASN_SHOWERS, color: 0x00aa00} )" enabled.editing="false"/>
+					<s:Button label="* Drizzle" click="changeTool(IconFeatureType.DRIZZLE, {type: IconFeatureType.DRIZZLE, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="* Rain" click="changeTool(IconFeatureType.RAIN, {type: IconFeatureType.RAIN, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="* Pellets" click="changeTool(IconFeatureType.PELLETS, {type: IconFeatureType.PELLETS, color: 0xff0000} )" enabled.editing="false"/>
+					<s:Button label="* Fog/Mist" click="changeTool(IconFeatureType.FOG, {type: IconFeatureType.FOG, color: 0xffff00} )" enabled.editing="false"/>
+					<s:Button label="* Haze" click="changeTool(IconFeatureType.HAZE, {type: IconFeatureType.HAZE, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="* Smoke" click="changeTool(IconFeatureType.SMOKE, {type: IconFeatureType.SMOKE, color: 0xA8A87D} )" enabled.editing="false"/>
+					<s:Button label="* Blowing Dust/Sand" click="changeTool(IconFeatureType.BLOWING_DUST, {type: IconFeatureType.BLOWING_DUST, color: 0xA8A87D} )" enabled.editing="false"/>
+				</s:HGroup>
+				<s:HGroup width="100%">
+					<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
+					<s:Button label="Star with Label" click="changeTool('starWithLabel')"
+							  enabled.editing="false"/>
+				</s:HGroup>
+				<s:HGroup width="100%">
+					<s:Button label="Done" click="done()" enabled.normal="false"/>
+					<s:ToggleButton width="32" height="32" id="buttonCurveAddPoints"
+									click="addCurvePoints()" toolTip="Add points"
+									icon="@Embed(source='/assets/icons/common/edit-24.png')"/>
+				</s:HGroup>
+			</s:VGroup>
+		</s:BorderContainer>
+		
+		<s:BorderContainer width="100%" backgroundColor="0xe0e0e0" borderColor="0xaaaaaa">
+			<s:HGroup width="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" verticalAlign="middle">
+				
+				<s:BorderContainer backgroundColor="0xf0f0f0" borderColor="0xaaaaaa">
+					<s:HGroup verticalAlign="middle" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
+						<s:Label text="Product:" fontWeight="bold"/>
+						<s:Label text="{productName}" width="200"/>
+						<s:Button label="Select Product" click="selectProduct()"/>
+					</s:HGroup>
+				</s:BorderContainer>
+				
+				
+				<s:Button label="Load" click="loadProduct()"/>
+				<s:Button label="Import" click="importProduct()" enabled="{product != null}"/>
+				<s:Button label="Save" click="saveProduct()" enabled="{product != null}"/>
+				<s:Button label="Issue" click="issueProduct()" enabled="{product != null}"/>
+				<s:Button label="Refresh" click="refreshProduct()" enabled="{product != null}"/>
+				<s:Line height="100%">
+					<s:stroke>
+						<s:SolidColorStroke color="0x777777" weight="1"/>
+					</s:stroke>
+				</s:Line>
+				<s:Button label="Clear" click="clearProduct()"/>
+				
+			</s:HGroup>
+		</s:BorderContainer>
+		
+		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
+						   minHeight="0">
+			<s:HGroup id="hboxMenu" width="100%" verticalAlign="middle" paddingBottom="5"
+					  paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change projection"/>
+				<s:ToggleButton label="LatLon CRS:84" selected="{m_iw.crs == 'CRS:84'}"
+								click="m_iw.setCRS('CRS:84', false); m_iw.setExtentBBoxRaw(-180,-90,180,90);"/>
+				<s:ToggleButton label="North Polar Stereo" selected="{m_iw.crs == 'ESRI:102018'}"
+								click="m_iw.setCRS('ESRI:102018', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="South Polar Stereo" selected="{m_iw.crs == 'ESRI:102021'}"
+								click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
+				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
+								click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBoxRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		
+		
+		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%"
+								   click="onMouseClick(event)">
+			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
+			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
+			
+			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}"
+												  zOrder="1000"/>
+			
+		</widgets:InteractiveWidget>
+		
+	</s:VGroup>
+	
+	<!-- Point tools dialog -->
+	<s:BorderContainer id="pointTools" visible="false" includeInLayout="false"
+					   backgroundColor="0xaaaaaa" backgroundAlpha="0.6" borderColor="0x444444" width="200">
+		<s:VGroup width="100%" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+			<s:Button height="32" width="100%" id="buttonFeatureRemove"
+					  click="removeSelectedFeature()" label="Remove selected feature"
+					  icon="@Embed(source='/assets/icons/common/delete-24.png')"/>
+			<s:Button height="32" width="100%" id="buttonPointRemove"
+					  label="Remove selected point"
+					  icon="@Embed(source='/assets/icons/common/delete-24.png')"
+					  click="removeSelectedPoint()"/>
+			<s:HGroup width="100%">
+				<s:Button label="Finish editing" enabled.normal="false"
+						  click="done();hideTools()" width="100%"/>
+				<s:Button label="Hide" click="hideTools()"/>
+			</s:HGroup>
+		</s:VGroup>
+	</s:BorderContainer>
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.features.StarFeature;
+			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
+			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
+			import com.iblsoft.flexiweather.net.loaders.AbstractURLLoader;
+			import com.iblsoft.flexiweather.ogc.FeatureBase;
+			import com.iblsoft.flexiweather.ogc.FeatureUpdateContext;
+			import com.iblsoft.flexiweather.ogc.Version;
+			import com.iblsoft.flexiweather.ogc.editable.IObjectWithBaseTimeAndValidity;
+			import com.iblsoft.flexiweather.ogc.editable.InteractiveLayerWFSEditable;
+			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditable;
+			import com.iblsoft.flexiweather.ogc.editable.WFSFeatureEditableMode;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.CloudAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.IcingAreaAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.StormAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.ThunderstormAreaAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.annotations.TurbulenceAreaAnnotation;
+			import com.iblsoft.flexiweather.ogc.editable.data.FeatureType;
+			import com.iblsoft.flexiweather.ogc.editable.data.MoveablePoint;
+			import com.iblsoft.flexiweather.ogc.editable.data.front.FrontType;
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.data.FeatureEditorProduct;
+			import com.iblsoft.flexiweather.ogc.editable.featureEditor.events.WFSTransactionEvent;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableMacro;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditablePressureCentre;
+			import com.iblsoft.flexiweather.ogc.editable.features.WFSFeatureEditableStorm;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.WFSFeatureEditableFront;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableCloud;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableIcingArea;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableThunderstormArea;
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.withAnnotation.WFSFeatureEditableTurbulenceArea;
+			import com.iblsoft.flexiweather.ogc.events.MoveablePointEvent;
+			import com.iblsoft.flexiweather.ogc.wfs.WFSFeatureBase;
+			import com.iblsoft.flexiweather.proj.Coord;
+			import com.iblsoft.flexiweather.proj.Projection;
+			import com.iblsoft.flexiweather.utils.ISO8601Parser;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			
+			import examples.featureEditor.events.FeatureEditorEvent;
+			import examples.featureEditor.popups.FeatureEditorProductSelectDialog;
+			import examples.featureEditor.popups.ProgressPopup;
+			private var currentFeatureType: String;
+			private var currentFeatureSetting: Object;
+			private var currentlyEditedFeature: WFSFeatureEditable;
+			private var currentlySelectedPoint: MoveablePoint;
+			
+			[Bindable]
+			public var product: FeatureEditorProduct;
+			
+			[Bindable]
+			public var productName: String = "Please select product";
+			
+			protected var mb_serviceBusy: Boolean = false;
+
+			[Bindable]
+			public var transactionInProgress: Boolean;
+			
+			override protected function onCreationComplete(event: FlexEvent): void
+			{
+				super.onCreationComplete(event);
+				Projection.addCRSByProj4("ESRI:54004", "+title=World Mercator +proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
+				Projection.addCRSByProj4("ESRI:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				Projection.addCRSByProj4("ESRI:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				m_iw.setCRS('CRS:84', false);
+				m_iw.setExtentBBoxRaw(-180, -90, 180, 90);
+				addLayer('dem', 1);
+				addLayer('foreground', 1);
+				addSupportedFeatures();
+				wfsLayer.addEventListener(InteractiveLayerWFSEditable.SELECTION_CHANGE, onWFSLayerSelectionChange);
+				getAllServicesCapabilities();
+			}
+			
+			/**
+			 * Add all supported features, which will be requested from server
+			 **/
+			private function addSupportedFeatures(): void
+			{
+				wfsLayer.addQueryFeature('Front');
+				wfsLayer.addQueryFeature('JetStream');
+				wfsLayer.addQueryFeature('Cloud');
+				wfsLayer.addQueryFeature('IcingArea');
+				wfsLayer.addQueryFeature('TurbulenceArea');
+				wfsLayer.addQueryFeature('ThunderstormArea');
+				wfsLayer.addQueryFeature('PressureCentre');
+				wfsLayer.addQueryFeature('Storm');
+				wfsLayer.addQueryFeature('Radiation');
+				wfsLayer.addQueryFeature('Tropopause');
+				wfsLayer.addQueryFeature('Geometry');
+				wfsLayer.addQueryFeature('Text');
+				wfsLayer.addQueryFeature('VolcanicAsh');
+				wfsLayer.addQueryFeature('Volcano');
+				wfsLayer.addQueryFeature('Macro');
+			}
+			
+			private function createNewEditableWFSLayer(): InteractiveLayerWFSEditable
+			{
+				return new InteractiveLayerWFSEditable(m_iw, new Version(1, 0, 0));
+			}
+			
+			private function changeTool(type: String, setting: Object = null): void
+			{
+				onNewObjectAdded();
+				currentlyEditedFeature = null;
+				currentFeatureType = type;
+				currentFeatureSetting = setting;
+				currentState = 'editing';
+			}
+			
+			public function updateFeatureBaseTimeAndValidity(newFeature: WFSFeatureEditable): void
+			{
+				wfsLayer.wfsService.updateFeatureBaseTimeAndValidity(newFeature);
+				
+			}
+			private function addCurvePoints(): void
+			{
+				currentlyEditedFeature.editMode = (buttonCurveAddPoints.selected) ? WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS : WFSFeatureEditableMode.MOVE_POINTS;
+			}
+			
+			private function removeSelectedFeature(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					wfsLayer.removeFeature(currentlyEditedFeature);
+					reset();
+				}
+				updatePointToolsPosition();
+			}
+			
+			private function removeSelectedPoint(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					if (currentlyEditedFeature.selectedMoveablePointIndex > -1)
+						currentlyEditedFeature.removePointAt(currentlyEditedFeature.selectedMoveablePointIndex);
+				}
+				updatePointToolsPosition();
+			}
+			
+			private function addStarWithLabel(pt: Point): void
+			{
+				currentlyEditedFeature = new StarFeature("http://www.iblsoft.com/wfs", "Star", null);
+				(currentlyEditedFeature as StarFeature).text = "Custom label for star";
+				(currentlyEditedFeature as StarFeature).bold = true;
+				(currentlyEditedFeature as StarFeature).color = 0xffffff;
+				(currentlyEditedFeature as StarFeature).fontSize = 18;
+				addFeatureToLayer(pt);
+			}
+			
+			private function addIconFeature(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableMacro("http://www.iblsoft.com/wfs", FeatureType.MACRO , null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableMacro).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableMacro).color = currentFeatureSetting.color;
+				}
+				addFeatureToLayer(pt);
+			}
+			
+				
+			private function addStar(pt: Point): void
+			{
+				currentlyEditedFeature = new StarFeature("http://www.iblsoft.com/wfs", "Star", null);
+				addFeatureToLayer(pt);
+			}
+			
+			private function addNewPressureCentre(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditablePressureCentre("http://www.iblsoft.com/wfs", FeatureType.PRESSURE_CENTRE, null);
+				addFeatureToLayer(pt);
+			}
+			private function addNewStorm(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableStorm("http://www.iblsoft.com/wfs", FeatureType.STORM, null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableStorm).type = currentFeatureSetting.type;
+//					(currentlyEditedFeature as WFSFeatureEditableStorm).label = currentFeatureSetting.label;
+				}
+				addFeatureToLayer(pt);
+			}
+			
+			private function addNewTurbulenceArea(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableTurbulenceArea("http://www.iblsoft.com/wfs", FeatureType.TURBULENCE_AREA, null);
+				if (currentFeatureSetting != null)
+					(currentlyEditedFeature as WFSFeatureEditableTurbulenceArea).degree = currentFeatureSetting.degree;
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			private function addNewThunderstorm(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableThunderstormArea("http://www.iblsoft.com/wfs", FeatureType.THUNDERSTORM_AREA, null);
+				if (currentFeatureSetting != null)
+					(currentlyEditedFeature as WFSFeatureEditableThunderstormArea).type = currentFeatureSetting.type;
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			private function addNewCloud(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableCloud("http://www.iblsoft.com/wfs", FeatureType.CLOUD, null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableCloud).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableCloud).distribution = currentFeatureSetting.distribution;
+				}
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			private function addNewcingArea(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableIcingArea("http://www.iblsoft.com/wfs", FeatureType.ICING_AREA, null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableIcingArea).type = currentFeatureSetting.type;
+					(currentlyEditedFeature as WFSFeatureEditableIcingArea).degree = currentFeatureSetting.degree;
+				}
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
+			
+			private function addNewFront(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableFront("http://www.iblsoft.com/wfs", FeatureType.FRONT, null);
+				if (currentFeatureSetting != null)
+				{
+					(currentlyEditedFeature as WFSFeatureEditableFront).type = currentFeatureSetting.type;
+				}
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				
+				addFeatureToLayer(pt);
+			}
+			
+			private function addFeatureToLayer(pt: Point): void
+			{
+				currentlyEditedFeature.coordinates = [m_iw.pointToCoord(pt.x, pt.y)];
+				updateFeatureBaseTimeAndValidity(currentlyEditedFeature);
+				wfsLayer.addFeature(currentlyEditedFeature);
+				wfsLayer.highlightItem(currentlyEditedFeature);
+				wfsLayer.selectItem(currentlyEditedFeature);
+			}
+			private function onNewObjectAdded(): void
+			{
+				reset();
+			}
+			
+			private function removeMoveablePointsListeners(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_SELECTION_CHANGE, onCurrentlyEditedFeaturePointSelectionChange);
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_MOVE, onCurrentlyEditedFeatureMove);
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
+				}
+			}
+			
+			private function addMoveablePointsListeners(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_SELECTION_CHANGE, onCurrentlyEditedFeaturePointSelectionChange);
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_MOVE, onCurrentlyEditedFeatureMove);
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
+				}
+			}
+			
+			private function hideTools(): void
+			{
+				changePointToolsVisibility(false);
+			}
+			
+			private function changePointToolsVisibility(visible: Boolean): void
+			{
+				pointTools.visible = visible;
+				pointTools.includeInLayout = visible;
+			}
+			
+			private function deleteMarker(): void
+			{
+				removeSelectedPoint();
+			}
+			
+			private function onCurrentlyEditedFeaturePointSelectionChange(event: MoveablePointEvent): void
+			{
+				currentlySelectedPoint = event.point;
+				changePointToolsVisibility(true);
+			}
+			
+			private function onCurrentlyEditedFeatureClick(event: MoveablePointEvent): void
+			{
+				currentlySelectedPoint = event.point;
+				changePointToolsVisibility(true);
+			}
+			
+			private function onCurrentlyEditedFeatureMove(event: MoveablePointEvent): void
+			{
+				currentlySelectedPoint = event.point;
+				updatePointToolsPosition();
+			}
+			
+			private function updatePointToolsPosition(): void
+			{
+				if (currentlyEditedFeature)
+				{
+					var p: Point = new Point(currentlySelectedPoint.x, currentlySelectedPoint.y);
+					currentlyEditedFeature.localToGlobal(p);
+					pointTools.x = p.x - pointTools.width / 2;
+					pointTools.y = p.y - 40;
+				}
+				else
+				{
+					hideTools();
+				}
+			}
+			
+			private function onWFSLayerSelectionChange(event: PropertyChangeEvent): void
+			{
+				trace("onSelectionChanged");
+				removeMoveablePointsListeners();
+				currentlyEditedFeature = event.newValue as WFSFeatureEditable;
+				if (currentlyEditedFeature)
+				{
+					if (isSinglePointFeature(currentlyEditedFeature))
+					{
+						if (currentlyEditedFeature.getPoints().length < 1)
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+						else
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
+					}
+					else
+					{
+						if (currentlyEditedFeature.getPoints().length < 2)
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+						else
+							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
+					}
+					addMoveablePointsListeners();
+				}
+				else
+				{
+					//unselect
+					reset();
+				}
+				if (currentlyEditedFeature)
+				{
+					buttonCurveAddPoints.selected = ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS) 
+						|| (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
+				}
+			}
+			
+			private function isSinglePointFeature(feature: WFSFeatureEditable): Boolean
+			{
+				if (feature is WFSFeatureEditablePressureCentre)
+					return true;
+				if (feature is StarFeature)
+					return true;
+				return false;
+			}
+			
+			private function done(): void
+			{
+				reset();
+			}
+			
+			private function reset(): void
+			{
+				wfsLayer.selectItem(null);
+				wfsLayer.highlightItem(null);
+				currentlyEditedFeature = null;
+				currentFeatureType = null;
+				currentFeatureSetting = null;
+				currentState = 'normal';
+			}
+			
+			private function onMouseClick(event: MouseEvent): void
+			{
+				var pt: Point = new Point(event.localX, event.localY);
+				if (currentlyEditedFeature)
+				{
+					//currently edited feature must be select to add new point
+					if (!currentlyEditedFeature.selected)
+						return;
+					if (event.target is MoveablePoint)
+					{
+						//do not add new point, user clicks on MoveablePoint
+						return;
+					}
+					if (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS ||
+						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_ON_CURVE ||
+						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS)
+					{
+						currentlyEditedFeature.addPoint(pt);
+						currentlyEditedFeature.update(new FeatureUpdateContext(FeatureUpdateContext.FULL_UPDATE));
+						wfsLayer.selectItem(currentlyEditedFeature);
+					}
+					else
+						trace("do not add Point, user is just moving existing point");
+				}
+				else
+				{
+					if (currentFeatureType)
+					{
+						switch (currentFeatureType)
+						{
+							case FeatureType.FRONT:
+							{
+								addNewFront(pt);
+								break;
+							}
+							case FeatureType.PRESSURE_CENTRE:
+							{
+								addNewPressureCentre(pt);
+								//we have added point and Pressure has just 1 point, so we're done
+								done();
+								break;
+							}
+							case FeatureType.STORM:
+							{
+								addNewStorm(pt);
+								//we have added point and Pressure has just 1 point, so we're done
+								done();
+								break;
+							}
+							case FeatureType.TURBULENCE_AREA:
+							{
+								addNewTurbulenceArea(pt);
+								break;
+							}
+							case FeatureType.THUNDERSTORM_AREA:
+							{
+								addNewThunderstorm(pt);
+								break;
+							}
+							case FeatureType.CLOUD:
+							{
+								addNewCloud(pt);
+								break;
+							}
+							case FeatureType.ICING_AREA:
+							{
+								addNewcingArea(pt);
+								break;
+							}
+							case IconFeatureType.DRIZZLE:
+							case IconFeatureType.FOG:
+							case IconFeatureType.HAZE:
+							case IconFeatureType.BLOWING_DUST:
+							case IconFeatureType.RAIN_STEADY:
+							case IconFeatureType.RAIN_SHOWERS:
+							case IconFeatureType.SNOW_STEADY:
+							case IconFeatureType.SNOW_SHOWERS:
+							case IconFeatureType.RASN_STEADY:
+							case IconFeatureType.RASN_SHOWERS:
+							case IconFeatureType.RAIN:
+							case IconFeatureType.DRIZZLE:
+							case IconFeatureType.PELLETS:
+							case IconFeatureType.FOG:
+							case IconFeatureType.HAZE:
+							case IconFeatureType.SMOKE:
+							case IconFeatureType.BLOWING_DUST:
+							{
+								addIconFeature(pt);
+								done();
+								break;
+							}
+							case 'star':
+							{
+								addStar(pt);
+								//we have added point and Star has just 1 point, so we're done
+								done();
+								break;
+							}
+							case 'starWithLabel':
+							{
+								addStarWithLabel(pt);
+								//we have added point and Star has just 1 point, so we're done
+								done();
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			private function clearProduct(): void
+			{
+				wfsLayer.removeAllFeatures();
+			}
+			
+			private function refreshProduct(): void
+			{
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+
+				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_LOADED, onRefreshLoaded);
+				showFeatureEditorProgressPopup("Refresh", "Refreshing product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
+				wfsLayer.refreshData();
+			}
+			
+			private var _refreshObject: Object;
+			private function onRefreshLoaded(event: InteractiveLayerEvent): void
+			{
+//				productIsLoading = false;
+				wfsLayer.removeEventListener(InteractiveLayerEvent.FEATURES_LOADED, onRefreshLoaded);
+				_refreshObject = event.refreshFeaturesObject;
+				
+				hideFeatureEditorProgressPopup();
+				
+				var modifiedFeaturesCount: int = 0;
+				var removedFeaturesCount: int = 0;
+				if (_refreshObject.hasOwnProperty('modifiedFeaturesCount'))
+				{
+					modifiedFeaturesCount = _refreshObject.modifiedFeaturesCount;
+				} 
+				if (_refreshObject.hasOwnProperty('removedFeatures'))
+				{
+					removedFeaturesCount = (_refreshObject.removedFeatures as ArrayCollection).length;
+				} 
+				if (modifiedFeaturesCount > 0 || removedFeaturesCount > 0)
+				{
+					Alert.show('There are modified features, which already exist on server. Do you want overwrite them and use new features from server?', 'Modified features', Alert.YES | Alert.NO, null);// onRefreshOverwriteDialog, null, Alert.NO);
+				}
+			}
+			
+			private function importProduct(): void
+			{
+				var popup: FeatureEditorProductSelectDialog = createProductDialog();
+				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED, onImportProductSelected);
+				
+			}
+			
+			private function loadProduct(): void
+			{
+				var popup: FeatureEditorProductSelectDialog = createProductDialog();
+				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED, onLoadProductSelected);
+			}
+			
+			private function issueProduct(): void
+			{
+				if(mb_serviceBusy) {
+					Alert.show("Another WFS transaction is in progress, please try again later.", "Feature Editor");
+					return;
+				}
+				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+				showFeatureEditorProgressPopup("Issue", "Issueing product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
+				
+				addTransactionListeners(wfsLayer);
+				wfsLayer.issue();
+				
+				mb_serviceBusy = true;
+			}
+			
+			private function saveProduct(): void
+			{
+				if(mb_serviceBusy) {
+					Alert.show("Another WFS transaction is in progress, please try again later.", "Feature Editor");
+					return;
+				}
+//				_backgroundJob = BackgroundJobManager.getInstance().startJob('save product');
+				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+				showFeatureEditorProgressPopup("Save", "Saving product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
+				
+				
+				addTransactionListeners(wfsLayer);
+				wfsLayer.save();
+			}
+			
+			private function selectProduct(): void
+			{
+				var popup: FeatureEditorProductSelectDialog = createProductDialog();
+				
+//				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_FREE_DRAWING_SELECTED, onFreeDrawingSelected);
+				popup.addEventListener(FeatureEditorEvent.FEATURE_EDITOR_PRODUCT_SELECTED, onProductSelected);
+			}
+			
+			private function createProductDialog(): FeatureEditorProductSelectDialog
+			{
+				var popup: FeatureEditorProductSelectDialog = new FeatureEditorProductSelectDialog();
+				
+				var products: ArrayCollection = new ArrayCollection();
+				products.addItem({label: "World", url: "${BASE_URL}/fdb/world"});
+				products.addItem({label: "Europe", url: "${BASE_URL}/fdb/europe"});
+				popup.products = products;
+				
+				PopUpManager.addPopUp(popup, FlexGlobals.topLevelApplication as DisplayObject, true);
+				PopUpManager.centerPopUp(popup);
+
+				return popup;
+			}
+			
+			private function onFreeDrawingSelected(event: FeatureEditorEvent): void
+			{
+				productName = "Free drawing";
+			}
+			private function onProductSelected(event: FeatureEditorEvent): void
+			{
+				product = event.product;
+				productName = product.toString();
+				
+				wfsLayer.wfsService.setProduct(product);
+			}
+			private function onImportProductSelected(event: FeatureEditorEvent): void
+			{
+				//do not use product from event, because it's import product, not current one
+//				product = event.product;
+				productName = product.toString();
+				
+				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+
+				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_IMPORTED, onImportLoaded);
+				wfsLayer.importData(product.serviceURL, run, validity);
+			}
+			
+			private function onImportLoaded(event: InteractiveLayerEvent): void
+			{
+				wfsLayer.removeEventListener(InteractiveLayerEvent.FEATURES_IMPORTED, onImportLoaded);
+//				m_docklet.enabled = _enabledBackup;
+				updateFeaturesTime(event.newFeatures);
+				
+				var newFeaturesCount: int = event.newFeaturesCount;
+//				if (newFeaturesCount > 0)
+//					productDirtyFlag = true;
+			}
+			
+			private function updateFeaturesTime(newFeatures: ArrayCollection): void
+			{
+				if (product)
+				{
+					var editableFeature: WFSFeatureEditable;
+					
+					var baseTime: Date = wfsLayer.wfsService.getBaseTime(product);
+					var validity: Date = wfsLayer.wfsService.getValidity(product);
+					
+					for each(var feature: WFSFeatureBase in newFeatures) 
+					{
+						editableFeature = feature as WFSFeatureEditable;
+						if(editableFeature == null)
+							continue;
+						
+						if(editableFeature is IObjectWithBaseTimeAndValidity) 
+						{
+							IObjectWithBaseTimeAndValidity(editableFeature).baseTime = baseTime;
+							IObjectWithBaseTimeAndValidity(editableFeature).validity = validity;
+						}
+					}	
+				}
+			}
+			
+			private function onLoadProductSelected(event: FeatureEditorEvent): void
+			{
+				product = event.product;
+				productName = product.toString();
+				
+				
+				var run: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getBaseTime(product));
+				var validity: String = ISO8601Parser.dateToString(wfsLayer.wfsService.getValidity(product));
+				showFeatureEditorProgressPopup("Load", "Loading product " + product.name + " for RUN: " + run + " VALIDITY: " + validity);
+				
+				wfsLayer.emptyRemovedFeatures();
+				
+				wfsLayer.wfsService.setProduct(product);
+				wfsLayer.addEventListener(InteractiveLayerEvent.FEATURES_LOADED, onFeaturesLoaded);
+				wfsLayer.loadData();
+			}
+			
+			private function onFeaturesLoaded(event: InteractiveLayerEvent): void
+			{
+				trace("onFeaturesLoaded");
+				hideFeatureEditorProgressPopup();
+			}
+			
+			public function addTransactionListeners(userLayer: InteractiveLayerWFSFeatureEditor): void
+			{
+				transactionInProgress = true;
+				
+				userLayer.addEventListener(WFSTransactionEvent.TRANSACTION_COMPLETE, onTransactionResult);
+				userLayer.addEventListener(WFSTransactionEvent.TRANSACTION_FAILED, onTransactionFailed);
+//				userLayer.addEventListener(UniURLLoaderEvent.DATA_LOADED, onTransactionResult);
+//				userLayer.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onTransactionFailed);
+				
+			}
+			public function removeTransactionListeners(userLayer: InteractiveLayerWFSFeatureEditor): void
+			{
+				transactionInProgress = false;
+				userLayer.removeEventListener(WFSTransactionEvent.TRANSACTION_COMPLETE, onTransactionResult);
+				userLayer.removeEventListener(WFSTransactionEvent.TRANSACTION_FAILED, onTransactionFailed);
+//				userLayer.removeEventListener(UniURLLoaderEvent.DATA_LOADED, onTransactionResult);
+//				userLayer.removeEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onTransactionFailed);
+			}
+			
+			protected function onTransactionFailed(event: WFSTransactionEvent): void
+			{
+				mb_serviceBusy = false;
+				
+				removeTransactionListeners(event.target as InteractiveLayerWFSFeatureEditor);
+				
+				hideFeatureEditorProgressPopup();
+			}
+			
+			protected function onTransactionResult(event: WFSTransactionEvent): void
+			{
+				
+				mb_serviceBusy = false;
+				
+				removeTransactionListeners(event.target as InteractiveLayerWFSFeatureEditor);
+				
+				hideFeatureEditorProgressPopup();
+				
+				var xml: XML = XML(event.result); // TransactionResponse xmlns="http://www.opengis.net/wfs"
+				var wfs: Namespace = new Namespace("http://www.opengis.net/wfs");
+				var ogc: Namespace = new Namespace("http://www.opengis.net/ogc");
+				
+				
+				if(xml.localName() != "TransactionResponse" && xml.localName() != "WFS_TransactionResponse") {
+					//				Log.getLogger("FeatureEditor").error("WFS backend transaction failure:\n" + xml.toXMLString());
+					//				Alert.show("WFS backend transaction failed, see log for defails.", "Feature Editor");
+					return; 
+				}
+				
+				switch (event.transactionType)
+				{
+					case InteractiveLayerWFSFeatureEditor.TRANSACTION_ISSUE:
+						Alert.show('Product was issued', 'Feature Editor');
+						break;
+				}
+				
+			}
+			
+			
+			private var _loadSavePopup: ProgressPopup;
+			
+			private function hideFeatureEditorProgressPopup(): void
+			{
+				if (_loadSavePopup)
+					PopUpManager.removePopUp(_loadSavePopup);	
+			}
+			
+			private function showFeatureEditorProgressPopup(title: String, description: String): void
+			{
+				_loadSavePopup = new ProgressPopup();
+				_loadSavePopup.title = title;
+				_loadSavePopup.description = description;
+				
+				PopUpManager.addPopUp(_loadSavePopup, FlexGlobals.topLevelApplication as DisplayObject, false);
+				PopUpManager.centerPopUp(_loadSavePopup);
+			}
+		]]>
+	</fx:Script>
+</FlexiWeatherTemplate>

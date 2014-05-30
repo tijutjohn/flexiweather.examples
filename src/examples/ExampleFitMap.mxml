@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:widgets="com.iblsoft.flexiweather.widgets.*"
+			   xmlns:layers="com.iblsoft.flexiweather.ogc.configuration.layers.*" 
+			   xmlns:ogc="com.iblsoft.flexiweather.ogc.*"
+			   xmlns:tiling="com.iblsoft.flexiweather.ogc.tiling.*"
+			   xmlns="examples.*" minWidth="955" minHeight="600"
+			   >
+	
+	<fx:Declarations>
+		<layers:QTTMSLayerConfiguration id="qttmsConfig1"/>
+		<layers:WMSWithQTTLayerConfiguration id="lcqtBackground" service="{serviceRIA}" label="Backgrounds/DEM" layerNames="['background-dem']" />
+		<layers:WMSWithQTTLayerConfiguration id="lcqtForeground" service="{serviceRIA}" label="Foreground" layerNames="['foreground-lines']" />
+		<layers:WMSLayerConfiguration id="lcqtSurface" service="{serviceObservations}" label="Surface" layerNames="['surface']" 
+									  autoRefreshPeriod="30"/>
+	</fx:Declarations>
+	
+	<layout>
+		<s:VerticalLayout/>
+	</layout>
+	
+	<s:ToggleButton id="tbFitMap" label="Use Fit Map mode" change="m_iw.autoLayoutInParent = (event.target as ToggleButton).selected"/>
+	
+	<widgets:InteractiveWidget id="m_iw" width="100%" height="100%"
+							   >
+		
+		<widgets:InteractiveLayerNorthIndicator zOrder="3"/>
+		<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1" enabled="true" minimimMapScale="100000"/>
+		<widgets:InteractiveLayerPan id="m_ilp" zOrder="2" enabled="true"/>
+		
+		<widgets:InteractiveLayerMap>
+			
+			<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtBackground}" name="DEMBackground" zOrder="-10"/>
+			
+			<ogc:InteractiveLayerQTTMS id="m_openStreetLayer" name="OpenStreetMap" zOrder="-8" 
+									   configuration="{qttmsConfig1}"
+									   />
+			
+			<ogc:InteractiveLayerWMS id="m_layerSufraceObservations" configuration="{lcqtSurface}" name="Surface" zOrder="0" 
+									 />
+			
+			<tiling:InteractiveLayerWMSWithQTT configuration="{lcqtForeground}" name="Foreground" zOrder="9"/>
+			
+		</widgets:InteractiveLayerMap>
+		
+	</widgets:InteractiveWidget>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			override protected function onCreationComplete(event: FlexEvent): void
+			{
+				super.onCreationComplete(event);
+				
+				InteractiveLayerWMSWithQTT.avoidTilingForAllLayers = true;
+				
+				getAllServicesCapabilities();
+				
+			}
+		]]>
+	</fx:Script>
+</FlexiWeatherTemplate>

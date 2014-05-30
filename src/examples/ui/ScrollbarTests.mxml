@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:HGroup>
+		<s:Button label="Add text" click="generateText()"/>
+	</s:HGroup>
+	<s:Group id="m_notificationGroup" width="39%" right="5" top="0" bottom="0" resize="recalculateNotificationGeometry()">
+		<s:DataGrid id="m_notificationList" width="100%" top="0" caretChange="showNotification()">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn headerText="Type"/>
+					<s:GridColumn headerText="Time" dataField="time"/>
+					<s:GridColumn headerText="Title" dataField="title"/>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		<s:HGroup id="m_notificationOperations" width="100%" verticalAlign="middle">
+			<s:Label text="Discard older than:"/>
+		</s:HGroup>
+		<s:HGroup id="m_notificationActions" width="100%" verticalAlign="middle" visible="{actionsAvailable}"/>
+		<mx:TextArea id="m_notificationText" width="100%"  bottom="0" minHeight="0"/>
+	</s:Group>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var actionsAvailable: Boolean = true;
+			
+			private function generateWord(): String
+			{
+				var chars: int = int(Math.random() * 10) + 2;
+				var txt: String = '';
+				for (var i: int = 0; i < chars; i++)
+				{
+					txt += String.fromCharCode(96 + int(26 * Math.random()));
+				}
+				return txt;
+			}
+			private function generateText(): void
+			{
+				var rows: int = int(Math.random() * 20) + 10;
+				var txt: String = '';
+				for (var i: int = 0; i < rows; i++)
+				{
+					var wordsCount: int = int(Math.random() * 7) + 3;
+					for (var j: int = 0; j < rows; j++)
+					{
+						txt += generateWord() + " ";
+					}
+					txt += "\n";
+				}
+				m_notificationText.text = txt;
+			}
+			public function showNotification(): void
+			{
+//				var index:int = m_notificationList.selectedIndex;
+//				if (index != -1)
+//				{
+////					var notification: NotificationData = ma_notifications[index];
+////					actionsAvailable = notification.possibleActions.length > 0;
+////					m_notificationActions.removeAllElements();
+////					for each (var action: ActionData in notification.possibleActions)
+////					{
+////						var button: Button = new Button();
+////						button.height = 21;
+////						button.id = action.id;
+////						button.label = action.name;
+////						button.toolTip = action.description;
+////						button.addEventListener(MouseEvent.CLICK, onActionChanged);
+////						m_notificationActions.addElement(button);
+////					}
+//					
+//					if (notification.contentType == 'text/html')
+//						m_notificationText.htmlText = notification.text;
+//					else
+//						m_notificationText.text = notification.text;
+//					
+//					if (notification.unread)
+//						--unreadNotifications;
+//					notification.unread = false;
+//					notification.update();
+//				}
+				
+				recalculateNotificationGeometry();
+//				dispatchEvent(new Event("selectionChange"));
+			}
+			
+			public function recalculateNotificationGeometry(): void
+			{
+				var gap: Number = 6;
+				var y: Number = m_notificationGroup.height * 0.4;
+				m_notificationList.height = y;
+				y += gap;
+				m_notificationOperations.y = y;
+				y += m_notificationOperations.height + gap;
+				
+				if (actionsAvailable)
+				{
+					m_notificationActions.y = y;
+					y += 21 + gap;
+				}
+				
+//				m_notificationTextContainter.top = y;
+				m_notificationText.top = y;
+			}
+		]]>
+	</fx:Script>
+</s:Application>

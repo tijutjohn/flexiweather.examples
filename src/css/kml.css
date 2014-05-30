@@ -2,13 +2,25 @@
 @namespace s "library://ns.adobe.com/flex/spark";
 @namespace mx "library://ns.adobe.com/flex/mx";
 @namespace controls "com.iblsoft.flexiweather.ogc.kml.controls.*";
+@namespace skins "com.iblsoft.flexiweather.ogc.kml.controls.skins.*";
 
 controls|KMLInfoWindow
 {
-	backgroundColor: #666666;
+	backgroundColor: #cccccc;
 	backgroundColor: 0.6;
 	color: #ffffff;
 }
+
+skins|KMLInfoWindowBottomCenterSkin
+{
+	backgroundColor: #cccccc;
+}
+
+skins|KMLInfoWindowTopCenterSkin
+{
+	backgroundColor: #cccccc;
+}
+
 
 s|Label.kmlInfoWindowHeadline
 {
