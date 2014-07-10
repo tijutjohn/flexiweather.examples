@@ -82,14 +82,12 @@ package examples
 				scm.addEventListener(ServiceCapabilitiesEvent.CAPABILITIES_LOADED, onCapabilitiesLoaded);
 			}
 			
-			var map: InteractiveLayerMap;
 			
 			//add default map, if it is not there
-			var layersCount: int = m_iw.numLayers;
-//			map = m_iw.getLayerByType(InteractiveLayerMap) as InteractiveLayerMap;
-			
-			if (!map)
+			if (m_iw)
 			{
+				var map: InteractiveLayerMap;
+				
 				map = new InteractiveLayerMap();
 				m_iw.addLayer(map);
 			}
