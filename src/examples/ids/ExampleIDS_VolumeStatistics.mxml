@@ -129,8 +129,7 @@
 					"4a) Click the 'Display on the map' button to see to required coverage data on the map.<br/>" +
 					"4b) Click one of the appropriate 'Get ...' button to download coverage data in the selected format " +
 					"(GRIB1, JSON).";
-			//private const WCS_URL: String = "http://palo:8008/test";
-			private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
+			private const WCS_URL: String = "https://ogcie.iblsoft.com/ncep/gefs";
 
 			/**
 			 * Initialization of example.

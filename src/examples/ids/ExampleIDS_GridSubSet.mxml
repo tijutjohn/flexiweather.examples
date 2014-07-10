@@ -115,8 +115,7 @@
 					"3a) Click the 'Display on the map' button to see to required coverage data on the map.<br/>" +
 					"3b) Click one of the appropriate 'Get ...' button to download coverage data in the selected format (GeoTIFF, GoeTIFFfloat, " +
 					"GRIB1, NetCDF3, KML, JSON).";
-			//private const WCS_URL: String = "http://palo:8008/test";
-			private const WCS_URL: String = "http://wms.iblsoft.com/gfs";
+			private const WCS_URL: String = "https://ogcie.iblsoft.com/ncep/gefs";
 
 			/**
 			 * Initialization of example.
@@ -146,7 +145,7 @@
 				m_xmlLoader.addEventListener(UniURLLoaderErrorEvent.DATA_LOAD_FAILED, onDataLoadedFailed);
 				m_xmlLoader.addEventListener(UniURLLoaderEvent.DATA_LOADED, onDescribeCoverageDataLoaded);
 				m_legendTextArea.textFlow = spark.utils.TextFlowUtil.importFromString(LEGEND);
-				ma_parameters.addItem({"label": "Precipitation", "value": "precipitation"});
+				ma_parameters.addItem({"label": "Precipitation", "value": "total-precipitation"});
 				ma_parameters.addItem({"label": "Temperature", "value": "temperature"});
 				ma_parameters.addItem({"label": "Relative Humidity", "value": "relative-humidity"});
 				m_parameterComboBox.selectedIndex = 0;
@@ -352,7 +351,7 @@
 				var data: Object = event.result;
 				var a_coverageData: Array = data["coverageData"];
 				var colorGradient: ColorGradient;
-				if (coverageName == "precipitation")
+				if (coverageName == "total-precipitation")
 				{
 					colorGradient = new ColorGradient(
 							[0.0, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0,
@@ -406,7 +405,7 @@
 				requestParams["COVERAGE"] = coverageName;
 				requestParams["DIM_RUN"] = ISO8601Parser.dateToString(run);
 				requestParams["DIM_FORECAST"] = "PT" + forecast.hoursTotal.toString() + "H";
-				if (coverageName == "precipitation")
+				if (coverageName == "total-precipitation")
 					requestParams["ELEVATION"] = "gnd-surf";
 				else
 					requestParams["ELEVATION"] = "2m";
