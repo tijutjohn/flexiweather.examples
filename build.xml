@@ -32,6 +32,9 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		
