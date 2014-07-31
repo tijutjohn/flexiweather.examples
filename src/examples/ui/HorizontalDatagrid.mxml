@@ -6,7 +6,7 @@
 				applicationComplete="init()"
 				xmlns="*">
 	
-	<fx:Style source="css/fonts.css"/>
+	<fx:Style source="/css/fonts.css"/>
 	
 	<fx:Script>
 		<![CDATA[
