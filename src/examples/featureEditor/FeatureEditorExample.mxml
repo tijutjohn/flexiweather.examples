@@ -86,6 +86,12 @@
 					<s:Button label="* Blowing Dust/Sand" click="changeTool(IconFeatureType.BLOWING_DUST, {type: IconFeatureType.BLOWING_DUST, color: 0xA8A87D} )" enabled.editing="false"/>
 				</s:HGroup>
 				<s:HGroup width="100%">
+					<!--
+
+					<s:Button label="JetStream" click="changeTool(FeatureType.JET_STREAM)" enabled.editing="false"/>
+					<s:ToggleButton id="butAddWindSpeedSymbol"  click="editJetStreamWindBarbs()"/>
+					-->
+
 					<s:Button label="Star" click="changeTool('star')" enabled.editing="false"/>
 					<s:Button label="Star with Label" click="changeTool('starWithLabel')"
 							  enabled.editing="false"/>
@@ -148,7 +154,7 @@
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 			
-			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}"
+			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}" wfsEditableSelectionChange="onCurrentlyEditedFeatureSelectionChange(event)"
 												  zOrder="1000"/>
 			
 		</widgets:InteractiveWidget>
@@ -175,6 +181,9 @@
 	</s:BorderContainer>
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.editable.features.curves.WFSFeatureEditableJetStream;
+			import com.iblsoft.flexiweather.ogc.wfs.WFSFeature;
+			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.features.StarFeature;
 			import com.iblsoft.flexiweather.events.InteractiveLayerEvent;
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
@@ -245,6 +254,7 @@
 				Projection.addCRSByProj4("ESRI:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				m_iw.setCRS('CRS:84', false);
 				m_iw.setExtentBBoxRaw(-180, -90, 180, 90);
+				m_iw.setViewBBox(new BBox(175, 40, 185, 90), true);
 				addLayer('dem', 1);
 				addLayer('foreground', 1);
 				addSupportedFeatures();
@@ -378,6 +388,17 @@
 				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
 				addFeatureToLayer(pt);
 			}
+			private function addNewJetStream(pt: Point): void
+			{
+				currentlyEditedFeature = new WFSFeatureEditableJetStream("http://www.iblsoft.com/wfs", FeatureType.JET_STREAM, null);
+//				if (currentFeatureSetting != null)
+//				{
+//					(currentlyEditedFeature as WFSFeatureEditableCloud).type = currentFeatureSetting.type;
+//					(currentlyEditedFeature as WFSFeatureEditableCloud).distribution = currentFeatureSetting.distribution;
+//				}
+				currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+				addFeatureToLayer(pt);
+			}
 			private function addNewCloud(pt: Point): void
 			{
 				currentlyEditedFeature = new WFSFeatureEditableCloud("http://www.iblsoft.com/wfs", FeatureType.CLOUD, null);
@@ -420,6 +441,8 @@
 				wfsLayer.addFeature(currentlyEditedFeature);
 				wfsLayer.highlightItem(currentlyEditedFeature);
 				wfsLayer.selectItem(currentlyEditedFeature);
+				
+				updatePointToolsPosition();
 			}
 			private function onNewObjectAdded(): void
 			{
@@ -430,9 +453,14 @@
 			{
 				if (currentlyEditedFeature)
 				{
+					
 					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_SELECTION_CHANGE, onCurrentlyEditedFeaturePointSelectionChange);
 					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_MOVE, onCurrentlyEditedFeatureMove);
 					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_DRAG_START, onCurrentlyEditedPointDragStart);
+					currentlyEditedFeature.removeEventListener(MoveablePointEvent.MOVEABLE_POINT_DRAG_END, onCurrentlyEditedPointDragStop);
+					
+					currentState = 'normal';
 				}
 			}
 			
@@ -443,6 +471,10 @@
 					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_SELECTION_CHANGE, onCurrentlyEditedFeaturePointSelectionChange);
 					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_MOVE, onCurrentlyEditedFeatureMove);
 					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_CLICK, onCurrentlyEditedFeatureClick);
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_DRAG_START, onCurrentlyEditedPointDragStart);
+					currentlyEditedFeature.addEventListener(MoveablePointEvent.MOVEABLE_POINT_DRAG_END, onCurrentlyEditedPointDragStop);
+					
+					currentState = 'editing';
 				}
 			}
 			
@@ -462,10 +494,29 @@
 				removeSelectedPoint();
 			}
 			
+			private function onCurrentlyEditedFeatureSelectionChange(event: PropertyChangeEvent): void
+			{
+				if (event.property == 'selectedItem')
+				{
+					changePointToolsVisibility(event.newValue != null);
+					updatePointToolsPosition();
+				}
+			}
 			private function onCurrentlyEditedFeaturePointSelectionChange(event: MoveablePointEvent): void
 			{
 				currentlySelectedPoint = event.point;
+				
 				changePointToolsVisibility(true);
+				updatePointToolsPosition();
+			}
+			
+			private function onCurrentlyEditedPointDragStart(event: MoveablePointEvent): void
+			{
+				pointTools.enabled = false;
+			}
+			private function onCurrentlyEditedPointDragStop(event: MoveablePointEvent): void
+			{
+				pointTools.enabled = true;
 			}
 			
 			private function onCurrentlyEditedFeatureClick(event: MoveablePointEvent): void
@@ -482,12 +533,12 @@
 			
 			private function updatePointToolsPosition(): void
 			{
-				if (currentlyEditedFeature)
+				if (currentlyEditedFeature && currentlySelectedPoint)
 				{
 					var p: Point = new Point(currentlySelectedPoint.x, currentlySelectedPoint.y);
 					currentlyEditedFeature.localToGlobal(p);
-					pointTools.x = p.x - pointTools.width / 2;
-					pointTools.y = p.y - 40;
+					pointTools.x = m_iw.x + p.x - pointTools.width / 2;
+					pointTools.y = m_iw.y + p.y - pointTools.height - 60;
 				}
 				else
 				{
@@ -502,41 +553,57 @@
 				currentlyEditedFeature = event.newValue as WFSFeatureEditable;
 				if (currentlyEditedFeature)
 				{
+					var pointsCount: int = 0;
+					var arr: Array = currentlyEditedFeature.getPoints();
+					if (arr)
+						pointsCount = arr.length;
+					
+					addMoveablePointsListeners();
 					if (isSinglePointFeature(currentlyEditedFeature))
 					{
-						if (currentlyEditedFeature.getPoints().length < 1)
+						if (pointsCount < 1)
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
 						else
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
 					}
 					else
 					{
-						if (currentlyEditedFeature.getPoints().length < 2)
+						if (pointsCount < 2)
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
 						else
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
 					}
-					addMoveablePointsListeners();
 				}
 				else
 				{
 					//unselect
 					reset();
+					
+					hideTools();
 				}
 				if (currentlyEditedFeature)
 				{
 					buttonCurveAddPoints.selected = ((currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS) 
 						|| (currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS));
 				}
+				changePointToolsVisibility(currentlyEditedFeature != null);
+				updatePointToolsPosition();
 			}
 			
 			private function isSinglePointFeature(feature: WFSFeatureEditable): Boolean
 			{
 				if (feature is WFSFeatureEditablePressureCentre)
 					return true;
+				if (feature is WFSFeatureEditableMacro)
+					return true;
 				if (feature is StarFeature)
 					return true;
 				return false;
+			}
+			
+			private function finishAddingSinglePointFeature(): void
+			{
+				done();
 			}
 			
 			private function done(): void
@@ -571,8 +638,8 @@
 						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_ON_CURVE ||
 						currentlyEditedFeature.editMode == WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS)
 					{
-						currentlyEditedFeature.addPoint(pt);
-						currentlyEditedFeature.update(new FeatureUpdateContext(FeatureUpdateContext.FULL_UPDATE));
+//						currentlyEditedFeature.addPoint(pt);
+//						currentlyEditedFeature.update(new FeatureUpdateContext(FeatureUpdateContext.FULL_UPDATE));
 						wfsLayer.selectItem(currentlyEditedFeature);
 					}
 					else
@@ -593,14 +660,14 @@
 							{
 								addNewPressureCentre(pt);
 								//we have added point and Pressure has just 1 point, so we're done
-								done();
+								finishAddingSinglePointFeature();
 								break;
 							}
 							case FeatureType.STORM:
 							{
 								addNewStorm(pt);
 								//we have added point and Pressure has just 1 point, so we're done
-								done();
+								finishAddingSinglePointFeature();
 								break;
 							}
 							case FeatureType.TURBULENCE_AREA:
@@ -616,6 +683,11 @@
 							case FeatureType.CLOUD:
 							{
 								addNewCloud(pt);
+								break;
+							}
+							case FeatureType.JET_STREAM:
+							{
+								addNewJetStream(pt);
 								break;
 							}
 							case FeatureType.ICING_AREA:
@@ -642,21 +714,21 @@
 							case IconFeatureType.BLOWING_DUST:
 							{
 								addIconFeature(pt);
-								done();
+								finishAddingSinglePointFeature();
 								break;
 							}
 							case 'star':
 							{
 								addStar(pt);
 								//we have added point and Star has just 1 point, so we're done
-								done();
+								finishAddingSinglePointFeature();
 								break;
 							}
 							case 'starWithLabel':
 							{
 								addStarWithLabel(pt);
 								//we have added point and Star has just 1 point, so we're done
-								done();
+								finishAddingSinglePointFeature();
 								break;
 							}
 						}
@@ -932,6 +1004,29 @@
 				PopUpManager.addPopUp(_loadSavePopup, FlexGlobals.topLevelApplication as DisplayObject, false);
 				PopUpManager.centerPopUp(_loadSavePopup);
 			}
+			
+			
+			//temporary JetStream functionality
+			/*
+			protected function editJetStreamWindBarbs(): void
+			{
+				if (!currentlyEditedFeature)
+				{
+					//FIXME is this check OK? commented by Franto
+					return;
+				}
+				if (butAddWindSpeedSymbol.selected){
+					currentlyEditedFeature.editMode = WFSFeatureEditableMode.EDIT_WIND_BARBS_POINTS;
+				} else {
+					if (buttonCurveAddPoints.selected){
+						currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
+					} else {
+						currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
+					}
+					
+				}
+			}
+			*/
 		]]>
 	</fx:Script>
 </FlexiWeatherTemplate>

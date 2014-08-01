@@ -68,6 +68,7 @@
             example.percentWidth = 100;
             example.percentHeight = 100;
             moduleGroup.addElement(example);
+			
         }
         ]]></fx:Script>
 

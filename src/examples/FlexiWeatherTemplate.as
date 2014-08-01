@@ -97,20 +97,20 @@ package examples
 
 		protected function onCapabilitiesNodeParsed(event: ServiceCapabilitiesEvent): void
 		{
-			trace("FlexiWeatherTemplate onCapabilitiesNodeParsed");
+//			trace("FlexiWeatherTemplate onCapabilitiesNodeParsed");
 		}
 		
 		protected function onCapabilitiesLoaded(event: ServiceCapabilitiesEvent): void
 		{
-			trace("FlexiWeatherTemplate onCapabilitiesLoaded service: " + event.service.label);
+//			trace("FlexiWeatherTemplate onCapabilitiesLoaded service: " + event.service.label);
 		}
 		protected function onAllCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 		{
-			trace("FlexiWeatherTemplate onAllCapabilitiesUpdated");
+//			trace("FlexiWeatherTemplate onAllCapabilitiesUpdated");
 		}
 		protected function onCapabilitiesUpdated(event: ServiceCapabilitiesEvent): void
 		{
-			trace("FlexiWeatherTemplate onCapabilitiesUpdated service: " + event.service.label);
+//			trace("FlexiWeatherTemplate onCapabilitiesUpdated service: " + event.service.label);
 		}
 		protected function getAllServicesCapabilities(): void
 		{
