@@ -14,6 +14,7 @@ package com.iblsoft.features
 		public function StarFeature(s_namespace: String, s_typeName: String, s_featureId: String)
 		{
 			super(s_namespace, s_typeName, s_featureId);
+			mb_isSinglePointFeature = true;
 			star = new starClass();
 			bitmap = star;
 		}
