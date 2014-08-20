@@ -156,7 +156,7 @@
 			
 			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}" wfsEditableSelectionChange="onCurrentlyEditedFeatureSelectionChange(event)"
 												  zOrder="1000"/>
-			
+			<widgets:InteractiveLayerReflection zOrder="2000" visible="false"/>
 		</widgets:InteractiveWidget>
 		
 	</s:VGroup>
@@ -558,21 +558,21 @@
 					if (arr)
 						pointsCount = arr.length;
 					
-					addMoveablePointsListeners();
-					if (isSinglePointFeature(currentlyEditedFeature))
+					if (currentlyEditedFeature.isSinglePointFeature)
 					{
-						if (pointsCount < 1)
+						if (currentlyEditedFeature.getPoints().length < 1)
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
 						else
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
 					}
 					else
 					{
-						if (pointsCount < 2)
+						if (currentlyEditedFeature.getPoints().length < 2)
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
 						else
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.MOVE_POINTS;
 					}
+					addMoveablePointsListeners();
 				}
 				else
 				{
@@ -588,17 +588,6 @@
 				}
 				changePointToolsVisibility(currentlyEditedFeature != null);
 				updatePointToolsPosition();
-			}
-			
-			private function isSinglePointFeature(feature: WFSFeatureEditable): Boolean
-			{
-				if (feature is WFSFeatureEditablePressureCentre)
-					return true;
-				if (feature is WFSFeatureEditableMacro)
-					return true;
-				if (feature is StarFeature)
-					return true;
-				return false;
 			}
 			
 			private function finishAddingSinglePointFeature(): void
@@ -623,6 +612,9 @@
 			
 			private function onMouseClick(event: MouseEvent): void
 			{
+				if (event.ctrlKey || event.shiftKey)
+					return;
+				
 				var pt: Point = new Point(event.localX, event.localY);
 				if (currentlyEditedFeature)
 				{
