@@ -150,7 +150,7 @@
 			
 			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}"
 												  zOrder="1000"/>
-			
+			<widgets:InteractiveLayerReflection zOrder="2000" visible="false"/>
 		</widgets:InteractiveWidget>
 		
 	</s:VGroup>
@@ -502,7 +502,7 @@
 				currentlyEditedFeature = event.newValue as WFSFeatureEditable;
 				if (currentlyEditedFeature)
 				{
-					if (isSinglePointFeature(currentlyEditedFeature))
+					if (currentlyEditedFeature.isSinglePointFeature)
 					{
 						if (currentlyEditedFeature.getPoints().length < 1)
 							currentlyEditedFeature.editMode = WFSFeatureEditableMode.ADD_POINTS_WITH_MOVE_POINTS;
@@ -530,15 +530,6 @@
 				}
 			}
 			
-			private function isSinglePointFeature(feature: WFSFeatureEditable): Boolean
-			{
-				if (feature is WFSFeatureEditablePressureCentre)
-					return true;
-				if (feature is StarFeature)
-					return true;
-				return false;
-			}
-			
 			private function done(): void
 			{
 				reset();
@@ -556,6 +547,9 @@
 			
 			private function onMouseClick(event: MouseEvent): void
 			{
+				if (event.ctrlKey || event.shiftKey)
+					return;
+				
 				var pt: Point = new Point(event.localX, event.localY);
 				if (currentlyEditedFeature)
 				{
