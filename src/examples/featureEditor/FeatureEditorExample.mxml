@@ -105,10 +105,10 @@
 			</s:VGroup>
 		</s:BorderContainer>
 		
-		<s:BorderContainer width="100%" backgroundColor="0xe0e0e0" borderColor="0xaaaaaa">
+		<s:BorderContainer width="100%" minHeight="0" backgroundColor="0xe0e0e0" borderColor="0xaaaaaa">
 			<s:HGroup width="100%" paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10" verticalAlign="middle">
 				
-				<s:BorderContainer backgroundColor="0xf0f0f0" borderColor="0xaaaaaa">
+				<s:BorderContainer backgroundColor="0xf0f0f0" borderColor="0xaaaaaa" minHeight="0">
 					<s:HGroup verticalAlign="middle" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2">
 						<s:Label text="Product:" fontWeight="bold"/>
 						<s:Label text="{productName}" width="200"/>
@@ -156,7 +156,7 @@
 			
 			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}" wfsEditableSelectionChange="onCurrentlyEditedFeatureSelectionChange(event)"
 												  zOrder="1000"/>
-			<widgets:InteractiveLayerReflection zOrder="2000" visible="false"/>
+			<widgets:InteractiveLayerReflection zOrder="2000" visible="true"/>
 		</widgets:InteractiveWidget>
 		
 	</s:VGroup>

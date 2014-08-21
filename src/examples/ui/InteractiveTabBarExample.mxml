@@ -60,13 +60,13 @@
 							drawCoords.push(coord.shift(), coord.shift());
 						} else if (command == "c")
 						{
-							drawCommands.push(GraphicsPathCommand.CUBIC_CURVE_TO);
-							coord = cmd.shift().split(',');
-							drawCoords.push(coord.shift(), coord.shift());
-							coord = cmd.shift().split(',');
-							drawCoords.push(coord.shift(), coord.shift());
-							coord = cmd.shift().split(',');
-							drawCoords.push(coord.shift(), coord.shift());
+//							drawCommands.push(GraphicsPathCommand.CUBIC_CURVE_TO);
+//							coord = cmd.shift().split(',');
+//							drawCoords.push(coord.shift(), coord.shift());
+//							coord = cmd.shift().split(',');
+//							drawCoords.push(coord.shift(), coord.shift());
+//							coord = cmd.shift().split(',');
+//							drawCoords.push(coord.shift(), coord.shift());
 						} else if (command == "z")
 						{
 							drawCommands.push(GraphicsPathCommand.NO_OP);
