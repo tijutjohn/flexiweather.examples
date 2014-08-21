@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600"
+			   xmlns:tabbar="com.iblsoft.flexiweather.widgets.controls.tabbar.*"
+			   backgroundColor="#eeeeee"
+			   creationComplete="complete()" xmlns:panels="com.iblsoft.flexiweather.widgets.containers.panels.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Style source="/css/fonts.css"/>
+	
+		<fx:Script>
+			<![CDATA[
+				import com.iblsoft.flexiweather.widgets.controls.tabbar.InteractiveTabBar;
+				
+				import mx.collections.ArrayCollection;
+				
+				
+				[Bindable]
+				public var  tabBarProvider: ArrayCollection = new ArrayCollection(String('Layouts,Layers,Areas').split(','));
+				
+				private function complete():void {
+					//make first tab un-closeable
+//					tabBar.setCloseableTab(0,false);
+				}
+				
+				private function forceClose():void{
+//					tabBar.closeTab(0, tabBar.selectedIndex);
+				}
+				
+				private function addTab():void{
+//					tabBar.dataProvider.addItem('Foo');
+				}
+				
+				private function draw(): void
+				{
+					var gr: Graphics = canvas.graphics;
+					gr.clear();
+					gr.lineStyle(1,0);
+					
+					var drawCoords:Vector.<Number> = new Vector.<Number>();
+					var drawCommands:Vector.<int> = new Vector.<int>();
+					
+					var cmd: Array = txtPath.text.split(' ');
+					var coord: Array
+					while (cmd.length > 0)
+					{
+						var command: String = (cmd.shift() as String).toLowerCase();
+						if (command == "m")
+						{
+							drawCommands.push(GraphicsPathCommand.MOVE_TO);
+							coord = cmd.shift().split(',');
+							drawCoords.push(coord.shift(), coord.shift());
+						} else if (command == "l")
+						{
+							drawCommands.push(GraphicsPathCommand.LINE_TO);
+							coord = cmd.shift().split(',');
+							drawCoords.push(coord.shift(), coord.shift());
+						} else if (command == "c")
+						{
+//							drawCommands.push(GraphicsPathCommand.CUBIC_CURVE_TO);
+//							coord = cmd.shift().split(',');
+//							drawCoords.push(coord.shift(), coord.shift());
+//							coord = cmd.shift().split(',');
+//							drawCoords.push(coord.shift(), coord.shift());
+//							coord = cmd.shift().split(',');
+//							drawCoords.push(coord.shift(), coord.shift());
+						} else if (command == "z")
+						{
+							drawCommands.push(GraphicsPathCommand.NO_OP);
+						}
+					}
+					
+					gr.drawPath(drawCommands, drawCoords);
+				}
+			]]>
+		</fx:Script>
+		
+		<fx:Style>
+			@namespace s "library://ns.adobe.com/flex/spark";
+			@namespace tabbar "com.iblsoft.flexiweather.widgets.controls.tabbar.skins.*";
+			
+			tabbar|InteractiveTabBar {
+				skinClass:ClassReference('com.iblsoft.flexiweather.widgets.controls.tabbar.skins.InteractiveTabBarSkin');
+			}
+			tabbar|InteractiveTabBarButton {
+				skinClass:ClassReference('com.iblsoft.flexiweather.widgets.controls.tabbar.skins.InteractiveTabBarButtonSkin');
+			}
+			s|Button {
+				fontSize:11;
+			}
+		</fx:Style>
+		
+	<s:VGroup width="100%">
+		<s:HGroup left="5" bottom="5">
+			<!--<s:Button label="Force Close First Tab" click="forceClose()" />
+			<s:Button label="Add Tab" click="addTab()" enabled="{tabBar.dataProvider.length &lt; 8}" />
+			<s:Button label="Change To Horizontal" click="tabBar.direction = InteractiveTabBar.DIRECTION_HORIZONTAL" />
+			<s:Button label="Change To Vertical on Left Side" click="tabBar.direction = InteractiveTabBar.DIRECTION_VERTICAL_LEFT" />
+			<s:Button label="Change To Vertical on Right Side" click="tabBar.direction = InteractiveTabBar.DIRECTION_VERTICAL_RIGHT" />-->
+			
+		</s:HGroup>
+		<s:VGroup width="100%" height="150">
+			<s:TextInput id="txtPath" text="M 25,0 C 23,10 2,5 0,15 L 0,50 C 2,60 23,55 25,65 Z" enter="draw()" width="100%"/>
+			<mx:UIComponent id="canvas" width="100%" height="100%"/>
+		</s:VGroup>
+		
+<!--		<tabbar:InteractiveTabBar id="tabBar" left="5" top="5">
+			<s:ArrayCollection source="['Layers','Layouts','Dimensions','Areas']" />
+		</tabbar:InteractiveTabBar>-->
+	</s:VGroup>
+	
+	<s:Group width="100%" height="100%" top="150">
+		
+		<panels:InteractiveTabBarPanel height="100%" width="200" tabPosition="{InteractiveTabBar.TAB_POSITION_LEFT}" viewStack="{stack1}">
+			<s:VGroup width="100%" height="100%">
+				<s:BorderContainer width="100%" height="22" borderVisible="false" backgroundColor="0xaaaaaa">
+					<s:HGroup width="100%" height="20" paddingTop="2" paddingLeft="3">
+						<s:Label text="Title" width="100%" color="0xffffff"/>
+						<s:Button width="20" height="20" label="x" fontSize="10"/>
+					</s:HGroup>
+				</s:BorderContainer>
+				
+				<mx:ViewStack id="stack1" width="100%" height="100%" selectedIndex="0">
+					<s:NavigatorContent width="100%" height="100%" label="Layers">
+						<s:VGroup width="100%" height="100%">
+							<s:Button label="Ta 1" width="100%"/>
+						</s:VGroup>
+					</s:NavigatorContent>
+					<s:NavigatorContent width="100%" height="100%" label="Layouts">
+						<s:List dataProvider="{tabBarProvider}" width="100%" height="100%"/>
+					</s:NavigatorContent>
+				</mx:ViewStack>
+			</s:VGroup>
+		</panels:InteractiveTabBarPanel>
+	</s:Group>
+	<s:Group width="100%" height="100%" top="150" right="0">
+		
+		<panels:InteractiveTabBarPanel height="100%" width="200" tabPosition="{InteractiveTabBar.TAB_POSITION_RIGHT}" viewStack="{stack2}">
+			<s:VGroup width="100%" height="100%">
+				<s:BorderContainer width="100%" height="22" borderVisible="false" backgroundColor="0xaaaaaa">
+					<s:HGroup width="100%" height="20" paddingTop="2" paddingLeft="3">
+						<s:Label text="Title" width="100%" color="0xffffff"/>
+						<s:Button width="20" height="20" label="x" fontSize="10"/>
+					</s:HGroup>
+				</s:BorderContainer>
+				
+				<mx:ViewStack id="stack2" width="100%" height="100%" selectedIndex="0">
+					<s:NavigatorContent width="100%" height="100%" label="Layers">
+						<s:VGroup width="100%" height="100%">
+							<s:Button label="Ta 1" width="100%"/>
+						</s:VGroup>
+					</s:NavigatorContent>
+					<s:NavigatorContent width="100%" height="100%" label="Layouts">
+						<s:List dataProvider="{tabBarProvider}" width="100%" height="100%"/>
+					</s:NavigatorContent>
+				</mx:ViewStack>
+			</s:VGroup>
+		</panels:InteractiveTabBarPanel>
+	</s:Group>
+			
+			<!--<panels:InteractiveTabBarPanel height="100%" width="200" tabPosition="{InteractiveTabBar.TAB_POSITION_RIGHT}" tabBarDataProvider="{tabBarProvider}">
+				<mx:ViewStack id="stack2" width="100%" height="100%" selectedIndex="0">
+					<s:NavigatorContent width="100%" height="100%" label="Tab 3">
+						<s:VGroup width="100%" height="100%">
+							<s:Button label="Test 1" width="100%" height="100%"/>
+						</s:VGroup>
+					</s:NavigatorContent>
+					<s:NavigatorContent width="100%" height="100%" label="Tab 4">
+						<s:VGroup width="100%" height="100%">
+							<s:Button label="Test 2" width="100%" height="100%"/>
+						</s:VGroup>
+					</s:NavigatorContent>
+					<s:NavigatorContent width="100%" height="100%" label="Tab 5">
+						<s:VGroup width="100%" height="100%">
+							<s:Button label="Test 3" width="100%" height="100%"/>
+						</s:VGroup>
+					</s:NavigatorContent>
+				</mx:ViewStack>
+			</panels:InteractiveTabBarPanel>
+			
+			<panels:InteractiveTabBarPanel height="100%" tabPosition="{InteractiveTabBarPanel.TAB_POSITION_RIGHT}" tabBarDataProvider="{tabBarProvider}">
+				<s:VGroup width="100%" height="100%">
+					<s:Button label="Test Content" width="100%" height="100%"/>
+					<s:Button label="Test Content" width="100%" height="100%"/>
+					<s:Button label="Test Content" width="100%" height="100%"/>
+				</s:VGroup>
+			</panels:InteractiveTabBarPanel>
+			
+			<panels:InteractiveTabBarPanel height="100%" tabPosition="{InteractiveTabBarPanel.TAB_POSITION_LEFT}" tabBarDataProvider="{tabBarProvider}"/>-->
+		
+	
+</s:Application>
