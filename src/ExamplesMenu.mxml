@@ -18,6 +18,7 @@
         [Bindable]
         private var examplesDataProvider:ArrayList = new ArrayList([
 			{className:MainExampleWebApp, title: "Main Example Web App", description: "Main Example Web App", color: 0xaa0000},
+			{className:ReflectedLinesDrawingExample, title: "ReflectedLinesDrawingExample", description: "", color: 0x005BA6},
 			{className:ShownOnScreenExample, title: "Shown on screen", description: "Testing ShownOnScreen (FW-96)", color: 0x005BA6},
 			{className:FeatureEditorExample, title: "FeatureEditorExample", description: "Example of showing new Features added to FlexiWeather (FW-92)", color: 0x005BA6},
 			{className:PreloadingAnimationExample, title: "PreloadingAnimationExample", description: "", color: 0x005BA6},
