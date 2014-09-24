@@ -38,6 +38,40 @@
 						   minHeight="0">
 			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5"
 					  paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Show"/>
+				<s:CheckBox label="Show GeoPolyline" change="changeFeatureVisibility(0, (event.target as CheckBox).selected)" selected="true" />
+				<s:CheckBox label="Show SmoothGeoPolyline" change="changeFeatureVisibility(1, (event.target as CheckBox).selected)" selected="true"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
+						   minHeight="0">
+			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5"
+					  paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change feature"/>
+				<s:ToggleButton label="Refl 0" click="updateFeature(0)"/>
+				<s:ToggleButton label="Refl 1" click="updateFeature(1)"/>
+				<s:ToggleButton label="Refl -1" click="updateFeature(2)"/>
+				<s:ToggleButton label="Dateline crossing (1)" click="updateFeature(3)"/>
+				<s:ToggleButton label="Dateline crossing (2)" click="updateFeature(4)"/>
+				<s:ToggleButton label="Coords more than extent/2 (2 coords)" click="updateFeature(5)"/>
+				<s:ToggleButton label="Coords less than extent/2 (2 coords)" click="updateFeature(6)"/>
+				<s:ToggleButton label="Coords more than extent/2 (4 coords)" click="updateFeature(7)"/>
+				<s:ToggleButton label="Coords less than extent/2 (4 coords)" click="updateFeature(8)"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
+						   minHeight="0">
+			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5"
+					  paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change feature"/>
+				<s:ToggleButton label="Plain" click="updateDrawMode(0)"/>
+				<s:ToggleButton label="Great Arc" click="updateDrawMode(1)"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
+						   minHeight="0">
+			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5"
+					  paddingLeft="5" paddingRight="5" paddingTop="5">
 				<s:Label text="BBox: {bbox.toString()}  Shown On Screen: {shownOnScreen}"/>
 				<!--<s:Button label="Check Shown on Screen"/>-->
 			</s:HGroup>
@@ -158,31 +192,158 @@
 				bbox = new BBox(10,10,15,15);
 
 				initializeGFX();
-				drawLine();
+				updateDrawMode(0);
 			}
 			
 			private function initializeGFX(): void
 			{
 				sprite = new WFSFeatureEditableSprite(null);
 				wfsLayer.addChild(sprite);
+				
+				changeFeatureVisibility(0, true);
+				changeFeatureVisibility(1, true);
+			}
+			
+			private var _selectedFeatureType: int;
+			private var _selectedDrawMode: String;
+			private function updateDrawMode(type: int): void
+			{
+				switch(type)
+				{
+					case 0:
+						_selectedDrawMode = DrawMode.PLAIN;
+						break;
+					case 1:
+						_selectedDrawMode = DrawMode.GREAT_ARC;
+						break;
+				}
+				drawLine();
+			}
+			
+			private var _geoPolylineVisibility: Boolean;
+			private var _smoothGeoPolylineVisibility: Boolean;
+			
+			private function changeFeatureVisibility(type: int, visible: Boolean): void
+			{
+				if (type == 0)
+					_geoPolylineVisibility = visible;
+				if (type == 1)
+					_smoothGeoPolylineVisibility = visible;
+				
+				drawLine();
+			}
+			
+			private function updateFeature(type: int): void
+			{
+				_selectedFeatureType = type;
+				switch(_selectedFeatureType)
+				{
+					case 0:
+						//no dateline crossing - reflection 0
+					case 1:
+						//no dateline crossing - reflection 1
+					case 3:
+						//dateline crossing
+					case 4:
+						//dateline crossing
+						m_iw.setViewBBox(new BBox(160, 40, 200, 80), true);
+						break;
+					case 2:
+						//no dateline crossing - reflection -1
+						m_iw.setViewBBox(new BBox(-200, 40, -160, 80), true);
+					case 5:
+					case 6:
+					case 7:
+					case 8:
+						m_iw.setViewBBox(new BBox(-180,-90, 180, 90), true);
+						break;
+				}
+				
+				drawLine();
 			}
 			
 			private function drawLine(): void
 			{
+				var c1: Coord;
+				var c2: Coord;
+				var c3: Coord;
+				var c4: Coord;
+				
+				var coords: Array;
 				if (sprite)
 					sprite.graphics.clear();
 				
-				//dateline crossing
-//				var c1: Coord = new Coord(m_iw.crs, 175,60);
-//				var c2: Coord = new Coord(m_iw.crs, 185,61);
-//				var c3: Coord = new Coord(m_iw.crs, 195,62);
-//				var c4: Coord = new Coord(m_iw.crs, 165,65);
+				switch(_selectedFeatureType)
+				{
+					case 0:
+						//no dateline crossing - reflection 0
+						c1 = new Coord(m_iw.crs, 165,60);
+						c2 = new Coord(m_iw.crs, 169,61);
+						c3 = new Coord(m_iw.crs, 172,62);
+						c4 = new Coord(m_iw.crs, 165,65);
+						coords = [c1,c2,c3,c4];
+						break;
+					case 1:
+						//no dateline crossing - reflection 1
+						c1 = new Coord(m_iw.crs, 185,60);
+						c2 = new Coord(m_iw.crs, 189,61);
+						c3 = new Coord(m_iw.crs, 192,62);
+						c4 = new Coord(m_iw.crs, 185,65);
+						coords = [c1,c2,c3,c4];
+						break;
+					case 2:
+						//no dateline crossing - reflection -1
+						c1 = new Coord(m_iw.crs, -185,60);
+						c2 = new Coord(m_iw.crs, -189,61);
+						c3 = new Coord(m_iw.crs, -192,62);
+						c4 = new Coord(m_iw.crs, -185,65);
+						coords = [c1,c2,c3,c4];
+						break;
+					case 3:
+						//dateline crossing
+						c1 = new Coord(m_iw.crs, 175,60);
+						c2 = new Coord(m_iw.crs, 185,61);
+						c3 = new Coord(m_iw.crs, 195,62);
+						c4 = new Coord(m_iw.crs, 165,65);
+						coords = [c1,c2,c3,c4];
+						break;
+					case 4:
+						//dateline crossing
+						c1 = new Coord(m_iw.crs, 175,60);
+						c2 = new Coord(m_iw.crs, 185,61);
+						c3 = new Coord(m_iw.crs, 165,62);
+						c4 = new Coord(m_iw.crs, 195,65);
+						coords = [c1,c2,c3,c4];
+						break;
+					case 5:
+						//coordinate too far
+						c2 = new Coord(m_iw.crs, -165,61);
+						c3 = new Coord(m_iw.crs, 165,62);
+						coords = [c2,c3];
+						break;
+					case 6:
+						//coordinate too far
+						c2 = new Coord(m_iw.crs, -85,61);
+						c3 = new Coord(m_iw.crs, 85,62);
+						coords = [c2,c3];
+						break;
+					case 7:
+						//coordinate too far
+						c1 = new Coord(m_iw.crs, -175,61);
+						c2 = new Coord(m_iw.crs, -145,70);
+						c3 = new Coord(m_iw.crs, 145,-50);
+						c4 = new Coord(m_iw.crs, 165,-62);
+						coords = [c1,c2,c3,c4];
+						break;
+					case 8:
+						c1 = new Coord(m_iw.crs, -175,61);
+						c2 = new Coord(m_iw.crs, -45,70);
+						c3 = new Coord(m_iw.crs, 45,-50);
+						c4 = new Coord(m_iw.crs, 165,-62);
+						coords = [c1,c2,c3,c4];
+						break;
+				}
 				
-				//no dateline crossing
-				var c1: Coord = new Coord(m_iw.crs, 165,60);
-				var c2: Coord = new Coord(m_iw.crs, 169,61);
-				var c3: Coord = new Coord(m_iw.crs, 172,62);
-				var c4: Coord = new Coord(m_iw.crs, 165,65);
 				
 //				var s1: Coord = new Coord(m_iw.crs, 175,60);
 //				var s2: Coord = new Coord(m_iw.crs, 185,61);
@@ -194,8 +355,10 @@
 //				var s4: Coord = new Coord(m_iw.crs, 700,240);
 				
 				var featureData: FeatureData = new FeatureData('test');
-				m_iw.drawGeoPolyLine(getRenderer, [c1,c2,c3,c4], DrawMode.PLAIN, false, false, featureData);
-				m_iw.drawSmoothPolyLine(getRenderer2, [c1,c2,c3,c4], DrawMode.PLAIN, false, false, featureData);
+				if (_geoPolylineVisibility)
+					m_iw.drawGeoPolyLine(getRenderer, coords, _selectedDrawMode, false, false, featureData);
+				if (_smoothGeoPolylineVisibility)
+					m_iw.drawSmoothPolyLine(getRenderer2, coords, _selectedDrawMode, false, false, featureData);
 				
 				
 //				featureLayer.graphics.lineStyle(2,0xff0000);
