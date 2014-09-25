@@ -34,7 +34,7 @@
 			private var m_layerForegroundBorders: InteractiveLayerWMSWithQTT;
 
 			/**
-			 * Initialization of example. Temperature layer creation, call get capabilities
+			 * Initialization of example. Temperature layer creation, call get capabilities.
 			 */
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
