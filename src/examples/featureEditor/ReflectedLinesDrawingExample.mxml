@@ -41,6 +41,8 @@
 				<s:Label text="Show"/>
 				<s:CheckBox label="Show GeoPolyline" change="changeFeatureVisibility(0, (event.target as CheckBox).selected)" selected="true" />
 				<s:CheckBox label="Show SmoothGeoPolyline" change="changeFeatureVisibility(1, (event.target as CheckBox).selected)" selected="true"/>
+				<s:CheckBox label="Show HermitSplite" change="changeFeatureVisibility(2, (event.target as CheckBox).selected)" selected="true"/>
+				<s:CheckBox label="Fix Dateline" change="fixDateline((event.target as CheckBox).selected)" selected="true"/>
 			</s:HGroup>
 		</s:BorderContainer>
 		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
@@ -52,6 +54,15 @@
 				<s:ToggleButton label="Refl 0" click="updateFeature(0)"/>
 				<s:ToggleButton label="Refl 1" click="updateFeature(1)"/>
 				<s:ToggleButton label="Refl -1" click="updateFeature(2)"/>
+				<s:ToggleButton label="Cloud" click="updateFeature(102)"/>
+			</s:HGroup>
+		</s:BorderContainer>
+		<s:BorderContainer backgroundColor="0xe0e0e0" borderColor="0xaaaaaa" width="100%"
+						   minHeight="0">
+			<s:HGroup width="100%" verticalAlign="middle" paddingBottom="5"
+					  paddingLeft="5" paddingRight="5" paddingTop="5">
+				<s:Label text="Change feature"/>
+				<s:ToggleButton label="Dateline crossing - coord near dateline" click="updateFeature(101)"/>
 				<s:ToggleButton label="Dateline crossing (1)" click="updateFeature(3)"/>
 				<s:ToggleButton label="Dateline crossing (2)" click="updateFeature(4)"/>
 				<s:ToggleButton label="Coords more than extent/2 (2 coords)" click="updateFeature(5)"/>
@@ -99,6 +110,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.symbology.CloudCurveRenderer;
 			import com.iblsoft.flexiweather.ogc.wfs.WFSFeatureEditableSprite;
 			import com.iblsoft.flexiweather.utils.draw.DrawMode;
 			import com.iblsoft.flexiweather.symbology.FrontCurveRenderer;
@@ -203,6 +215,7 @@
 				
 				changeFeatureVisibility(0, true);
 				changeFeatureVisibility(1, true);
+				changeFeatureVisibility(2, true);
 			}
 			
 			private var _selectedFeatureType: int;
@@ -223,13 +236,22 @@
 			
 			private var _geoPolylineVisibility: Boolean;
 			private var _smoothGeoPolylineVisibility: Boolean;
+			private var _hermitSplineVisibility: Boolean;
+			private var _fixDateline: Boolean;
 			
+			private function fixDateline(fix: Boolean): void
+			{
+				_fixDateline = fix;
+				drawLine();
+			}
 			private function changeFeatureVisibility(type: int, visible: Boolean): void
 			{
 				if (type == 0)
 					_geoPolylineVisibility = visible;
 				if (type == 1)
 					_smoothGeoPolylineVisibility = visible;
+				if (type == 2)
+					_hermitSplineVisibility = visible;
 				
 				drawLine();
 			}
@@ -247,11 +269,18 @@
 						//dateline crossing
 					case 4:
 						//dateline crossing
+					case 101:
+						//dateline crossing - coordianate very close to dateline
 						m_iw.setViewBBox(new BBox(160, 40, 200, 80), true);
+						break;
+					case 102:
+						//dateline crossing - cloud
+						m_iw.setViewBBox(new BBox(120, 40, 240, 80), true);
 						break;
 					case 2:
 						//no dateline crossing - reflection -1
 						m_iw.setViewBBox(new BBox(-200, 40, -160, 80), true);
+						break;
 					case 5:
 					case 6:
 					case 7:
@@ -270,6 +299,7 @@
 				var c2: Coord;
 				var c3: Coord;
 				var c4: Coord;
+				var c5: Coord;
 				
 				var coords: Array;
 				if (sprite)
@@ -316,6 +346,22 @@
 						c3 = new Coord(m_iw.crs, 195,62);
 						c4 = new Coord(m_iw.crs, 165,65);
 						coords = [c1,c2,c3,c4];
+						break;
+					case 101:
+						//dateline crossing - coordianate very close to dateline
+						c1 = new Coord(m_iw.crs, 178,65);
+						c2 = new Coord(m_iw.crs, 180.5,68);
+						c3 = new Coord(m_iw.crs, 183,62);
+						coords = [c1,c2,c3];
+						break;
+					case 102:
+						//dateline crossing - cloud
+						c1 = new Coord(m_iw.crs, 170,65);
+						c2 = new Coord(m_iw.crs, 180.5,58);
+						c3 = new Coord(m_iw.crs, 183,52);
+						c4 = new Coord(m_iw.crs, 181,50);
+						c5 = new Coord(m_iw.crs, 175,48);
+						coords = [c1,c2,c3,c4,c5];
 						break;
 					case 4:
 						//dateline crossing
@@ -368,7 +414,11 @@
 				if (_geoPolylineVisibility)
 					m_iw.drawGeoPolyLine(getRenderer, coords, _selectedDrawMode, false, false, featureData);
 				if (_smoothGeoPolylineVisibility)
-					m_iw.drawSmoothPolyLine(getRenderer2, coords, _selectedDrawMode, false, false, featureData);
+				{
+					m_iw.drawSmoothPolyLine(getCloudRenderer, coords, _selectedDrawMode, false, false, featureData, _fixDateline);
+				}
+				if (_hermitSplineVisibility)
+					m_iw.drawHermitSpline(getRenderer3(0), coords);
 				
 				
 //				featureLayer.graphics.lineStyle(2,0xff0000);
@@ -379,6 +429,18 @@
 //				m_iw.graphics.lineTo(1000,1000);
 			}
 			
+			public function getCloudRenderer(reflection: int): ICurveRenderer
+			{
+				var i_color: uint = 0x00ff00;
+				var renderer: CloudCurveRenderer;
+				
+				//i_color = uint(Math.random() * 256 * 256 * 256);
+				
+				var gr: Graphics = m_iw.graphics;
+				
+				renderer = new CloudCurveRenderer(gr, 2.0, i_color, 1);
+				return renderer;
+			}
 			public function getRenderer(reflection: int): ICurveRenderer
 			{
 				var gr: Graphics = m_iw.graphics;
@@ -391,7 +453,16 @@
 				var gr: Graphics = m_iw.graphics;
 				if (sprite)
 					gr = sprite.graphics;
-				return new FrontCurveRenderer(gr, 0x00ff00, 0x00ff00, FrontCurveRenderer.MARK_COLD);
+				return new FrontCurveRenderer(gr, uint(Math.random() * 256*256*256), 0x00ff00, FrontCurveRenderer.MARK_COLD);
+//				return new FrontCurveRenderer(gr, 0x00ff00, 0x00ff00, FrontCurveRenderer.MARK_COLD);
+			}
+			public function getRenderer3(reflection: int): ICurveRenderer
+			{
+				var gr: Graphics = m_iw.graphics;
+				if (sprite)
+					gr = sprite.graphics;
+				return new FrontCurveRenderer(gr, 0x0000ff, 0x00ff00, FrontCurveRenderer.MARK_COLD);
+//				return new FrontCurveRenderer(gr, 0x00ff00, 0x00ff00, FrontCurveRenderer.MARK_COLD);
 			}
 			
 			private function onAreaChanged(event: InteractiveWidgetEvent): void
