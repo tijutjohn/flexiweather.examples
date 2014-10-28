@@ -10,7 +10,6 @@
 		import examples.ids.*;
 		import examples.kml.*;
 		import examples.preloading.*;
-		import examples.ui.ToggleButtonBarTest;
 		
 		import mx.collections.ArrayList;
 		import mx.core.IVisualElement;
@@ -54,8 +53,7 @@
 			{className:RotatedProjectionExample, title: "RotatedProjectionExample", description: "", color: 0x005BA6},
 			{className:SimpleWMSWithQTTExample, title: "SimpleWMSWithQTTExample", description: "", color: 0x005BA6},
 			{className:TileSizeExample, title: "TileSizeExample", description: "", color: 0x005BA6},
-			{className:URLPostCancelTest, title: "URLPostCancelTest", description: "", color: 0x005BA6},
-			{className:ToggleButtonBarTest, title: "ToggleButtonBarTest", description: "", color: 0x005BA6}
+			{className:URLPostCancelTest, title: "URLPostCancelTest", description: "", color: 0x005BA6}
         ]);
 
         private function onUserSelectExample():void {
