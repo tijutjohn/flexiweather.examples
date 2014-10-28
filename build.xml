@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Browsing Weather" basedir=".">
+<project name="Flexi Weather Examples" basedir=".">
 	<taskdef resource="flexTasks.tasks">
 		<classpath>
 		    <pathelement path="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
@@ -9,6 +9,7 @@
 	<property name="FLEXIWEATHER_LIBDIR" value="${FLEXIWEATHER_LIBDIR}" />
 	<property name="UPLOAD_TO" value="${UPLOAD_TO}" />
 	<property name="DISTDIR" value="bin" />
+	<property name="LIBDIR" value="libs" />
 	<property name="BUILDDIR" value="${DISTDIR}-build" />
 	<target name="main">
 		<java jar="${FLEX_HOME}/lib/adt.jar" fork="true" failonerror="true">
@@ -31,6 +32,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		
@@ -39,6 +44,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<copy file="src/Example-app.xml" tofile="${BUILDDIR}/Example1AIR-app.xml" overwrite="true"/>
@@ -122,6 +131,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example3.mxml"
@@ -129,6 +142,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example5.mxml"
@@ -136,6 +153,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example6.mxml"
@@ -143,6 +164,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example7.mxml"
@@ -150,6 +175,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 	</target>
