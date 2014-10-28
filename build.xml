@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Browsing Weather" basedir=".">
+	<echo message="Flex home: ${FLEX_HOME}"/>
 	<taskdef resource="flexTasks.tasks">
 		<classpath>
 		    <pathelement path="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
@@ -27,11 +28,16 @@
 			<arg value="5ecret" />
 		</java>
 
-		<mxmlc file="src/Example1WebApp.mxml"
-				output="${DISTDIR}/Example1WebApp.swf"
+		<mxmlc file="src/ExamplesMenu.mxml"
+				output="${DISTDIR}/ExamplesMenu.swf"
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
+			<library-path dir="libs" includes="*.swc" append="true" />
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		
@@ -40,6 +46,11 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
+			<library-path dir="libs" includes="*.swc" append="true" />
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<copy file="src/Example-app.xml" tofile="${BUILDDIR}/Example1AIR-app.xml" overwrite="true"/>
@@ -75,6 +86,7 @@
 				<include name="libs/*" />
 				<include name="libs/mx/*" />
 			</library-path>
+			<library-path dir="libs" includes="*.swc" append="true" />
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<copy file="src/Example-app.xml" tofile="${BUILDDIR}/Example1Mobile-app.xml" overwrite="true"/>
@@ -101,87 +113,7 @@
 			<arg value="${BUILDDIR}" />
 			<arg value="Example1Mobile.swf" />
 		</java>
-		<!--java jar="${FLEX_HOME}/lib/adt.jar" fork="true" failonerror="true">
-			<arg value="-package" />
-			<arg value="-target" />
-			<arg value="ipa-ad-hoc" />
-			<arg value="-storetype" />
-			<arg value="pkcs12" />
-			<arg value="-keystore" />
-			<arg value="air-self-sign.p12" />
-			<arg value="-storepass" />
-			<arg value="5ecret" />
-			<arg value="${DISTDIR}/Example1.ipa" />
-			<arg value="${BUILDDIR}/Example1Mobile-app.xml" />
-			<arg value="-C" />
-			<arg value="${BUILDDIR}" />
-			<arg value="Example1Mobile.swf" />
-		</java-->
 
-		<mxmlc file="src/Example2.mxml"
-				output="${DISTDIR}/Example2.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example3.mxml"
-				output="${DISTDIR}/Example3.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example5.mxml"
-				output="${DISTDIR}/Example5.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example6.mxml"
-				output="${DISTDIR}/Example6.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example7.mxml"
-				output="${DISTDIR}/Example7.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example8.mxml"
-				output="${DISTDIR}/Example8.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<library-path dir="${LIBDIR}" includes="DConsole2SWC.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/FlyingRouteExample.mxml"
-				output="${DISTDIR}/FlyingRouteExample.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/ExampleMultiViewWithConfiguration.mxml"
-				output="${DISTDIR}/ExampleMultiViewWithConfiguration.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/FeatureEditorExample.mxml"
-				output="${DISTDIR}/FeatureEditorExample.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
 		<echo message="Preparing assets"/>
 		<mkdir dir="${DISTDIR}/assets"/>
 		<mkdir dir="${DISTDIR}/assets/kml"/>
