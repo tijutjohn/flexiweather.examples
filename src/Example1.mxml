@@ -4,6 +4,7 @@
 		creationComplete="onCreationComplete(event)">
 	<mx:Script>
 		<![CDATA[
+			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.InteractiveLayerWMS;
 			import com.iblsoft.flexiweather.ogc.OGCServiceConfigurationManager;
 			import com.iblsoft.flexiweather.ogc.Version;
@@ -27,12 +28,12 @@
             	var scm: OGCServiceConfigurationManager =
             			OGCServiceConfigurationManager.getInstance();
 
-    			var srv: WMSServiceConfiguration = scm.getService(
-    					"https://ogcie.iblsoft.com/ria", new Version(1, 3, 0),
+    			var srv: WMSServiceConfiguration = scm.getService('ria',
+    					"https://ogcie.iblsoft.com/ria/wms", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 
-    			var srv2: WMSServiceConfiguration = scm.getService(
-    					"https://ogcie.iblsoft.com/obs?STATION_MODEL_ZOOM=0.9", new Version(1, 3, 0),
+    			var srv2: WMSServiceConfiguration = scm.getService('obs',
+    					"https://ogcie.iblsoft.com/observations?STATION_MODEL_ZOOM=0.9", new Version(1, 3, 0),
 						WMSServiceConfiguration) as WMSServiceConfiguration;
 				srv2.updatePeriod = 5*60*1000;
 				
@@ -62,6 +63,9 @@
 				Projection.addCRSByProj4("EPSG:54004", "+title=World Mercator +proj=merc +lat_ts=0 +lon_0=0 +k=1.000000 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102018", "+title=North Pole Stereographic +proj=stere +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
 				Projection.addCRSByProj4("EPSG:102021", "+title=South Pole Stereographic +proj=stere +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m");
+				
+				m_iw.setCRS('EPSG:54004');
+				m_iw.setExtentBBOXRaw(0,-13000000,36000000,13000000);
 			}
 
 			protected function onMouseMove(event: MouseEvent):void
@@ -86,9 +90,6 @@
 				click="m_ilz.requireCtrlKey = true; m_ilp.requireShiftKey = !m_ilp.requireShiftKey;" />
 		<mx:Spacer width="10"/>
 		<mx:Label text="Projections:"/>
-		<mx:Button label="LatLon"
-				selected="{m_iw.crs == 'EPSG:4326'}" 
-				click="m_iw.setCRS('EPSG:4326', false); m_iw.setExtentBBOXRaw(-180,-90,180,90);"/>
 		<mx:Button label="Mercator"
 				selected="{m_iw.crs == 'EPSG:54004'}" 
 				click="m_iw.setCRS('EPSG:54004', false); m_iw.setExtentBBOXRaw(0,-13000000,36000000,13000000);"/>
@@ -101,11 +102,11 @@
 	</mx:HBox>
 	<mx:HBox width="100%">
 		<mx:Label text="Displayed surface observations:"/>
-		<mx:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<mx:CheckBox id="checkMETARs" label="METARs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
-		<mx:CheckBox id="checkBUOYs" label="BUOYs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_surfaceObsLayer.updateData(true);"/>
+		<mx:CheckBox id="checkSYNOPs" label="SYNOPs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowSYNOPs', checkSYNOPs.selected ? 'yes' : 'no'); m_surfaceObsLayer.refresh(true);"/>
+		<mx:CheckBox id="checkMETARs" label="METARs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowMETARs', checkMETARs.selected ? 'yes' : 'no'); m_surfaceObsLayer.refresh(true);"/>
+		<mx:CheckBox id="checkBUOYs" label="BUOYs" selected="true" change="m_surfaceObsLayer.setWMSDimensionValue('ShowBUOYs', checkBUOYs.selected ? 'yes' : 'no'); m_surfaceObsLayer.refresh(true);"/>
 		<mx:Label text="Plot distance:"/>
-		<mx:HSlider id="sliderPlotDistance" minimum="10" value="200" maximum="500" change="m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); m_surfaceObsLayer.updateData(true);"/>
+		<mx:HSlider id="sliderPlotDistance" minimum="10" value="200" maximum="500" change="m_surfaceObsLayer.setWMSDimensionValue('PlotDistance', String(uint(sliderPlotDistance.value))); m_surfaceObsLayer.refresh(true);"/>
 		<mx:Label text="[%]"/>
 		<mx:Spacer width="10"/>
 		<mx:Label id="labelLocation" text="[Mouse location]"/>
