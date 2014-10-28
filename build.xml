@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Browsing Weather" basedir=".">
+<project name="Flexi Weather Examples" basedir=".">
 	<taskdef resource="flexTasks.tasks">
 		<classpath>
 		    <pathelement path="${FLEX_HOME}/ant/lib/flexTasks.jar"/>
@@ -32,6 +32,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		
@@ -40,6 +44,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/air-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<copy file="src/Example-app.xml" tofile="${BUILDDIR}/Example1AIR-app.xml" overwrite="true"/>
@@ -123,6 +131,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example3.mxml"
@@ -130,6 +142,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example5.mxml"
@@ -137,6 +153,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example6.mxml"
@@ -144,6 +164,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example7.mxml"
@@ -151,6 +175,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<mxmlc file="src/Example8.mxml"
@@ -158,7 +186,10 @@
 				keep-generated-actionscript="false">
 			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
 			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<library-path dir="${LIBDIR}" includes="DConsole2SWC.swc" append="true"/>
+			<library-path dir="${FLEX_HOME}/frameworks" append="true">
+				<include name="libs/*" />
+				<include name="libs/mx/*" />
+			</library-path>
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<echo message="Preparing assets"/>
