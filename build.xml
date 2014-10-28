@@ -119,72 +119,7 @@
 			<arg value="Example1Mobile.swf" />
 		</java-->
 
-		<!--
-		<mxmlc file="src/Example2.mxml"
-				output="${DISTDIR}/Example2.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example3.mxml"
-				output="${DISTDIR}/Example3.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example5.mxml"
-				output="${DISTDIR}/Example5.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example6.mxml"
-				output="${DISTDIR}/Example6.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example7.mxml"
-				output="${DISTDIR}/Example7.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/Example8.mxml"
-				output="${DISTDIR}/Example8.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<library-path dir="${LIBDIR}" includes="DConsole2SWC.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/FlyingRouteExample.mxml"
-				output="${DISTDIR}/FlyingRouteExample.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/ExampleMultiViewWithConfiguration.mxml"
-				output="${DISTDIR}/ExampleMultiViewWithConfiguration.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		<mxmlc file="src/FeatureEditorExample.mxml"
-				output="${DISTDIR}/FeatureEditorExample.swf"
-				keep-generated-actionscript="false">
-			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml" />
-			<library-path dir="${FLEXIWEATHER_LIBDIR}" includes="FlexiWeather.swc" append="true"/>
-			<source-path path-element="${FLEX_HOME}/frameworks" />
-		</mxmlc>
-		-->
+		
 		<echo message="Preparing assets"/>
 		<mkdir dir="${DISTDIR}/assets"/>
 		<mkdir dir="${DISTDIR}/assets/kml"/>
