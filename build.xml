@@ -190,6 +190,7 @@
 				<include name="libs/*" />
 				<include name="libs/mx/*" />
 			</library-path>
+			<library-path dir="libs" includes="*.swc" append="true" />
 			<source-path path-element="${FLEX_HOME}/frameworks" />
 		</mxmlc>
 		<echo message="Preparing assets"/>
