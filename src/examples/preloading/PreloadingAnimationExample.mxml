@@ -242,7 +242,7 @@
 			{
 				preloadedFramesCount = 0;
 				preloadingFramesCount = 0;
-				m_layerTemperature.clearCache();
+				m_layerTemperature.clearCache(true);
 				//set slider to first frame
 				sliderFrame.value = 0;
 				b_framesArePreloaded = false;
