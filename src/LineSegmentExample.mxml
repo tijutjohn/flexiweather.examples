@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<s:Button label="Run" click="tests()"/>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.iblsoft.flexiweather.utils.geometry.LineSegment;
+			
+			private function tests(): void
+			{
+				var line1: LineSegment = new LineSegment(160,20,200,50);
+				var line2: LineSegment = new LineSegment(200,20,160,50);
+				var line3: LineSegment = new LineSegment(160,50,200,20);
+				var line4: LineSegment = new LineSegment(200,50,160,20);
+				
+				var dateline1: LineSegment = new LineSegment(180,-90,180,90);
+				var dateline2: LineSegment = new LineSegment(-180,-90,-180,90);
+				
+				
+				splitDateline(160,20,200,50);
+				splitDateline(200,20,160,50);
+				splitDateline(160,50,200,20);
+				splitDateline(200,50,160,20);
+				
+//				var i1: Point = line1.intersectionWithLineSegment(dateline1);
+//				var i2: Point = line2.intersectionWithLineSegment(dateline1);
+//				var i3: Point = line3.intersectionWithLineSegment(dateline2);
+//				var i4: Point = line4.intersectionWithLineSegment(dateline2);
+//				
+//				var w_i1: Point = line1.intersectionWithLineSegment(dateline2);
+//				var w_i2: Point = line2.intersectionWithLineSegment(dateline2);
+//				var w_i3: Point = line3.intersectionWithLineSegment(dateline1);
+//				var w_i4: Point = line4.intersectionWithLineSegment(dateline1);
+				
+				
+//				var ii1: Point = line1.intersectionWithLineSegmentNew(dateline1);
+//				var ii2: Point = line2.intersectionWithLineSegmentNew(dateline1);
+//				var ii3: Point = line3.intersectionWithLineSegmentNew(dateline1);
+//				var ii4: Point = line4.intersectionWithLineSegmentNew(dateline1);
+//				
+//				var w_ii1: Point = line1.intersectionWithLineSegmentNew(dateline2);
+//				var w_ii2: Point = line2.intersectionWithLineSegmentNew(dateline2);
+//				var w_ii3: Point = line3.intersectionWithLineSegmentNew(dateline2);
+//				var w_ii4: Point = line4.intersectionWithLineSegmentNew(dateline2);
+			}
+			
+			private function splitDateline(cFx: Number, cFy: Number, cTx: Number, cTy: Number): void
+			{
+				var line1: LineSegment = new LineSegment(cFx, cFy, cTx, cTy);
+				var dateline: LineSegment = getDatelineForCoords(cFx, cFy, cTx, cTy);
+				
+				var intersection: Point = line1.intersectionWithInfiniteLineSegment(dateline);
+				
+				var direction: int = 1;
+				if (cFx > cTx)
+					direction = -1;
+				
+				var intersectionCoordLeft: Number = dateline.x1 - direction * 0.00001
+				var intersectionCoordRight: Number = dateline.x1 + direction * 0.00001
+			}
+			
+			private function getDatelineForCoords(cFx: Number, cFy: Number, cTx: Number, cTy: Number): LineSegment
+			{
+				if (cFx > cTx)
+				{
+					var t: Number = cFx;
+					cFx = cTx;
+					cTx = t;
+				}
+				
+				var datelineX: int = 180;
+				if (cFx <= datelineX && cTx >= datelineX)
+				{
+					return new LineSegment(180,-90,180,90);
+				}
+				
+				var direction: int;
+				(cTx < datelineX) ? direction = -1 : direction = 1;
+				while (!(cFx <= datelineX && cTx >= datelineX))
+				{
+					datelineX += (direction * 360);
+				}
+				
+				return new LineSegment(datelineX,-90,datelineX,90);
+				
+			}
+			
+		]]>
+	</fx:Script>
+</s:Application>
