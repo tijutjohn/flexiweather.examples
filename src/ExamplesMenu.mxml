@@ -6,10 +6,12 @@
     <fx:Script><![CDATA[
 		import examples.*;
 		import examples.afwa.*;
+		import examples.dragging.ExampleDragging;
 		import examples.featureEditor.*;
 		import examples.ids.*;
 		import examples.kml.*;
 		import examples.preloading.*;
+		import examples.printing.VectorPrinting;
 		import examples.ui.ToggleButtonBarTest;
 		
 		import mx.collections.ArrayList;
@@ -18,6 +20,9 @@
         [Bindable]
         private var examplesDataProvider:ArrayList = new ArrayList([
 			{className:MainExampleWebApp, title: "Main Example Web App", description: "Main Example Web App", color: 0xaa0000},
+			{className:LineSegmentExample, title: "Lines Intersections App", description: "Lines Intersections Ap", color: 0x005BA6},
+			{className:ExampleDragging, title: "Dragging in Tree Example Web App", description: "Dragging in Tree Example Web App", color: 0x005BA6},
+			{className:VectorPrinting, title: "Vector Printing App", description: "Vector PrintingApp", color: 0xaa0000},
 			{className:ReflectedLinesDrawingExample, title: "ReflectedLinesDrawingExample", description: "", color: 0x005BA6},
 			{className:ShownOnScreenExample, title: "Shown on screen", description: "Testing ShownOnScreen (FW-96)", color: 0x005BA6},
 			{className:FeatureEditorExample, title: "FeatureEditorExample", description: "Example of showing new Features added to FlexiWeather (FW-92)", color: 0x005BA6},
@@ -76,6 +81,7 @@
 
     <s:HGroup id="buttonGroup" width="100%" height="100%">
         <s:List id="moduleSelector" width="300" height="100%" dataProvider="{examplesDataProvider}" change="onUserSelectExample()" 
+				dragEnabled="false" dropEnabled="false" dragMoveEnabled="false"
 				alternatingItemColors="[#f0f0f0,#fafafa]">
             <s:layout>
                 <s:VerticalLayout gap="0" />

@@ -465,7 +465,7 @@
 			private function getForecastValues(): void
 			{
 				var dimNames: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsNames(), MAX_FRAMES_ANIMATED);
-				var dimValues: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsValues('FORECAST'), MAX_FRAMES_ANIMATED);
+				var dimValues: Array = filterFramesCount(m_layerTemperature.getWMSDimensionsValues('FORECAST', true), MAX_FRAMES_ANIMATED);
 				if (dimValues)
 				{
 					maxFrames = dimValues.length;
