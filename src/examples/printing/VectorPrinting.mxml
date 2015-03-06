@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
-			   xmlns:s="library://ns.adobe.com/flex/spark" 
-			   xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
+<FlexiWeatherTemplate xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns="examples.*"
+		xmlns:s="library://ns.adobe.com/flex/spark" 
+		xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600">
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>
@@ -9,11 +10,37 @@
 	<s:VGroup width="100%" height="100%" id="canvas">
 		<s:HGroup>
 			<s:Button label="Load Map" click="loadMap()"/>
-			<s:Button label="Print" click="print()" enabled="{printEnabled}"/>
+			<s:Button label="Print" click="print(bbScale.selectedItem as String, parseInt(bbRotation.selectedItem as String))" enabled="{printEnabled}"/>
+			<s:Button label="Print 2" click="printImage(bbScale.selectedItem as String, parseInt(bbRotation.selectedItem as String))" enabled="{printEnabled}"/>
+			
+			<s:HGroup width="100%" horizontalAlign="center">
+				<s:ButtonBar id="bbScale">
+					<s:dataProvider>
+						<s:ArrayCollection>
+							<fx:Object>{FlexPrintJobScaleType.SHOW_ALL}</fx:Object>
+							<fx:Object>{FlexPrintJobScaleType.NONE}</fx:Object>
+							<fx:Object>{FlexPrintJobScaleType.MATCH_WIDTH}</fx:Object>
+							<fx:Object>{FlexPrintJobScaleType.MATCH_HEIGHT}</fx:Object>
+							<fx:Object>{FlexPrintJobScaleType.FILL_PAGE}</fx:Object>
+						</s:ArrayCollection>
+					</s:dataProvider>
+				</s:ButtonBar>
+				<s:ButtonBar id="bbRotation" change="onRotationChange()">
+					<s:dataProvider>
+						<s:ArrayCollection>
+							<fx:Object>0</fx:Object>
+							<fx:Object>90</fx:Object>
+							<fx:Object>-90</fx:Object>
+							<fx:Object>180</fx:Object>
+						</s:ArrayCollection>
+					</s:dataProvider>
+				</s:ButtonBar>
+			</s:HGroup>
 			
 		</s:HGroup>
 		<s:Label text="{description}" width="100%"/>
-		<mx:UIComponent id="map" width="100%" height="100%"/>
+		<s:TextInput id="debug" width="100%"/>
+		<mx:UIComponent id="map" width="800" height="600"/>
 	</s:VGroup>
 	
 	<fx:Script>
@@ -21,17 +48,21 @@
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderErrorEvent;
 			import com.iblsoft.flexiweather.net.events.UniURLLoaderEvent;
 			import com.iblsoft.flexiweather.net.loaders.LoaderWithAssociatedData;
+			import com.iblsoft.flexiweather.ogc.BBox;
 			import com.iblsoft.flexiweather.ogc.net.loaders.WMSImageLoader;
+//			import com.iblsoft.flexiweather.printing.AdvancedFlexPrintJob;
 			
 			import mx.core.IVisualElement;
 			import mx.printing.FlexPrintJob;
+			import mx.printing.FlexPrintJobScaleType;
 			
 			[Bindable]
 			public var description: String;
 			[Bindable]
 			public var printEnabled: Boolean;
 			
-			private var obsURL: String = 'http://wms.iblsoft.com/obs?&BBOX=-80,-43.502088490099,104.15841584158414,65.48228650990099&CRS=EPSG:4326&FORMAT=application/x-shockwave-flash&HEIGHT=909&LAYERS=Surface&REQUEST=GetMap&SERVICE=WMS&STATION_MODEL_ZOOM=0.8&STYLES=&TRANSPARENT=TRUE&VERSION=1.3.0&WIDTH=1536&time=2013-02-08T06:00:00Z';
+//			private var obsURL: String = 'http://wms.iblsoft.com/obs?&BBOX=-80,-43.502088490099,104.15841584158414,65.48228650990099&CRS=EPSG:4326&FORMAT=application/x-shockwave-flash&HEIGHT=909&LAYERS=Surface&REQUEST=GetMap&SERVICE=WMS&STATION_MODEL_ZOOM=0.8&STYLES=&TRANSPARENT=TRUE&VERSION=1.3.0&WIDTH=1536&time=2013-02-08T06:00:00Z';
+			private var obsURL: String = 'http://vwtest:8000/ria/wms?STYLES=&SERVICE=WMS&VERSION=1%2E3%2E0&TRANSPARENT=TRUE&LAYERS=background%2Ddem&BBOX=%2D111%2E28378378378378%2C%2D62%2E760567355867614%2C111%2E28378378378378%2C62%2E760567355867614&WIDTH=800&FORMAT=application/x-shockwave-flash&HEIGHT=600&CRS=CRS%3A84&REQUEST=GetMap';
 			private var mapMovie: AVM1Movie;
 			
 			public function loadMap(): void
@@ -61,25 +92,114 @@
 					printEnabled = true;
 				}
 			}
-			private function print(): void
+			
+			private function onRotationChange(): void
 			{
-				var myPrintJob: FlexPrintJob = new FlexPrintJob();
+				var rotation: int = parseInt(bbRotation.selectedItem as String);
+//				map.rotation = rotation;
+				
+				callLater(updateDebugText);
+			}
+			private function updateDebugText(): void
+			{
+				debug.text = map.getExplicitOrMeasuredWidth() + " , " + map.getExplicitOrMeasuredHeight() + " <> " + map.width + " , " + map.height + " <> " + map.percentWidth + " , " + map.percentHeight + " layout: " + map.getLayoutBoundsWidth() + " , " + map.getLayoutBoundsHeight();
+			}
+			
+			private function print(scale: String, rotation: int): void
+			{
+				/*
+				var myPrintJob: AdvancedFlexPrintJob = new AdvancedFlexPrintJob();
 				myPrintJob.printAsBitmap = false;
 //				var sprite: Sprite = new Sprite();
 //				sprite.addChild(mapMovie.parent as LoaderWithAssociatedData);
 				if (myPrintJob.start()) {
+					map.rotation = rotation;
+					if (rotation == 90)
+						map.x = map.width;
+					
 					try {
-						myPrintJob.addObject(map);
+						myPrintJob.addObject(map, scale);
 					}
 					catch(e:Error) {
 						// handle error 
 						description = "print error: " + e.message;
 					}
 					myPrintJob.send();
+					
 				} 
+				*/
+			}
+			
+			
+			
+			private function printImage(scaleType: String, rotation: int): void
+			{
+				var realW:Number = map.width;
+				var realH:Number = map.height;
+				var orgX:Number = map.x;
+				var orgY:Number = map.y;
+				var pj:PrintJob = new PrintJob();
+				var pageCount:Number = 0;
+				if (pj.start())
+				{
+					map.x = 0;
+					map.y = 0;
+					var widthRatio:Number, heightRatio:Number;
+					if (pj.orientation.toLowerCase() != "landscape")
+					{
+						map.rotation = 90;
+						map.x = map.width;
+						
+						widthRatio = (pj.pageWidth / realH);
+						heightRatio = (pj.pageHeight / realW);
+					}
+					else
+					{
+						widthRatio = (pj.pageWidth / realW);
+						heightRatio = (pj.pageHeight / realH);
+					}
+					
+					
+					var ratio:Number = 1;
+					
+					if (scaleType == FlexPrintJobScaleType.SHOW_ALL)
+					{
+						// Smaller of the two ratios for showAll.
+						ratio = (widthRatio < heightRatio) ? widthRatio : heightRatio;
+					}
+					else if (scaleType == FlexPrintJobScaleType.FILL_PAGE)
+					{
+						// Bigger of the two ratios for fillPage.
+						ratio = (widthRatio > heightRatio) ? widthRatio : heightRatio;
+					}
+					else if (scaleType == FlexPrintJobScaleType.NONE)
+					{
+					}
+					else if (scaleType == FlexPrintJobScaleType.MATCH_HEIGHT)
+					{
+						ratio = heightRatio;
+					}
+					else
+					{
+						ratio = widthRatio;
+					}
+					
+//					map.scaleX = map.scaleY = Math.min(widthRatio, heightRatio);
+					map.scaleX = map.scaleY = ratio;
+					
+					if (pj.addPage(map, new Rectangle(0, 0, realW, realH)))
+						pageCount++;
+				}
+				if (pageCount > 0) 
+					pj.send();
+				map.scaleX = map.scaleY = 1;
+				map.rotation = 0;
+				map.x = orgX;
+				map.y = orgY;
+//				delete pj;
 			}
 				
 			
 		]]>
 	</fx:Script>
-</s:Application>
+</FlexiWeatherTemplate>

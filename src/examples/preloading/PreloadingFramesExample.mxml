@@ -245,7 +245,7 @@
 			private function getForecastValues(dataLayer: InteractiveLayerWMSWithQTT, dimensionName: String): Array
 			{
 				var dimNames: Array = filterFramesCount(dataLayer.getWMSDimensionsNames(), MAX_FRAMES_ANIMATED);
-				var dimValues: Array = dataLayer.getWMSDimensionsValues(dimensionName);
+				var dimValues: Array = dataLayer.getWMSDimensionsValues(dimensionName, true);
 				if (dimValues)
 				{
 					dimValues = filterFramesCount(dimValues, MAX_FRAMES_ANIMATED);
