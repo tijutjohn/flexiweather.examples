@@ -145,18 +145,24 @@
 								click="m_iw.setCRS('ESRI:102021', false); m_iw.setExtentBBoxRaw(-10000000,-10000000,10000000,10000000);"/>
 				<s:ToggleButton label="Google Maps" selected="{m_iw.crs == 'EPSG:900913'}"
 								click="m_iw.setCRS('EPSG:900913', false); m_iw.setExtentBBoxRaw(-20037508.34,-20037508.34,20037508.34,20037508.34);"/>
+
+				<s:Label text="Dateline X position: {datelineX}" fontWeight="bold" fontSize="16"/>
+				
 			</s:HGroup>
+			
+				
 		</s:BorderContainer>
 		
 		
 		<widgets:InteractiveWidget id="m_iw" width="100%" height="100%"
+								   areaChanged="onAreaChanged()"
 								   click="onMouseClick(event)">
 			<widgets:InteractiveLayerZoom id="m_ilz" zOrder="1"/>
 			<widgets:InteractiveLayerPan id="m_ilp" zOrder="2"/>
 			
 			<ogc:InteractiveLayerWFSFeatureEditor id="wfsLayer" version="{new Version(1,1,0)}" wfsEditableSelectionChange="onCurrentlyEditedFeatureSelectionChange(event)"
 												  zOrder="1000"/>
-			<widgets:InteractiveLayerReflection zOrder="2000" visible="true"/>
+			<widgets:InteractiveLayerReflection zOrder="2000" visible="false"/>
 		</widgets:InteractiveWidget>
 		
 	</s:VGroup>
@@ -245,6 +251,9 @@
 
 			[Bindable]
 			public var transactionInProgress: Boolean;
+			
+			[Bindable]
+			public var datelineX: Number;
 			
 			override protected function onCreationComplete(event: FlexEvent): void
 			{
@@ -997,6 +1006,14 @@
 				PopUpManager.centerPopUp(_loadSavePopup);
 			}
 			
+			private function onAreaChanged(): void
+			{
+				var c: Coord = new Coord("CRS:84", 180, 0);
+				var c2: Coord = new Coord("CRS:84", -180, 0);
+				var p1: Point = m_iw.coordToPoint(c); 
+				var p2: Point = m_iw.coordToPoint(c2); 
+				datelineX = p1.x; 
+			}
 			
 			//temporary JetStream functionality
 			/*
