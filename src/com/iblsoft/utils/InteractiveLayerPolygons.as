@@ -4,7 +4,7 @@ package com.iblsoft.utils
 	import com.iblsoft.flexiweather.proj.Coord;
 	import com.iblsoft.flexiweather.widgets.InteractiveLayer;
 	import com.iblsoft.flexiweather.widgets.InteractiveWidget;
-	
+
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.Graphics;
@@ -14,10 +14,10 @@ package com.iblsoft.utils
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
-	
+
 	import mx.collections.ArrayCollection;
 	import mx.core.mx_internal;
-	
+
 	import spark.primitives.Graphic;
 
 	public class InteractiveLayerPolygons extends InteractiveLayer
@@ -49,7 +49,9 @@ package com.iblsoft.utils
 
 		protected function lineToCoord(graphics: Graphics, coord: Coord): void
 		{
-			var a_coords: Array = Coord.interpolateGreatArc(m_currentCoord, coord, distanceValidator);
+			var iw: InteractiveWidget = container;
+
+			var a_coords: Array = Coord.interpolateGreatArc(m_currentCoord, coord, distanceValidator, iw.crossDatelineCoords);
 			var b_discontinuityFound: Boolean = false;
 			for each (var c: Coord in a_coords)
 			{
